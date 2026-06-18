@@ -1,0 +1,5 @@
+int string login_email_error 0x0
+int string login_password_error 0x0
+int string login_submit 0x0
+int string login_subtitle 0x0
+int string login_title 0x0

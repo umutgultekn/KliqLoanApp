@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.kliq.loanapp.domain.processing.AutoLoanStrategyTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-06-18T15:14:52.883Z" hostname="unknown6ab6b167121f.home" time="0.003">
+<testsuite name="com.kliq.loanapp.domain.processing.AutoLoanStrategyTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-06-18T16:38:18.466Z" hostname="unknown6ab6b167121f.home" time="0.059">
   <properties/>
-  <testcase name="overdue under threshold stays overdue (Vehicle Finance)" classname="com.kliq.loanapp.domain.processing.AutoLoanStrategyTest" time="0.003"/>
+  <testcase name="overdue under threshold stays overdue (Vehicle Finance)" classname="com.kliq.loanapp.domain.processing.AutoLoanStrategyTest" time="0.058"/>
   <testcase name="active not due adds 0_4" classname="com.kliq.loanapp.domain.processing.AutoLoanStrategyTest" time="0.0"/>
-  <testcase name="overdue over threshold defaults (Premium Auto Lease)" classname="com.kliq.loanapp.domain.processing.AutoLoanStrategyTest" time="0.0"/>
+  <testcase name="overdue over threshold defaults (Premium Auto Lease)" classname="com.kliq.loanapp.domain.processing.AutoLoanStrategyTest" time="0.001"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

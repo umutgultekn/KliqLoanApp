@@ -1,0 +1,7 @@
+com.kliq.loanapp.core.ui
+string kliq_error_asset_missing
+string kliq_error_auth_invalid
+string kliq_error_empty_portfolio
+string kliq_error_io
+string kliq_error_parse_failure
+string kliq_error_unknown

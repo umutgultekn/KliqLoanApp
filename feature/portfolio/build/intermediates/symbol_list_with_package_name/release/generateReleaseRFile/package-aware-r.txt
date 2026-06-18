@@ -1,0 +1,9 @@
+com.kliq.loanapp.feature.portfolio
+string filter_active
+string filter_all
+string filter_default
+string filter_overdue
+string filter_paid
+string portfolio_empty
+string portfolio_logout
+string portfolio_title

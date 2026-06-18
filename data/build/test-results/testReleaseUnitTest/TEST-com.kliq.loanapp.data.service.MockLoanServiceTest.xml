@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.kliq.loanapp.data.service.MockLoanServiceTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-06-18T16:38:34.925Z" hostname="unknown6ab6b167121f.home" time="2.327">
+  <properties/>
+  <testcase name="all four loan types are present" classname="com.kliq.loanapp.data.service.MockLoanServiceTest" time="2.3"/>
+  <testcase name="parses all 29 records" classname="com.kliq.loanapp.data.service.MockLoanServiceTest" time="0.014"/>
+  <testcase name="raw status histogram matches the source file" classname="com.kliq.loanapp.data.service.MockLoanServiceTest" time="0.013"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

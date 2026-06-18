@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="login_email_error">Please enter a valid email.</string>
+    <string name="login_password_error">Password must be at least 6 characters.</string>
+    <string name="login_submit">Sign In</string>
+    <string name="login_subtitle">Sign in to your loan portfolio</string>
+    <string name="login_title">KLIQ</string>
+</resources>

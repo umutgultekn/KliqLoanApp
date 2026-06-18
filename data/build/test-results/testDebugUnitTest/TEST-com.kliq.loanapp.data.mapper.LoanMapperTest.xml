@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.kliq.loanapp.data.mapper.LoanMapperTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-06-18T15:18:32.992Z" hostname="unknown6ab6b167121f.home" time="0.001">
+<testsuite name="com.kliq.loanapp.data.mapper.LoanMapperTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-06-18T16:38:21.862Z" hostname="unknown6ab6b167121f.home" time="0.021">
   <properties/>
-  <testcase name="unknown type is dropped" classname="com.kliq.loanapp.data.mapper.LoanMapperTest" time="0.001"/>
-  <testcase name="unknown status defaults to active" classname="com.kliq.loanapp.data.mapper.LoanMapperTest" time="0.0"/>
-  <testcase name="status parsing is case and whitespace tolerant" classname="com.kliq.loanapp.data.mapper.LoanMapperTest" time="0.0"/>
+  <testcase name="unknown type is dropped" classname="com.kliq.loanapp.data.mapper.LoanMapperTest" time="0.016"/>
+  <testcase name="unknown status defaults to active" classname="com.kliq.loanapp.data.mapper.LoanMapperTest" time="0.002"/>
+  <testcase name="status parsing is case and whitespace tolerant" classname="com.kliq.loanapp.data.mapper.LoanMapperTest" time="0.001"/>
   <testcase name="maps a well-formed dto" classname="com.kliq.loanapp.data.mapper.LoanMapperTest" time="0.0"/>
   <testcase name="missing required numeric field is dropped" classname="com.kliq.loanapp.data.mapper.LoanMapperTest" time="0.0"/>
   <system-out><![CDATA[]]></system-out>
