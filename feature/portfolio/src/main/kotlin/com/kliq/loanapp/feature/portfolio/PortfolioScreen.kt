@@ -21,7 +21,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -45,9 +44,11 @@ import com.kliq.loanapp.core.designsystem.component.EmptyState
 import com.kliq.loanapp.core.designsystem.component.KliqButton
 import com.kliq.loanapp.core.designsystem.component.KliqCard
 import com.kliq.loanapp.core.designsystem.component.KliqFilterChip
-import com.kliq.loanapp.core.designsystem.component.ShimmerBox
+import com.kliq.loanapp.core.designsystem.component.KliqText
 import com.kliq.loanapp.core.designsystem.component.KliqTextButton
+import com.kliq.loanapp.core.designsystem.component.KliqTextStyle
 import com.kliq.loanapp.core.designsystem.component.LoanCard
+import com.kliq.loanapp.core.designsystem.component.ShimmerBox
 import com.kliq.loanapp.core.designsystem.text.asString
 import com.kliq.loanapp.core.designsystem.theme.KliqTheme
 import com.kliq.loanapp.core.model.PortfolioFilter
@@ -110,10 +111,9 @@ fun PortfolioScreen(
                 modifier = Modifier.fillMaxWidth().padding(horizontal = KliqTheme.spacing.xl, vertical = KliqTheme.spacing.lg),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Text(
+                KliqText(
                     text = stringResource(R.string.portfolio_title),
-                    style = KliqTheme.typography.heading,
-                    color = colors.textPrimary,
+                    style = KliqTextStyle.Heading,
                     modifier = Modifier.weight(1f).semantics { heading() },
                 )
                 KliqTextButton(text = stringResource(R.string.portfolio_logout), onClick = onLogout)
@@ -130,7 +130,7 @@ fun PortfolioScreen(
                     PortfolioMode.Error -> CenteredBox {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             state.error?.let { err ->
-                                Text(err.asString(), style = KliqTheme.typography.body, color = colors.statusDefault)
+                                KliqText(err.asString(), style = KliqTextStyle.Body, color = colors.statusDefault)
                             }
                             Spacer(Modifier.height(KliqTheme.spacing.lg))
                             KliqButton(
@@ -198,15 +198,15 @@ private fun SummaryCard(summary: PortfolioSummaryUi) {
         shape = KliqTheme.shapes.cardLarge,
         elevation = KliqTheme.elevation.none,
     ) {
-        Text(
+        KliqText(
             text = stringResource(R.string.portfolio_total_label),
-            style = KliqTheme.typography.caption,
+            style = KliqTextStyle.Caption,
             color = colors.onPrimary.copy(alpha = 0.7f),
         )
-        Text(summary.totalText, style = KliqTheme.typography.heading, color = colors.onPrimary)
+        KliqText(summary.totalText, style = KliqTextStyle.Heading, color = colors.onPrimary)
         Spacer(Modifier.height(KliqTheme.spacing.sm))
-        Text(summary.countText.asString(), style = KliqTheme.typography.body, color = colors.onPrimary)
-        Text(summary.avgRateText.asString(), style = KliqTheme.typography.caption, color = colors.onPrimary)
+        KliqText(summary.countText.asString(), style = KliqTextStyle.Body, color = colors.onPrimary)
+        KliqText(summary.avgRateText.asString(), style = KliqTextStyle.Caption, color = colors.onPrimary)
     }
 }
 

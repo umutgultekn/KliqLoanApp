@@ -11,7 +11,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
@@ -98,11 +97,7 @@ fun FormField(
     }
 
     Column(modifier = modifier.fillMaxWidth().animateContentSize()) {
-        Text(
-            text = config.text.label.asString(),
-            style = KliqTheme.typography.caption,
-            color = colors.textSecondary,
-        )
+        KliqText(text = config.text.label.asString(), style = KliqTextStyle.Caption)
         OutlinedTextField(
             value = value,
             onValueChange = onValueChange,
@@ -126,7 +121,7 @@ fun FormField(
                 onNext = { onImeAction() },
                 onDone = { onImeAction() },
             ),
-            placeholder = { Text(config.text.placeholder.asString()) },
+            placeholder = { KliqText(config.text.placeholder.asString(), style = KliqTextStyle.Body, color = colors.textSecondary) },
             trailingIcon = trailing,
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = borderColor,
@@ -136,9 +131,9 @@ fun FormField(
         )
         val supporting = errorMessage ?: config.text.supporting
         if (supporting != null && supporting != UiText.Empty) {
-            Text(
+            KliqText(
                 text = supporting.asString(),
-                style = KliqTheme.typography.caption,
+                style = KliqTextStyle.Caption,
                 color = if (errorMessage != null) colors.statusDefault else colors.textSecondary,
                 modifier = Modifier.padding(top = KliqTheme.spacing.xs),
             )

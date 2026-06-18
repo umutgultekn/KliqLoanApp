@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Alignment
@@ -47,10 +46,9 @@ fun LoanCard(
     val colors = KliqTheme.colors
     KliqCard(modifier = modifier.semantics(mergeDescendants = true) {}) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(
+            KliqText(
                 text = config.title,
-                style = KliqTheme.typography.title,
-                color = colors.textPrimary,
+                style = KliqTextStyle.Title,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.weight(1f),
@@ -61,26 +59,21 @@ fun LoanCard(
         }
         Spacer(Modifier.height(KliqTheme.spacing.md))
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(
+            KliqText(
                 text = config.amountText,
-                style = KliqTheme.typography.amount,
-                color = colors.textPrimary,
+                style = KliqTextStyle.Amount,
                 modifier = Modifier.weight(1f),
             )
-            Text(
-                text = config.rateText.asString(),
-                style = KliqTheme.typography.caption,
-                color = colors.textSecondary,
-            )
+            KliqText(text = config.rateText.asString(), style = KliqTextStyle.Caption)
         }
         Row(
             modifier = Modifier.fillMaxWidth().padding(top = KliqTheme.spacing.sm),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text(
+            KliqText(
                 text = config.dueText.asString(),
-                style = KliqTheme.typography.caption,
+                style = KliqTextStyle.Caption,
                 color = colors.textColorFor(config.dueTone),
             )
             trailing?.invoke(this)

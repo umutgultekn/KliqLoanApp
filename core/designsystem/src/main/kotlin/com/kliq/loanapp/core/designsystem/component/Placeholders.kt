@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -48,11 +47,11 @@ fun EmptyState(
         modifier = modifier.fillMaxWidth().padding(KliqTheme.spacing.xl),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Text(text = title, style = KliqTheme.typography.title, color = KliqTheme.colors.textPrimary)
+        KliqText(text = title, style = KliqTextStyle.Title)
         Spacer(Modifier.height(KliqTheme.spacing.sm))
-        Text(
+        KliqText(
             text = message,
-            style = KliqTheme.typography.body,
+            style = KliqTextStyle.Body,
             color = KliqTheme.colors.textSecondary,
             textAlign = TextAlign.Center,
         )

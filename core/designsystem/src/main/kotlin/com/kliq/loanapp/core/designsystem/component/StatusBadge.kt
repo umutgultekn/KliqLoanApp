@@ -2,7 +2,6 @@ package com.kliq.loanapp.core.designsystem.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Modifier
@@ -22,9 +21,9 @@ data class BadgeConfig(
 
 @Composable
 fun StatusBadge(config: BadgeConfig, modifier: Modifier = Modifier) {
-    Text(
+    KliqText(
         text = config.label,
-        style = KliqTheme.typography.badge,
+        style = KliqTextStyle.Badge,
         color = KliqTheme.colors.onPrimary,
         modifier = modifier
             .clip(KliqTheme.shapes.badge)

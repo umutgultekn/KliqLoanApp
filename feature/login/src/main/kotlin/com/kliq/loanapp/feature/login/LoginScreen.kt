@@ -14,7 +14,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -40,6 +39,8 @@ import com.kliq.loanapp.core.designsystem.component.ButtonConfig
 import com.kliq.loanapp.core.designsystem.component.ButtonSize
 import com.kliq.loanapp.core.designsystem.component.EmailFormField
 import com.kliq.loanapp.core.designsystem.component.KliqButton
+import com.kliq.loanapp.core.designsystem.component.KliqText
+import com.kliq.loanapp.core.designsystem.component.KliqTextStyle
 import com.kliq.loanapp.core.designsystem.component.PasswordFormField
 import com.kliq.loanapp.core.designsystem.text.asString
 import com.kliq.loanapp.core.designsystem.theme.KliqTheme
@@ -116,13 +117,13 @@ fun LoginScreen(
                 modifier = Modifier.size(72.dp),
             )
             Spacer(Modifier.height(KliqTheme.spacing.lg))
-            Text(
+            KliqText(
                 text = stringResource(R.string.login_title),
-                style = KliqTheme.typography.heading,
+                style = KliqTextStyle.Heading,
                 color = KliqTheme.colors.primary,
                 modifier = Modifier.semantics { heading() },
             )
-            Text(text = stringResource(R.string.login_subtitle), style = KliqTheme.typography.body, color = KliqTheme.colors.textSecondary)
+            KliqText(text = stringResource(R.string.login_subtitle), style = KliqTextStyle.Body, color = KliqTheme.colors.textSecondary)
             Spacer(Modifier.height(KliqTheme.spacing.huge))
 
             EmailFormField(
