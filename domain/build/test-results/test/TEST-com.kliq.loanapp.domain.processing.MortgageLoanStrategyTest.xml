@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.kliq.loanapp.domain.processing.MortgageLoanStrategyTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-06-18T14:58:44.221Z" hostname="unknown6ab6b167121f.home" time="0.002">
+  <properties/>
+  <testcase name="overdue at minus 60 boundary stays overdue" classname="com.kliq.loanapp.domain.processing.MortgageLoanStrategyTest" time="0.001"/>
+  <testcase name="overdue beyond minus 60 defaults" classname="com.kliq.loanapp.domain.processing.MortgageLoanStrategyTest" time="0.0"/>
+  <testcase name="active not due adds 0_1" classname="com.kliq.loanapp.domain.processing.MortgageLoanStrategyTest" time="0.0"/>
+  <testcase name="active past due becomes overdue" classname="com.kliq.loanapp.domain.processing.MortgageLoanStrategyTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

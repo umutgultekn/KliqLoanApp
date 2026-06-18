@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.kliq.loanapp.domain.processing.LoanProcessorTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2026-06-18T14:58:44.208Z" hostname="unknown6ab6b167121f.home" time="0.011">
+  <properties/>
+  <testcase name="list processing maps every element" classname="com.kliq.loanapp.domain.processing.LoanProcessorTest" time="0.01"/>
+  <testcase name="terminal loans skip the strategy but are still decremented" classname="com.kliq.loanapp.domain.processing.LoanProcessorTest" time="0.0"/>
+  <testcase name="dueInDays zero takes the past-due branch then decrements" classname="com.kliq.loanapp.domain.processing.LoanProcessorTest" time="0.0"/>
+  <testcase name="processing is deliberately non-idempotent (double decrement)" classname="com.kliq.loanapp.domain.processing.LoanProcessorTest" time="0.0"/>
+  <testcase name="real record Vehicle Finance stays overdue" classname="com.kliq.loanapp.domain.processing.LoanProcessorTest" time="0.0"/>
+  <testcase name="overdue default stage sees the post-strategy post-decrement state" classname="com.kliq.loanapp.domain.processing.LoanProcessorTest" time="0.001"/>
+  <testcase name="strategy runs BEFORE the due-date decrement" classname="com.kliq.loanapp.domain.processing.LoanProcessorTest" time="0.0"/>
+  <testcase name="real record Premium Auto Lease defaults" classname="com.kliq.loanapp.domain.processing.LoanProcessorTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
