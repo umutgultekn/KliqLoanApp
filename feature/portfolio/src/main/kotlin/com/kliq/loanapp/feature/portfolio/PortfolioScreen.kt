@@ -4,6 +4,7 @@ import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -12,8 +13,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -30,6 +32,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavGraphBuilder
@@ -101,14 +106,14 @@ fun PortfolioScreen(
     ) { innerPadding ->
         Column(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
             Row(
-                modifier = Modifier.fillMaxWidth().padding(start = KliqTheme.spacing.xl, end = KliqTheme.spacing.sm, top = KliqTheme.spacing.lg),
+                modifier = Modifier.fillMaxWidth().padding(horizontal = KliqTheme.spacing.xl, vertical = KliqTheme.spacing.lg),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
                     text = stringResource(R.string.portfolio_title),
                     style = KliqTheme.typography.heading,
                     color = colors.textPrimary,
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.weight(1f).semantics { heading() },
                 )
                 KliqTextButton(text = stringResource(R.string.portfolio_logout), onClick = onLogout)
             }
@@ -153,13 +158,18 @@ fun PortfolioScreen(
                                 onRefresh = onRefresh,
                                 modifier = Modifier.fillMaxSize(),
                             ) {
-                                LazyColumn(
-                                    modifier = Modifier.fillMaxSize(),
-                                    verticalArrangement = Arrangement.spacedBy(KliqTheme.spacing.lg),
-                                    contentPadding = PaddingValues(bottom = KliqTheme.spacing.xxxl),
-                                ) {
-                                    items(state.cards, key = { it.id }) { card ->
-                                        LoanCard(config = card, modifier = Modifier.animateItem())
+                                BoxWithConstraints {
+                                    val columns = if (maxWidth >= 600.dp) 2 else 1
+                                    LazyVerticalGrid(
+                                        columns = GridCells.Fixed(columns),
+                                        modifier = Modifier.fillMaxSize(),
+                                        verticalArrangement = Arrangement.spacedBy(KliqTheme.spacing.lg),
+                                        horizontalArrangement = Arrangement.spacedBy(KliqTheme.spacing.lg),
+                                        contentPadding = PaddingValues(bottom = KliqTheme.spacing.xxxl),
+                                    ) {
+                                        items(state.cards, key = { it.id }) { card ->
+                                            LoanCard(config = card, modifier = Modifier.animateItem())
+                                        }
                                     }
                                 }
                             }
@@ -175,6 +185,7 @@ fun PortfolioScreen(
 private fun SummaryCard(summary: PortfolioSummaryUi) {
     val colors = KliqTheme.colors
     KliqCard(
+        modifier = Modifier.semantics(mergeDescendants = true) {},
         color = colors.primary,
         shape = KliqTheme.shapes.cardLarge,
         elevation = KliqTheme.elevation.none,

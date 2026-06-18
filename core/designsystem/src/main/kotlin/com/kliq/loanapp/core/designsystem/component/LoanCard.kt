@@ -13,6 +13,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.kliq.loanapp.core.common.ui.Tone
@@ -41,12 +43,14 @@ fun LoanCard(
     trailing: @Composable (RowScope.() -> Unit)? = null,
 ) {
     val colors = KliqTheme.colors
-    KliqCard(modifier = modifier) {
+    KliqCard(modifier = modifier.semantics(mergeDescendants = true) {}) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
                 text = config.title,
                 style = KliqTheme.typography.title,
                 color = colors.textPrimary,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.weight(1f),
             )
             StatusBadge(config.typeBadge)
@@ -75,7 +79,7 @@ fun LoanCard(
             Text(
                 text = config.dueText,
                 style = KliqTheme.typography.caption,
-                color = colors.colorFor(config.dueTone),
+                color = colors.textColorFor(config.dueTone),
             )
             trailing?.invoke(this)
         }
