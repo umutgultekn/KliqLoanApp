@@ -81,4 +81,9 @@ class LoanProcessorTest {
         val input = listOf(LoanFixtures.consumerCredit, LoanFixtures.vehicleFinance, LoanFixtures.commercialCredit)
         assertEquals(input.size, processor.process(input).size)
     }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun `construction fails fast when a strategy binding is missing`() {
+        LoanProcessor(mapOf(LoanType.PERSONAL to PersonalLoanStrategy()))
+    }
 }

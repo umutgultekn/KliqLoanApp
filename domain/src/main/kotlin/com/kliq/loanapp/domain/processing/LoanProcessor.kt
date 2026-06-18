@@ -20,6 +20,12 @@ class LoanProcessor @Inject constructor(
     private val stages: List<LoanStage> =
         listOf(DueDateProgressionStage, OverdueDefaultStage, SettlementStage)
 
+    init {
+        // Fail fast if a strategy binding is missing, rather than crashing on a specific loan type.
+        val missing = LoanType.entries.toSet() - strategies.keys
+        require(missing.isEmpty()) { "No LoanProcessingStrategy bound for: $missing" }
+    }
+
     fun process(loan: Loan): Loan {
         val typed = if (loan.status.isTerminal) loan else strategies.getValue(loan.type).process(loan)
         return stages.fold(typed) { acc, stage -> stage(acc) }

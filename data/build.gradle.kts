@@ -5,6 +5,10 @@ plugins {
 
 android {
     namespace = "com.kliq.loanapp.data"
+
+    defaultConfig {
+        consumerProguardFiles("consumer-rules.pro")
+    }
 }
 
 dependencies {

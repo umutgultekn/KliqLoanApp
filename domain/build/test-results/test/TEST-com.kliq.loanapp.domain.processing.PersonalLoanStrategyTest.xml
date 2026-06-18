@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.kliq.loanapp.domain.processing.PersonalLoanStrategyTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-06-18T14:58:44.223Z" hostname="unknown6ab6b167121f.home" time="0.002">
+<testsuite name="com.kliq.loanapp.domain.processing.PersonalLoanStrategyTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-06-18T15:14:52.912Z" hostname="unknown6ab6b167121f.home" time="0.001">
   <properties/>
-  <testcase name="active and not yet due adds 0_3" classname="com.kliq.loanapp.domain.processing.PersonalLoanStrategyTest" time="0.001"/>
+  <testcase name="active and not yet due adds 0_3" classname="com.kliq.loanapp.domain.processing.PersonalLoanStrategyTest" time="0.0"/>
   <testcase name="overdue with small principal stays overdue" classname="com.kliq.loanapp.domain.processing.PersonalLoanStrategyTest" time="0.0"/>
   <testcase name="overdue with large principal defaults" classname="com.kliq.loanapp.domain.processing.PersonalLoanStrategyTest" time="0.0"/>
   <testcase name="does not mutate input" classname="com.kliq.loanapp.domain.processing.PersonalLoanStrategyTest" time="0.0"/>
