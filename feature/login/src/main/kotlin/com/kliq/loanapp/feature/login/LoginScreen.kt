@@ -90,13 +90,13 @@ fun LoginScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(horizontal = 24.dp),
+                .padding(horizontal = KliqTheme.spacing.xxxl),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(text = stringResource(R.string.login_title), style = KliqTheme.typography.heading, color = KliqTheme.colors.primary)
             Text(text = stringResource(R.string.login_subtitle), style = KliqTheme.typography.body, color = KliqTheme.colors.textSecondary)
-            Spacer(Modifier.height(32.dp))
+            Spacer(Modifier.height(KliqTheme.spacing.huge))
 
             EmailFormField(
                 value = state.email,
@@ -108,7 +108,7 @@ fun LoginScreen(
                 },
                 onFocusChanged = onEmailFocusChanged,
             )
-            Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.height(KliqTheme.spacing.xl))
             PasswordFormField(
                 value = state.password,
                 state = state.passwordState,
@@ -118,7 +118,7 @@ fun LoginScreen(
                 onFocusChanged = onPasswordFocusChanged,
                 imeAction = ImeAction.Done,
             )
-            Spacer(Modifier.height(24.dp))
+            Spacer(Modifier.height(KliqTheme.spacing.xxxl))
             KliqButton(
                 config = ButtonConfig(
                     text = stringResource(R.string.login_submit),

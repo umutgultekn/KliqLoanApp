@@ -16,7 +16,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -34,7 +33,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavGraphBuilder
@@ -90,7 +88,7 @@ fun PortfolioScreen(
     ) { innerPadding ->
         Column(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
             Row(
-                modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 4.dp, top = 12.dp),
+                modifier = Modifier.fillMaxWidth().padding(start = KliqTheme.spacing.xl, end = KliqTheme.spacing.sm, top = KliqTheme.spacing.lg),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
@@ -107,11 +105,11 @@ fun PortfolioScreen(
                 state.error != null -> CenteredBox {
                     Text(state.error.asString(), style = KliqTheme.typography.body, color = colors.statusDefault)
                 }
-                else -> Column(modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp)) {
+                else -> Column(modifier = Modifier.fillMaxSize().padding(horizontal = KliqTheme.spacing.xl)) {
                     SummaryCard(state.summary)
-                    Spacer(Modifier.height(12.dp))
+                    Spacer(Modifier.height(KliqTheme.spacing.lg))
                     FilterRow(selected = state.selectedFilter, onFilterSelected = onFilterSelected)
-                    Spacer(Modifier.height(12.dp))
+                    Spacer(Modifier.height(KliqTheme.spacing.lg))
                     if (state.cards.isEmpty()) {
                         val emptyMessage = if (state.portfolioEmpty) {
                             R.string.portfolio_empty_all
@@ -123,8 +121,8 @@ fun PortfolioScreen(
                         }
                     } else {
                         LazyColumn(
-                            verticalArrangement = Arrangement.spacedBy(12.dp),
-                            contentPadding = PaddingValues(bottom = 24.dp),
+                            verticalArrangement = Arrangement.spacedBy(KliqTheme.spacing.lg),
+                            contentPadding = PaddingValues(bottom = KliqTheme.spacing.xxxl),
                         ) {
                             items(state.cards, key = { it.id }) { card -> LoanCard(config = card) }
                         }
@@ -140,12 +138,12 @@ private fun SummaryCard(summary: PortfolioSummaryUi) {
     val colors = KliqTheme.colors
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
+        shape = KliqTheme.shapes.cardLarge,
         color = colors.primary,
     ) {
-        Column(modifier = Modifier.padding(20.dp)) {
+        Column(modifier = Modifier.padding(KliqTheme.spacing.xxl)) {
             Text(summary.totalText, style = KliqTheme.typography.heading, color = colors.onPrimary)
-            Spacer(Modifier.height(4.dp))
+            Spacer(Modifier.height(KliqTheme.spacing.sm))
             Text(summary.countText, style = KliqTheme.typography.body, color = colors.onPrimary)
             Text(summary.avgRateText, style = KliqTheme.typography.caption, color = colors.onPrimary)
         }
@@ -156,7 +154,7 @@ private fun SummaryCard(summary: PortfolioSummaryUi) {
 private fun FilterRow(selected: PortfolioFilter, onFilterSelected: (PortfolioFilter) -> Unit) {
     Row(
         modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalArrangement = Arrangement.spacedBy(KliqTheme.spacing.md),
     ) {
         PortfolioFilter.entries.forEach { filter ->
             FilterChip(
@@ -176,10 +174,10 @@ private fun FilterChip(label: String, isSelected: Boolean, onClick: () -> Unit) 
         style = KliqTheme.typography.caption,
         color = if (isSelected) colors.onPrimary else colors.textPrimary,
         modifier = Modifier
-            .clip(RoundedCornerShape(20.dp))
+            .clip(KliqTheme.shapes.pill)
             .background(if (isSelected) colors.primary else colors.surface)
             .selectable(selected = isSelected, role = Role.Tab, onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 8.dp),
+            .padding(horizontal = KliqTheme.spacing.xl, vertical = KliqTheme.spacing.md),
     )
 }
 

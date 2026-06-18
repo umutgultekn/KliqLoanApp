@@ -139,7 +139,7 @@ fun FormField(
                 text = supporting.asString(),
                 style = KliqTheme.typography.caption,
                 color = if (errorMessage != null) colors.statusDefault else colors.textSecondary,
-                modifier = Modifier.padding(top = 2.dp),
+                modifier = Modifier.padding(top = KliqTheme.spacing.xs),
             )
         }
     }

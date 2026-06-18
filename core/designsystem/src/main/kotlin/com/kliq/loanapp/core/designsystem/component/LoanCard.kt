@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -50,11 +49,11 @@ fun LoanCard(
         modifier = modifier
             .fillMaxWidth()
             .let { if (onClick != null) it.clickable(onClick = onClick) else it },
-        shape = RoundedCornerShape(12.dp),
+        shape = KliqTheme.shapes.card,
         color = colors.surface,
-        shadowElevation = 1.dp,
+        shadowElevation = KliqTheme.elevation.card,
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
+        Column(modifier = Modifier.padding(KliqTheme.spacing.xl)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = config.title,
@@ -63,14 +62,14 @@ fun LoanCard(
                     modifier = Modifier.weight(1f),
                 )
                 StatusBadge(config.typeBadge)
-                Spacer(Modifier.width(6.dp))
+                Spacer(Modifier.width(KliqTheme.spacing.md))
                 StatusBadge(config.statusBadge)
             }
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(KliqTheme.spacing.md))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = config.amountText,
-                    style = KliqTheme.typography.title,
+                    style = KliqTheme.typography.amount,
                     color = colors.textPrimary,
                     modifier = Modifier.weight(1f),
                 )
@@ -81,7 +80,7 @@ fun LoanCard(
                 )
             }
             Row(
-                modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
+                modifier = Modifier.fillMaxWidth().padding(top = KliqTheme.spacing.sm),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {

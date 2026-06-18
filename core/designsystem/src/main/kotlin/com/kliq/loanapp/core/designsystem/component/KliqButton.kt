@@ -58,7 +58,7 @@ fun KliqButton(
                 color = contentColor,
             )
         } else {
-            Text(text = config.text, style = KliqTheme.typography.title)
+            Text(text = config.text, style = KliqTheme.typography.label)
         }
     }
 }
