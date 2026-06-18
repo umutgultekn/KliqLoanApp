@@ -1,5 +1,9 @@
 package com.kliq.loanapp
 
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.CircularProgressIndicator
@@ -37,6 +41,10 @@ fun KliqApp(navigator: Navigator, startLoggedIn: Boolean) {
     NavHost(
         navController = navController,
         startDestination = if (startLoggedIn) KliqRoute.Portfolio else KliqRoute.Login,
+        enterTransition = { fadeIn() + slideInHorizontally { it / 8 } },
+        exitTransition = { fadeOut() },
+        popEnterTransition = { fadeIn() },
+        popExitTransition = { fadeOut() + slideOutHorizontally { it / 8 } },
     ) {
         loginScreen()
         portfolioScreen()

@@ -1,5 +1,6 @@
 package com.kliq.loanapp.core.designsystem.component
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -96,7 +97,7 @@ fun FormField(
         FieldUiState.Idle -> colors.border
     }
 
-    Column(modifier = modifier.fillMaxWidth()) {
+    Column(modifier = modifier.fillMaxWidth().animateContentSize()) {
         Text(
             text = config.text.label.asString(),
             style = KliqTheme.typography.caption,

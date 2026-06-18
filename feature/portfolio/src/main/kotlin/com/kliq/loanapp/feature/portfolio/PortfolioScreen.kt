@@ -1,5 +1,6 @@
 package com.kliq.loanapp.feature.portfolio
 
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -48,6 +49,8 @@ import com.kliq.loanapp.core.ui.ObserveAsEvents
 import com.kliq.loanapp.core.ui.UiEvent
 import com.kliq.loanapp.core.ui.mapper.PortfolioSummaryUi
 import kotlinx.coroutines.launch
+
+private enum class PortfolioMode { Loading, Error, Content }
 
 fun NavGraphBuilder.portfolioScreen() {
     composable<KliqRoute.Portfolio> { PortfolioRoute() }
@@ -110,44 +113,55 @@ fun PortfolioScreen(
                 KliqTextButton(text = stringResource(R.string.portfolio_logout), onClick = onLogout)
             }
 
-            when {
-                state.isLoading -> CenteredBox { CircularProgressIndicator(color = colors.primary) }
-                state.error != null -> CenteredBox {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(state.error.asString(), style = KliqTheme.typography.body, color = colors.statusDefault)
-                        Spacer(Modifier.height(KliqTheme.spacing.lg))
-                        KliqButton(
-                            config = ButtonConfig(text = stringResource(R.string.portfolio_retry), style = ButtonStyle.Secondary),
-                            onClick = onRetry,
-                        )
+            val mode = when {
+                state.isLoading -> PortfolioMode.Loading
+                state.error != null -> PortfolioMode.Error
+                else -> PortfolioMode.Content
+            }
+            Crossfade(targetState = mode, label = "portfolioMode") { current ->
+                when (current) {
+                    PortfolioMode.Loading -> CenteredBox { CircularProgressIndicator(color = colors.primary) }
+                    PortfolioMode.Error -> CenteredBox {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            state.error?.let { err ->
+                                Text(err.asString(), style = KliqTheme.typography.body, color = colors.statusDefault)
+                            }
+                            Spacer(Modifier.height(KliqTheme.spacing.lg))
+                            KliqButton(
+                                config = ButtonConfig(text = stringResource(R.string.portfolio_retry), style = ButtonStyle.Secondary),
+                                onClick = onRetry,
+                            )
+                        }
                     }
-                }
-                else -> Column(modifier = Modifier.fillMaxSize().padding(horizontal = KliqTheme.spacing.xl)) {
-                    SummaryCard(state.summary)
-                    Spacer(Modifier.height(KliqTheme.spacing.lg))
-                    FilterRow(selected = state.selectedFilter, onFilterSelected = onFilterSelected)
-                    Spacer(Modifier.height(KliqTheme.spacing.lg))
-                    if (state.cards.isEmpty()) {
-                        val emptyMessage = if (state.portfolioEmpty) {
-                            R.string.portfolio_empty_all
+                    PortfolioMode.Content -> Column(modifier = Modifier.fillMaxSize().padding(horizontal = KliqTheme.spacing.xl)) {
+                        SummaryCard(state.summary)
+                        Spacer(Modifier.height(KliqTheme.spacing.lg))
+                        FilterRow(selected = state.selectedFilter, onFilterSelected = onFilterSelected)
+                        Spacer(Modifier.height(KliqTheme.spacing.lg))
+                        if (state.cards.isEmpty()) {
+                            val emptyMessage = if (state.portfolioEmpty) {
+                                R.string.portfolio_empty_all
+                            } else {
+                                R.string.portfolio_empty_filter
+                            }
+                            CenteredBox {
+                                Text(stringResource(emptyMessage), style = KliqTheme.typography.body, color = colors.textSecondary)
+                            }
                         } else {
-                            R.string.portfolio_empty_filter
-                        }
-                        CenteredBox {
-                            Text(stringResource(emptyMessage), style = KliqTheme.typography.body, color = colors.textSecondary)
-                        }
-                    } else {
-                        PullToRefreshBox(
-                            isRefreshing = state.isRefreshing,
-                            onRefresh = onRefresh,
-                            modifier = Modifier.fillMaxSize(),
-                        ) {
-                            LazyColumn(
+                            PullToRefreshBox(
+                                isRefreshing = state.isRefreshing,
+                                onRefresh = onRefresh,
                                 modifier = Modifier.fillMaxSize(),
-                                verticalArrangement = Arrangement.spacedBy(KliqTheme.spacing.lg),
-                                contentPadding = PaddingValues(bottom = KliqTheme.spacing.xxxl),
                             ) {
-                                items(state.cards, key = { it.id }) { card -> LoanCard(config = card) }
+                                LazyColumn(
+                                    modifier = Modifier.fillMaxSize(),
+                                    verticalArrangement = Arrangement.spacedBy(KliqTheme.spacing.lg),
+                                    contentPadding = PaddingValues(bottom = KliqTheme.spacing.xxxl),
+                                ) {
+                                    items(state.cards, key = { it.id }) { card ->
+                                        LoanCard(config = card, modifier = Modifier.animateItem())
+                                    }
+                                }
                             }
                         }
                     }
