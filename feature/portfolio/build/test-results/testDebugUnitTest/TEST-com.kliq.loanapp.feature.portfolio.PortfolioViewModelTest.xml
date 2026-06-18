@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.kliq.loanapp.feature.portfolio.PortfolioViewModelTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-06-18T16:31:52.075Z" hostname="unknown6ab6b167121f.home" time="0.099">
+  <properties/>
+  <testcase name="loads all processed loans" classname="com.kliq.loanapp.feature.portfolio.PortfolioViewModelTest" time="0.092"/>
+  <testcase name="logout clears the session and navigates to login" classname="com.kliq.loanapp.feature.portfolio.PortfolioViewModelTest" time="0.003"/>
+  <testcase name="selecting a status filter narrows the list" classname="com.kliq.loanapp.feature.portfolio.PortfolioViewModelTest" time="0.003"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
