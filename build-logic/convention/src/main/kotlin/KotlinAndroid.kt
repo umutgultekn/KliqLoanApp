@@ -54,6 +54,10 @@ internal fun Project.configureAndroidCompose(
         val bom = libs.findLibrary("androidx-compose-bom").get()
         add("implementation", platform(bom))
         add("androidTestImplementation", platform(bom))
+        // Declare the Compose core explicitly so no compose module relies on transitive resolution.
+        add("implementation", libs.findLibrary("androidx-compose-runtime").get())
+        add("implementation", libs.findLibrary("androidx-compose-ui").get())
+        add("implementation", libs.findLibrary("androidx-compose-foundation").get())
         add("implementation", libs.findLibrary("androidx-compose-ui-tooling-preview").get())
         add("debugImplementation", libs.findLibrary("androidx-compose-ui-tooling").get())
     }
