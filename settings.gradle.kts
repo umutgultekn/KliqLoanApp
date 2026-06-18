@@ -1,4 +1,5 @@
 pluginManagement {
+    includeBuild("build-logic")
     repositories {
         google()
         mavenCentral()
@@ -20,3 +21,12 @@ dependencyResolutionManagement {
 rootProject.name = "KliqLoanApp"
 
 include(":app")
+include(":core:model")
+include(":core:common")
+include(":domain")
+include(":data")
+include(":core:designsystem")
+include(":core:ui")
+include(":feature:login")
+include(":feature:portfolio")
+include(":core:testing")
