@@ -4,6 +4,7 @@
     <string name="portfolio_logout">Log out</string>
     <string name="portfolio_empty_all">No loans in your portfolio yet.</string>
     <string name="portfolio_empty_filter">No loans match this filter.</string>
+    <string name="portfolio_retry">Retry</string>
     <string name="filter_all">All</string>
     <string name="filter_active">Active</string>
     <string name="filter_overdue">Overdue</string>

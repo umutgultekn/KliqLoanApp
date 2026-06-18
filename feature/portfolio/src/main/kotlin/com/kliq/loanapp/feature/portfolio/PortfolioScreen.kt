@@ -15,10 +15,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -32,6 +34,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import com.kliq.loanapp.core.common.navigation.KliqRoute
+import com.kliq.loanapp.core.designsystem.component.ButtonConfig
+import com.kliq.loanapp.core.designsystem.component.ButtonStyle
+import com.kliq.loanapp.core.designsystem.component.KliqButton
 import com.kliq.loanapp.core.designsystem.component.KliqCard
 import com.kliq.loanapp.core.designsystem.component.KliqFilterChip
 import com.kliq.loanapp.core.designsystem.component.KliqTextButton
@@ -58,7 +63,10 @@ fun PortfolioRoute(viewModel: PortfolioViewModel = hiltViewModel()) {
     ObserveAsEvents(viewModel.events) { event ->
         when (event) {
             is UiEvent.ShowSnackbar -> scope.launch {
-                snackbarHostState.showSnackbar(event.message.asString(context))
+                snackbarHostState.showSnackbar(
+                    message = event.message.asString(context),
+                    actionLabel = event.actionLabel?.asString(context),
+                )
             }
         }
     }
@@ -67,15 +75,20 @@ fun PortfolioRoute(viewModel: PortfolioViewModel = hiltViewModel()) {
         state = state,
         snackbarHostState = snackbarHostState,
         onFilterSelected = viewModel::onFilterSelected,
+        onRetry = viewModel::onRetry,
+        onRefresh = viewModel::onRefresh,
         onLogout = viewModel::onLogout,
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PortfolioScreen(
     state: PortfolioUiState,
     snackbarHostState: SnackbarHostState,
     onFilterSelected: (PortfolioFilter) -> Unit,
+    onRetry: () -> Unit,
+    onRefresh: () -> Unit,
     onLogout: () -> Unit,
 ) {
     val colors = KliqTheme.colors
@@ -100,7 +113,14 @@ fun PortfolioScreen(
             when {
                 state.isLoading -> CenteredBox { CircularProgressIndicator(color = colors.primary) }
                 state.error != null -> CenteredBox {
-                    Text(state.error.asString(), style = KliqTheme.typography.body, color = colors.statusDefault)
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(state.error.asString(), style = KliqTheme.typography.body, color = colors.statusDefault)
+                        Spacer(Modifier.height(KliqTheme.spacing.lg))
+                        KliqButton(
+                            config = ButtonConfig(text = stringResource(R.string.portfolio_retry), style = ButtonStyle.Secondary),
+                            onClick = onRetry,
+                        )
+                    }
                 }
                 else -> Column(modifier = Modifier.fillMaxSize().padding(horizontal = KliqTheme.spacing.xl)) {
                     SummaryCard(state.summary)
@@ -117,11 +137,18 @@ fun PortfolioScreen(
                             Text(stringResource(emptyMessage), style = KliqTheme.typography.body, color = colors.textSecondary)
                         }
                     } else {
-                        LazyColumn(
-                            verticalArrangement = Arrangement.spacedBy(KliqTheme.spacing.lg),
-                            contentPadding = PaddingValues(bottom = KliqTheme.spacing.xxxl),
+                        PullToRefreshBox(
+                            isRefreshing = state.isRefreshing,
+                            onRefresh = onRefresh,
+                            modifier = Modifier.fillMaxSize(),
                         ) {
-                            items(state.cards, key = { it.id }) { card -> LoanCard(config = card) }
+                            LazyColumn(
+                                modifier = Modifier.fillMaxSize(),
+                                verticalArrangement = Arrangement.spacedBy(KliqTheme.spacing.lg),
+                                contentPadding = PaddingValues(bottom = KliqTheme.spacing.xxxl),
+                            ) {
+                                items(state.cards, key = { it.id }) { card -> LoanCard(config = card) }
+                            }
                         }
                     }
                 }

@@ -19,6 +19,7 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -103,6 +104,21 @@ class PortfolioViewModelTest {
         )
         assertEquals(PortfolioFilter.ACTIVE, vm.uiState.value.selectedFilter)
         assertEquals(1, vm.uiState.value.cards.size)
+    }
+
+    @Test
+    fun `retry recovers from a load error`() = runTest {
+        val repo = FakeLoanRepository(Result.failure(AppError.AssetMissing))
+        val vm = PortfolioViewModel(
+            GetProcessedPortfolioUseCase(repo, testLoanProcessor()), mapper, session, navigator, SavedStateHandle(),
+        )
+        assertNotNull(vm.uiState.value.error)
+
+        repo.result = Result.success(sample)
+        vm.onRetry()
+
+        assertNull(vm.uiState.value.error)
+        assertEquals(3, vm.uiState.value.cards.size)
     }
 
     @Test

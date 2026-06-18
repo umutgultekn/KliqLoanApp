@@ -15,13 +15,11 @@ import com.kliq.loanapp.core.ui.mapper.LoanPresentationMapper
 import com.kliq.loanapp.domain.repository.SessionRepository
 import com.kliq.loanapp.domain.usecase.GetProcessedPortfolioUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
 @HiltViewModel
@@ -36,12 +34,13 @@ class PortfolioViewModel @Inject constructor(
     // Persisted across process death; the selected filter survives restoration.
     private val selectedFilter = savedStateHandle.getStateFlow(KEY_FILTER, PortfolioFilter.ALL)
 
-    // Loaded once; processing always runs on the freshly-fetched raw list (deterministic).
-    private val loadState: StateFlow<LoadState> = flow { emit(loadOnce()) }
-        .stateIn(viewModelScope, SharingStarted.Eagerly, LoadState.Loading)
+    // Processing always runs on the freshly-fetched raw list (deterministic across reloads).
+    private val loadState = MutableStateFlow<LoadState>(LoadState.Loading)
+    private val refreshing = MutableStateFlow(false)
 
     init {
-        combine(loadState, selectedFilter, ::reduce)
+        reload(showLoading = true)
+        combine(loadState, selectedFilter, refreshing, ::reduce)
             .onEach { state -> setState { state } }
             .launchIn(viewModelScope)
     }
@@ -50,9 +49,21 @@ class PortfolioViewModel @Inject constructor(
         savedStateHandle[KEY_FILTER] = filter
     }
 
+    /** Full reload with a loading state — used by the error-state retry button. */
+    fun onRetry() = reload(showLoading = true)
+
+    /** Background reload that keeps the current content — used by pull-to-refresh. */
+    fun onRefresh() = reload(showLoading = false)
+
     fun onLogout() = launchSafe {
         sessionRepository.setLoggedIn(false)
         navigator.navigate(NavCommand.To(KliqRoute.Login, popUpTo = KliqRoute.Portfolio, inclusive = true))
+    }
+
+    private fun reload(showLoading: Boolean): Job = launchSafe {
+        if (showLoading) loadState.value = LoadState.Loading else refreshing.value = true
+        loadState.value = loadOnce()
+        refreshing.value = false
     }
 
     private suspend fun loadOnce(): LoadState = getProcessedPortfolio().fold(
@@ -60,22 +71,28 @@ class PortfolioViewModel @Inject constructor(
         onFailure = { LoadState.Error(it.toAppError()) },
     )
 
-    private fun reduce(load: LoadState, filter: PortfolioFilter): PortfolioUiState = when (load) {
-        LoadState.Loading -> PortfolioUiState(isLoading = true, selectedFilter = filter)
-        is LoadState.Error -> PortfolioUiState(isLoading = false, error = load.error.asUiText(), selectedFilter = filter)
-        is LoadState.Success -> {
-            val filtered = load.loans.filter(filter::matches)
-            PortfolioUiState(
+    private fun reduce(load: LoadState, filter: PortfolioFilter, isRefreshing: Boolean): PortfolioUiState =
+        when (load) {
+            LoadState.Loading -> PortfolioUiState(isLoading = true, selectedFilter = filter)
+            is LoadState.Error -> PortfolioUiState(
                 isLoading = false,
-                cards = mapper.toCards(filtered),
-                // The summary card reflects the WHOLE portfolio, not the current filter — the filter
-                // only narrows the list below it.
-                summary = mapper.summary(load.loans),
+                error = load.error.asUiText(),
                 selectedFilter = filter,
-                portfolioEmpty = load.loans.isEmpty(),
+                isRefreshing = isRefreshing,
             )
+            is LoadState.Success -> {
+                val filtered = load.loans.filter(filter::matches)
+                PortfolioUiState(
+                    isLoading = false,
+                    cards = mapper.toCards(filtered),
+                    // The summary card reflects the WHOLE portfolio; the filter only narrows the list.
+                    summary = mapper.summary(load.loans),
+                    selectedFilter = filter,
+                    portfolioEmpty = load.loans.isEmpty(),
+                    isRefreshing = isRefreshing,
+                )
+            }
         }
-    }
 
     private sealed interface LoadState {
         data object Loading : LoadState

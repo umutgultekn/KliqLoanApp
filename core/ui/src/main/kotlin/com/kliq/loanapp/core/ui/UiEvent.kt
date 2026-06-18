@@ -7,5 +7,5 @@ import com.kliq.loanapp.core.common.text.UiText
  * [com.kliq.loanapp.core.common.navigation.Navigator] channel, keeping one source of nav truth.
  */
 sealed interface UiEvent {
-    data class ShowSnackbar(val message: UiText) : UiEvent
+    data class ShowSnackbar(val message: UiText, val actionLabel: UiText? = null) : UiEvent
 }
