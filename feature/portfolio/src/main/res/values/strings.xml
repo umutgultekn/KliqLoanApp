@@ -2,8 +2,12 @@
 <resources>
     <string name="portfolio_title">Loan Portfolio</string>
     <string name="portfolio_logout">Log out</string>
+    <string name="portfolio_empty_all_title">Your portfolio is empty</string>
     <string name="portfolio_empty_all">No loans in your portfolio yet.</string>
+    <string name="portfolio_empty_filter_title">No matches</string>
     <string name="portfolio_empty_filter">No loans match this filter.</string>
+    <string name="portfolio_show_all">Show all</string>
+    <string name="portfolio_total_label">Portfolio total</string>
     <string name="portfolio_retry">Retry</string>
     <string name="filter_all">All</string>
     <string name="filter_active">Active</string>

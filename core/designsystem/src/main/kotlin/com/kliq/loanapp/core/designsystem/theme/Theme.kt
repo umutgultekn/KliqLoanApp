@@ -1,8 +1,10 @@
 package com.kliq.loanapp.core.designsystem.theme
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Shapes
 import androidx.compose.material3.Typography
+import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -48,7 +50,8 @@ object KliqTheme {
 
 @Composable
 fun KliqTheme(
-    colors: KliqColorScheme = KliqLightColors,
+    darkTheme: Boolean = isSystemInDarkTheme(),
+    colors: KliqColorScheme = if (darkTheme) KliqDarkColors else KliqLightColors,
     typography: KliqTypography = KliqDefaultTypography,
     spacing: KliqSpacing = KliqDefaultSpacing,
     shapes: KliqShapes = KliqDefaultShapes,
@@ -63,7 +66,7 @@ fun KliqTheme(
         LocalKliqElevation provides elevation,
     ) {
         MaterialTheme(
-            colorScheme = colors.toMaterialColorScheme(),
+            colorScheme = colors.toMaterialColorScheme(darkTheme),
             typography = typography.toMaterialTypography(),
             shapes = Shapes(
                 extraSmall = shapes.badge,
@@ -76,18 +79,33 @@ fun KliqTheme(
     }
 }
 
-private fun KliqColorScheme.toMaterialColorScheme() = lightColorScheme(
-    primary = primary,
-    onPrimary = onPrimary,
-    background = background,
-    onBackground = textPrimary,
-    surface = surface,
-    onSurface = textPrimary,
-    onSurfaceVariant = textSecondary,
-    outline = border,
-    error = statusDefault,
-    onError = onPrimary,
-)
+private fun KliqColorScheme.toMaterialColorScheme(dark: Boolean) = if (dark) {
+    darkColorScheme(
+        primary = primary,
+        onPrimary = onPrimary,
+        background = background,
+        onBackground = textPrimary,
+        surface = surface,
+        onSurface = textPrimary,
+        onSurfaceVariant = textSecondary,
+        outline = border,
+        error = statusDefault,
+        onError = onPrimary,
+    )
+} else {
+    lightColorScheme(
+        primary = primary,
+        onPrimary = onPrimary,
+        background = background,
+        onBackground = textPrimary,
+        surface = surface,
+        onSurface = textPrimary,
+        onSurfaceVariant = textSecondary,
+        outline = border,
+        error = statusDefault,
+        onError = onPrimary,
+    )
+}
 
 private fun KliqTypography.toMaterialTypography() = Typography(
     headlineLarge = heading,

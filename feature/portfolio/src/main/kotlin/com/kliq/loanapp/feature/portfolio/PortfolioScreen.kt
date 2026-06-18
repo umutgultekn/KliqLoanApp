@@ -17,7 +17,6 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -42,9 +41,11 @@ import androidx.navigation.compose.composable
 import com.kliq.loanapp.core.common.navigation.KliqRoute
 import com.kliq.loanapp.core.designsystem.component.ButtonConfig
 import com.kliq.loanapp.core.designsystem.component.ButtonStyle
+import com.kliq.loanapp.core.designsystem.component.EmptyState
 import com.kliq.loanapp.core.designsystem.component.KliqButton
 import com.kliq.loanapp.core.designsystem.component.KliqCard
 import com.kliq.loanapp.core.designsystem.component.KliqFilterChip
+import com.kliq.loanapp.core.designsystem.component.ShimmerBox
 import com.kliq.loanapp.core.designsystem.component.KliqTextButton
 import com.kliq.loanapp.core.designsystem.component.LoanCard
 import com.kliq.loanapp.core.designsystem.text.asString
@@ -125,7 +126,7 @@ fun PortfolioScreen(
             }
             Crossfade(targetState = mode, label = "portfolioMode") { current ->
                 when (current) {
-                    PortfolioMode.Loading -> CenteredBox { CircularProgressIndicator(color = colors.primary) }
+                    PortfolioMode.Loading -> PortfolioSkeleton()
                     PortfolioMode.Error -> CenteredBox {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             state.error?.let { err ->
@@ -144,13 +145,20 @@ fun PortfolioScreen(
                         FilterRow(selected = state.selectedFilter, onFilterSelected = onFilterSelected)
                         Spacer(Modifier.height(KliqTheme.spacing.lg))
                         if (state.cards.isEmpty()) {
-                            val emptyMessage = if (state.portfolioEmpty) {
-                                R.string.portfolio_empty_all
-                            } else {
-                                R.string.portfolio_empty_filter
-                            }
                             CenteredBox {
-                                Text(stringResource(emptyMessage), style = KliqTheme.typography.body, color = colors.textSecondary)
+                                if (state.portfolioEmpty) {
+                                    EmptyState(
+                                        title = stringResource(R.string.portfolio_empty_all_title),
+                                        message = stringResource(R.string.portfolio_empty_all),
+                                    )
+                                } else {
+                                    EmptyState(
+                                        title = stringResource(R.string.portfolio_empty_filter_title),
+                                        message = stringResource(R.string.portfolio_empty_filter),
+                                        actionLabel = stringResource(R.string.portfolio_show_all),
+                                        onAction = { onFilterSelected(PortfolioFilter.ALL) },
+                                    )
+                                }
                             }
                         } else {
                             PullToRefreshBox(
@@ -190,10 +198,27 @@ private fun SummaryCard(summary: PortfolioSummaryUi) {
         shape = KliqTheme.shapes.cardLarge,
         elevation = KliqTheme.elevation.none,
     ) {
+        Text(
+            text = stringResource(R.string.portfolio_total_label),
+            style = KliqTheme.typography.caption,
+            color = colors.onPrimary.copy(alpha = 0.7f),
+        )
         Text(summary.totalText, style = KliqTheme.typography.heading, color = colors.onPrimary)
         Spacer(Modifier.height(KliqTheme.spacing.sm))
         Text(summary.countText, style = KliqTheme.typography.body, color = colors.onPrimary)
         Text(summary.avgRateText, style = KliqTheme.typography.caption, color = colors.onPrimary)
+    }
+}
+
+@Composable
+private fun PortfolioSkeleton() {
+    Column(modifier = Modifier.fillMaxSize().padding(horizontal = KliqTheme.spacing.xl)) {
+        ShimmerBox(modifier = Modifier.fillMaxWidth().height(96.dp), shape = KliqTheme.shapes.cardLarge)
+        Spacer(Modifier.height(KliqTheme.spacing.lg))
+        repeat(4) {
+            ShimmerBox(modifier = Modifier.fillMaxWidth().height(88.dp))
+            Spacer(Modifier.height(KliqTheme.spacing.lg))
+        }
     }
 }
 

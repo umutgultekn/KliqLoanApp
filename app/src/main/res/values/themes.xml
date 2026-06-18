@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.KliqLoanApp" parent="Theme.Material3.Light.NoActionBar">
-        <item name="colorPrimary">@color/primary_navy</item>
-        <item name="android:statusBarColor">@color/primary_navy</item>
+    <!-- Minimal launch theme; all in-app colors come from KliqTheme (Compose). DayNight + a
+         night windowBackground (values-night) only avoid a light flash before Compose draws. -->
+    <style name="Theme.KliqLoanApp" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="android:windowBackground">@color/screen_bg</item>
     </style>
 </resources>

@@ -75,3 +75,24 @@ val KliqLightColors = KliqColorScheme(
     typeAuto = Color(0xFF33998F),
     typeBusiness = Color(0xFF945724),
 )
+
+val KliqDarkColors = KliqColorScheme(
+    primary = Color(0xFF3D5A99),
+    onPrimary = Color(0xFFFFFFFF),
+    background = Color(0xFF121218),
+    surface = Color(0xFF1E1E28),
+    textPrimary = Color(0xFFECECF1),
+    textSecondary = Color(0xFF9A9AA5),
+    border = Color(0xFF3A3A46),
+    statusActive = Color(0xFF3DD68C),
+    statusOverdue = Color(0xFFFFB23E),
+    statusDefault = Color(0xFFFF6B66),
+    statusPaid = Color(0xFF8C8C94),
+    statusActiveText = Color(0xFF4FD992),
+    statusOverdueText = Color(0xFFFFC061),
+    statusDefaultText = Color(0xFFFF7B76),
+    typePersonal = Color(0xFF8FA8DC),
+    typeMortgage = Color(0xFF5FB8D6),
+    typeAuto = Color(0xFF5FC7BC),
+    typeBusiness = Color(0xFFC79A6B),
+)
