@@ -1,11 +1,16 @@
 package com.kliq.loanapp.feature.login
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -18,8 +23,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavGraphBuilder
@@ -80,6 +90,11 @@ fun LoginScreen(
     onSubmit: () -> Unit,
 ) {
     val passwordFocusRequester = remember { FocusRequester() }
+    val focusManager = LocalFocusManager.current
+    val submit = {
+        focusManager.clearFocus()
+        onSubmit()
+    }
 
     Scaffold(
         containerColor = KliqTheme.colors.background,
@@ -89,11 +104,24 @@ fun LoginScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
+                .verticalScroll(rememberScrollState())
+                .imePadding()
                 .padding(horizontal = KliqTheme.spacing.xxxl),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Text(text = stringResource(R.string.login_title), style = KliqTheme.typography.heading, color = KliqTheme.colors.primary)
+            Image(
+                painter = painterResource(R.drawable.kliq_logo),
+                contentDescription = null,
+                modifier = Modifier.size(72.dp),
+            )
+            Spacer(Modifier.height(KliqTheme.spacing.lg))
+            Text(
+                text = stringResource(R.string.login_title),
+                style = KliqTheme.typography.heading,
+                color = KliqTheme.colors.primary,
+                modifier = Modifier.semantics { heading() },
+            )
             Text(text = stringResource(R.string.login_subtitle), style = KliqTheme.typography.body, color = KliqTheme.colors.textSecondary)
             Spacer(Modifier.height(KliqTheme.spacing.huge))
 
@@ -112,7 +140,7 @@ fun LoginScreen(
                 value = state.password,
                 state = state.passwordState,
                 onValueChange = onPasswordChange,
-                onImeAction = onSubmit,
+                onImeAction = submit,
                 focusRequester = passwordFocusRequester,
                 onFocusChanged = onPasswordFocusChanged,
                 imeAction = ImeAction.Done,
@@ -126,7 +154,7 @@ fun LoginScreen(
                     enabled = state.submitEnabled,
                     loading = state.isSubmitting,
                 ),
-                onClick = onSubmit,
+                onClick = submit,
             )
         }
     }
