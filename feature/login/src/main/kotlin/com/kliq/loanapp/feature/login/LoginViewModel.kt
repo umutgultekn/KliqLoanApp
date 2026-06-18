@@ -90,6 +90,7 @@ class LoginViewModel @Inject constructor(
         setState { copy(isSubmitting = true) }
         authRepository.login(currentState.email, currentState.password)
             .onSuccess {
+                setState { copy(isSubmitting = false) }
                 navigator.navigate(
                     NavCommand.To(KliqRoute.Portfolio, popUpTo = KliqRoute.Login, inclusive = true),
                 )

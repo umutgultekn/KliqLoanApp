@@ -24,6 +24,10 @@ class LoanProcessor @Inject constructor(
         // Fail fast if a strategy binding is missing, rather than crashing on a specific loan type.
         val missing = LoanType.entries.toSet() - strategies.keys
         require(missing.isEmpty()) { "No LoanProcessingStrategy bound for: $missing" }
+        // Guard against a strategy being bound under the wrong map key.
+        strategies.forEach { (key, strategy) ->
+            require(strategy.type == key) { "Strategy for $key declares type ${strategy.type}" }
+        }
     }
 
     fun process(loan: Loan): Loan {

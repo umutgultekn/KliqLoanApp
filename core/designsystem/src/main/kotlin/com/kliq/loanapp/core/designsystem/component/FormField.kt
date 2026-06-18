@@ -4,7 +4,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
@@ -204,7 +205,7 @@ fun PasswordFormField(
         trailing = {
             IconButton(onClick = { visible = !visible }) {
                 Icon(
-                    imageVector = Icons.Filled.Lock,
+                    imageVector = if (visible) Icons.Filled.VisibilityOff else Icons.Filled.Visibility,
                     contentDescription = stringResource(
                         if (visible) R.string.kliq_action_hide_password else R.string.kliq_action_show_password,
                     ),

@@ -1,6 +1,0 @@
-int string kliq_error_asset_missing 0x0
-int string kliq_error_auth_invalid 0x0
-int string kliq_error_empty_portfolio 0x0
-int string kliq_error_io 0x0
-int string kliq_error_parse_failure 0x0
-int string kliq_error_unknown 0x0

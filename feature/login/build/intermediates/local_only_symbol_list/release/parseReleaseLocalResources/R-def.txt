@@ -1,7 +1,0 @@
-R_DEF: Internal format may change without notice
-local
-string login_email_error
-string login_password_error
-string login_submit
-string login_subtitle
-string login_title

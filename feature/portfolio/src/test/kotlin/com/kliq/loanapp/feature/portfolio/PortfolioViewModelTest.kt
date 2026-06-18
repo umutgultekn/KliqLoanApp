@@ -63,6 +63,18 @@ class PortfolioViewModelTest {
     }
 
     @Test
+    fun `summary reflects the whole portfolio regardless of the active filter`() = runTest {
+        val vm = viewModel(sample)
+        val fullSummary = vm.uiState.value.summary.countText
+        assertEquals("3 loans in portfolio", fullSummary)
+
+        vm.onFilterSelected(PortfolioFilter.ACTIVE)
+        assertEquals(1, vm.uiState.value.cards.size)
+        // Summary stays on the full portfolio even though the list narrowed to 1.
+        assertEquals(fullSummary, vm.uiState.value.summary.countText)
+    }
+
+    @Test
     fun `logout clears the session and navigates to login`() = runTest {
         val vm = viewModel(sample)
         vm.onLogout()

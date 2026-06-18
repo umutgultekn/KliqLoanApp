@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.kliq.loanapp.feature.login.LoginViewModelTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-06-18T16:38:26.314Z" hostname="unknown6ab6b167121f.home" time="0.137">
-  <properties/>
-  <testcase name="invalid email blocks submission" classname="com.kliq.loanapp.feature.login.LoginViewModelTest" time="0.109"/>
-  <testcase name="failed login surfaces a snackbar and does not navigate" classname="com.kliq.loanapp.feature.login.LoginViewModelTest" time="0.02"/>
-  <testcase name="valid credentials log in and navigate to portfolio" classname="com.kliq.loanapp.feature.login.LoginViewModelTest" time="0.007"/>
-  <system-out><![CDATA[]]></system-out>
-  <system-err><![CDATA[]]></system-err>
-</testsuite>

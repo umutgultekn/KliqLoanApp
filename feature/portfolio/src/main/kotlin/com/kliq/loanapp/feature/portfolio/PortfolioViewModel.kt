@@ -68,7 +68,9 @@ class PortfolioViewModel @Inject constructor(
             PortfolioUiState(
                 isLoading = false,
                 cards = mapper.toCards(filtered),
-                summary = mapper.summary(filtered),
+                // The summary card reflects the WHOLE portfolio, not the current filter — the filter
+                // only narrows the list below it.
+                summary = mapper.summary(load.loans),
                 selectedFilter = filter,
                 isEmpty = load.loans.isEmpty(),
             )
