@@ -2,12 +2,14 @@ package com.kliq.loanapp.core.ui.mapper
 
 import androidx.compose.runtime.Immutable
 import com.kliq.loanapp.core.common.format.LoanFormatter
+import com.kliq.loanapp.core.common.text.UiText
 import com.kliq.loanapp.core.common.ui.Tone
 import com.kliq.loanapp.core.designsystem.component.BadgeConfig
 import com.kliq.loanapp.core.designsystem.component.LoanCardConfig
 import com.kliq.loanapp.core.model.Loan
 import com.kliq.loanapp.core.model.LoanStatus
 import com.kliq.loanapp.core.model.LoanType
+import com.kliq.loanapp.core.ui.R
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import javax.inject.Inject
@@ -17,19 +19,22 @@ import kotlin.math.abs
 @Immutable
 data class PortfolioSummaryUi(
     val totalText: String,
-    val countText: String,
-    val avgRateText: String,
+    val countText: UiText,
+    val avgRateText: UiText,
 ) {
     companion object {
-        val Empty = PortfolioSummaryUi(totalText = "$0", countText = "0 loans", avgRateText = "0.0%")
+        val Empty = PortfolioSummaryUi(
+            totalText = "$0",
+            countText = UiText.plural(R.plurals.kliq_portfolio_loan_count, 0, 0),
+            avgRateText = UiText.res(R.string.kliq_portfolio_avg_rate, "0.0%"),
+        )
     }
 }
 
 /**
  * The single conversion point from domain models to recomposition-stable, presentation-ready UI
- * configs. Uses [LoanFormatter] for all numeric formatting; emits semantic [Tone]s, never colors.
- *
- * Due-date phrasing is centralized here (English); production would localize it via Android plurals.
+ * configs. Numeric formatting goes through [LoanFormatter]; user-facing prose goes through
+ * [UiText] resources/plurals (resolved in composition) so it is localizable and correctly pluralized.
  */
 class LoanPresentationMapper @Inject constructor(
     private val formatter: LoanFormatter,
@@ -41,7 +46,7 @@ class LoanPresentationMapper @Inject constructor(
         id = loan.name,
         title = loan.name,
         amountText = formatter.money(loan.principalAmount),
-        rateText = "${formatter.percent(loan.interestRate)} interest",
+        rateText = UiText.res(R.string.kliq_loan_rate, formatter.percent(loan.interestRate)),
         dueText = dueText(loan.dueInDays),
         dueTone = dueTone(loan.dueInDays),
         typeBadge = BadgeConfig(
@@ -62,15 +67,15 @@ class LoanPresentationMapper @Inject constructor(
         val avgRate = loans.sumOf { it.interestRate } / loans.size
         return PortfolioSummaryUi(
             totalText = formatter.money(total),
-            countText = "${loans.size} loans in portfolio",
-            avgRateText = "Avg. interest rate: ${formatter.percent(avgRate)}",
+            countText = UiText.plural(R.plurals.kliq_portfolio_loan_count, loans.size, loans.size),
+            avgRateText = UiText.res(R.string.kliq_portfolio_avg_rate, formatter.percent(avgRate)),
         )
     }
 
-    private fun dueText(dueInDays: Int): String = when {
-        dueInDays > 0 -> "$dueInDays days remaining"
-        dueInDays == 0 -> "Due today"
-        else -> "${abs(dueInDays)} days overdue"
+    private fun dueText(dueInDays: Int): UiText = when {
+        dueInDays > 0 -> UiText.plural(R.plurals.kliq_loan_due_remaining, dueInDays, dueInDays)
+        dueInDays == 0 -> UiText.res(R.string.kliq_loan_due_today)
+        else -> UiText.plural(R.plurals.kliq_loan_due_overdue, abs(dueInDays), abs(dueInDays))
     }
 
     private fun dueTone(dueInDays: Int): Tone = when {

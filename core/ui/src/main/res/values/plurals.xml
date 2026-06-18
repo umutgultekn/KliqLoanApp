@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="kliq_loan_due_remaining">
+        <item quantity="one">%1$d day remaining</item>
+        <item quantity="other">%1$d days remaining</item>
+    </plurals>
+    <plurals name="kliq_loan_due_overdue">
+        <item quantity="one">%1$d day overdue</item>
+        <item quantity="other">%1$d days overdue</item>
+    </plurals>
+    <plurals name="kliq_portfolio_loan_count">
+        <item quantity="one">%1$d loan in portfolio</item>
+        <item quantity="other">%1$d loans in portfolio</item>
+    </plurals>
+</resources>

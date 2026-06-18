@@ -3,6 +3,7 @@ package com.kliq.loanapp.feature.portfolio
 import androidx.lifecycle.SavedStateHandle
 import com.kliq.loanapp.core.common.format.DefaultLoanFormatter
 import com.kliq.loanapp.core.common.result.AppError
+import com.kliq.loanapp.core.common.text.UiText
 import com.kliq.loanapp.core.common.navigation.KliqRoute
 import com.kliq.loanapp.core.common.navigation.NavCommand
 import com.kliq.loanapp.core.model.Loan
@@ -70,7 +71,7 @@ class PortfolioViewModelTest {
     fun `summary reflects the whole portfolio regardless of the active filter`() = runTest {
         val vm = viewModel(sample)
         val fullSummary = vm.uiState.value.summary.countText
-        assertEquals("3 loans in portfolio", fullSummary)
+        assertEquals(3, (fullSummary as UiText.Plural).quantity)
 
         vm.onFilterSelected(PortfolioFilter.ACTIVE)
         assertEquals(1, vm.uiState.value.cards.size)

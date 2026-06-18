@@ -17,7 +17,9 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.kliq.loanapp.core.common.text.UiText
 import com.kliq.loanapp.core.common.ui.Tone
+import com.kliq.loanapp.core.designsystem.text.asString
 import com.kliq.loanapp.core.designsystem.theme.KliqTheme
 
 /**
@@ -29,8 +31,8 @@ data class LoanCardConfig(
     val id: String,
     val title: String,
     val amountText: String,
-    val rateText: String,
-    val dueText: String,
+    val rateText: UiText,
+    val dueText: UiText,
     val dueTone: Tone,
     val typeBadge: BadgeConfig,
     val statusBadge: BadgeConfig,
@@ -66,7 +68,7 @@ fun LoanCard(
                 modifier = Modifier.weight(1f),
             )
             Text(
-                text = config.rateText,
+                text = config.rateText.asString(),
                 style = KliqTheme.typography.caption,
                 color = colors.textSecondary,
             )
@@ -77,7 +79,7 @@ fun LoanCard(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
-                text = config.dueText,
+                text = config.dueText.asString(),
                 style = KliqTheme.typography.caption,
                 color = colors.textColorFor(config.dueTone),
             )
@@ -95,8 +97,8 @@ private fun LoanCardPreview() {
                 id = "1",
                 title = "Vehicle Finance",
                 amountText = "$42,000",
-                rateText = "5.4% interest",
-                dueText = "9 days overdue",
+                rateText = UiText.of("5.4% interest"),
+                dueText = UiText.of("9 days overdue"),
                 dueTone = Tone.Default,
                 typeBadge = BadgeConfig("AUTO", Tone.TypeAuto, "Loan type: auto"),
                 statusBadge = BadgeConfig("OVERDUE", Tone.Overdue, "Status: overdue"),

@@ -5,4 +5,8 @@
     <string name="kliq_error_io">Something went wrong while loading. Please try again.</string>
     <string name="kliq_error_auth_invalid">Invalid email or password.</string>
     <string name="kliq_error_unknown">An unexpected error occurred.</string>
+
+    <string name="kliq_loan_due_today">Due today</string>
+    <string name="kliq_loan_rate">%1$s interest</string>
+    <string name="kliq_portfolio_avg_rate">Avg. interest rate: %1$s</string>
 </resources>

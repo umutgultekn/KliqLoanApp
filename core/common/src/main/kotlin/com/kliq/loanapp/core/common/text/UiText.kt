@@ -7,10 +7,12 @@ package com.kliq.loanapp.core.common.text
 sealed interface UiText {
     data class Dynamic(val value: String) : UiText
     data class Resource(val resId: Int, val args: List<Any> = emptyList()) : UiText
+    data class Plural(val resId: Int, val quantity: Int, val args: List<Any> = emptyList()) : UiText
     data object Empty : UiText
 
     companion object {
         fun of(value: String): UiText = Dynamic(value)
         fun res(resId: Int, vararg args: Any): UiText = Resource(resId, args.toList())
+        fun plural(resId: Int, quantity: Int, vararg args: Any): UiText = Plural(resId, quantity, args.toList())
     }
 }

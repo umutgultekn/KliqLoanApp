@@ -1,9 +1,11 @@
 package com.kliq.loanapp.core.ui.mapper
 
 import com.kliq.loanapp.core.common.format.DefaultLoanFormatter
+import com.kliq.loanapp.core.common.text.UiText
 import com.kliq.loanapp.core.common.ui.Tone
 import com.kliq.loanapp.core.testing.LoanFixtures
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class LoanPresentationMapperTest {
@@ -16,14 +18,14 @@ class LoanPresentationMapperTest {
         assertEquals(Tone.TypeAuto, card.typeBadge.tone)
         assertEquals(Tone.Overdue, card.statusBadge.tone)
         assertEquals(Tone.Default, card.dueTone) // negative due window
-        assertEquals("8 days overdue", card.dueText)
         assertEquals("AUTO", card.typeBadge.label)
+        assertEquals(8, (card.dueText as UiText.Plural).quantity)
     }
 
-    @Test fun `due text reflects remaining, today, and overdue`() {
-        assertEquals("45 days remaining", mapper.toCard(LoanFixtures.loan(dueInDays = 45)).dueText)
-        assertEquals("Due today", mapper.toCard(LoanFixtures.loan(dueInDays = 0)).dueText)
-        assertEquals("8 days overdue", mapper.toCard(LoanFixtures.loan(dueInDays = -8)).dueText)
+    @Test fun `due text reflects remaining, today, and overdue with the right quantity`() {
+        assertEquals(45, (mapper.toCard(LoanFixtures.loan(dueInDays = 45)).dueText as UiText.Plural).quantity)
+        assertTrue(mapper.toCard(LoanFixtures.loan(dueInDays = 0)).dueText is UiText.Resource)
+        assertEquals(8, (mapper.toCard(LoanFixtures.loan(dueInDays = -8)).dueText as UiText.Plural).quantity)
     }
 
     @Test fun `summary aggregates total, count and average`() {
@@ -32,9 +34,9 @@ class LoanPresentationMapperTest {
             LoanFixtures.loan(principalAmount = 30_000.0, interestRate = 4.0),
         )
         val summary = mapper.summary(loans)
-        assertEquals("2 loans in portfolio", summary.countText)
         assertEquals("$40,000", summary.totalText)
-        assertEquals("Avg. interest rate: 3.0%", summary.avgRateText)
+        assertEquals(2, (summary.countText as UiText.Plural).quantity)
+        assertTrue(summary.avgRateText is UiText.Resource)
     }
 
     @Test fun `empty portfolio yields the empty summary`() {

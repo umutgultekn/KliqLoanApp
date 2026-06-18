@@ -205,8 +205,8 @@ private fun SummaryCard(summary: PortfolioSummaryUi) {
         )
         Text(summary.totalText, style = KliqTheme.typography.heading, color = colors.onPrimary)
         Spacer(Modifier.height(KliqTheme.spacing.sm))
-        Text(summary.countText, style = KliqTheme.typography.body, color = colors.onPrimary)
-        Text(summary.avgRateText, style = KliqTheme.typography.caption, color = colors.onPrimary)
+        Text(summary.countText.asString(), style = KliqTheme.typography.body, color = colors.onPrimary)
+        Text(summary.avgRateText.asString(), style = KliqTheme.typography.caption, color = colors.onPrimary)
     }
 }
 

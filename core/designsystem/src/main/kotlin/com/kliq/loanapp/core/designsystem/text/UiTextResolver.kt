@@ -3,6 +3,7 @@ package com.kliq.loanapp.core.designsystem.text
 import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import com.kliq.loanapp.core.common.text.UiText
 
@@ -16,6 +17,7 @@ fun UiText.asString(): String = when (this) {
     } else {
         stringResource(resId, *args.toTypedArray())
     }
+    is UiText.Plural -> pluralStringResource(resId, quantity, *args.toTypedArray())
     UiText.Empty -> ""
 }
 
@@ -27,5 +29,6 @@ fun UiText.asString(context: Context): String = when (this) {
     } else {
         context.getString(resId, *args.toTypedArray())
     }
+    is UiText.Plural -> context.resources.getQuantityString(resId, quantity, *args.toTypedArray())
     UiText.Empty -> ""
 }
