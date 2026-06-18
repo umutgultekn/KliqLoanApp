@@ -17,4 +17,8 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.kotlinx.collections.immutable)
     implementation(libs.javax.inject)
+
+    testImplementation(project(":core:testing"))
+    testImplementation(libs.junit4)
+    testImplementation(libs.kotlinx.coroutines.test)
 }

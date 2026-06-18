@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="kliq_error_asset_missing">Could not find the loan data.</string>
+    <string name="kliq_error_parse_failure">The loan data is corrupted.</string>
+    <string name="kliq_error_empty_portfolio">No loans in your portfolio yet.</string>
+    <string name="kliq_error_io">Something went wrong while loading. Please try again.</string>
+    <string name="kliq_error_auth_invalid">Invalid email or password.</string>
+    <string name="kliq_error_unknown">An unexpected error occurred.</string>
+</resources>
