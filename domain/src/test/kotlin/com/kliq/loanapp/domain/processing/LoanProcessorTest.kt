@@ -86,4 +86,16 @@ class LoanProcessorTest {
     fun `construction fails fast when a strategy binding is missing`() {
         LoanProcessor(mapOf(LoanType.PERSONAL to PersonalLoanStrategy()))
     }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun `construction fails when a strategy is bound under the wrong key`() {
+        LoanProcessor(
+            mapOf(
+                LoanType.PERSONAL to PersonalLoanStrategy(),
+                LoanType.MORTGAGE to PersonalLoanStrategy(), // wrong: PERSONAL strategy under MORTGAGE key
+                LoanType.AUTO to AutoLoanStrategy(),
+                LoanType.BUSINESS to BusinessLoanStrategy(),
+            ),
+        )
+    }
 }

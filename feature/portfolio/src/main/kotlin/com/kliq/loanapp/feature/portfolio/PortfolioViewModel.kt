@@ -72,7 +72,7 @@ class PortfolioViewModel @Inject constructor(
                 // only narrows the list below it.
                 summary = mapper.summary(load.loans),
                 selectedFilter = filter,
-                isEmpty = load.loans.isEmpty(),
+                portfolioEmpty = load.loans.isEmpty(),
             )
         }
     }

@@ -1,5 +1,6 @@
 package com.kliq.loanapp.core.designsystem.component
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.size
@@ -47,6 +48,8 @@ fun KliqButton(
         enabled = config.enabled && !config.loading,
         modifier = modifier.heightIn(min = 48.dp),
         colors = ButtonDefaults.buttonColors(containerColor = container, contentColor = contentColor),
+        // The Secondary style is surface-on-surface, so give it a visible border.
+        border = if (config.style == ButtonStyle.Secondary) BorderStroke(1.dp, colors.border) else null,
     ) {
         if (config.loading) {
             CircularProgressIndicator(

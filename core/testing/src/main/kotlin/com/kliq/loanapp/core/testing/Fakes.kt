@@ -24,16 +24,9 @@ class FakeLoanService(
     private val loans: List<Loan> = emptyList(),
     private val error: Throwable? = null,
 ) : LoanService {
-    var persistedCount: Int = 0
-        private set
-
     override suspend fun fetchLoans(): List<Loan> {
         error?.let { throw it }
         return loans
-    }
-
-    override suspend fun persistLoans(loans: List<Loan>) {
-        persistedCount = loans.size
     }
 }
 

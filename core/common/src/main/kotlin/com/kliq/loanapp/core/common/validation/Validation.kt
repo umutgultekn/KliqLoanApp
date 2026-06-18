@@ -8,7 +8,6 @@ sealed interface ValidationResult {
     data class Failure(val message: UiText) : ValidationResult
 
     val isValid: Boolean get() = this is Success
-    val errorMessage: UiText? get() = (this as? Failure)?.message
 }
 
 /** Strategy for validating a field value. Composable and reusable across screens. */

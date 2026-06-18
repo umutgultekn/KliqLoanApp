@@ -15,5 +15,6 @@ data class PortfolioUiState(
     val cards: ImmutableList<LoanCardConfig> = persistentListOf(),
     val summary: PortfolioSummaryUi = PortfolioSummaryUi.Empty,
     val selectedFilter: PortfolioFilter = PortfolioFilter.ALL,
-    val isEmpty: Boolean = false,
+    /** True when the WHOLE portfolio is empty (vs. just the current filter returning nothing). */
+    val portfolioEmpty: Boolean = false,
 )

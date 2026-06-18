@@ -28,11 +28,6 @@ class MockLoanService @Inject constructor(
         return loans
     }
 
-    override suspend fun persistLoans(loans: List<Loan>) {
-        // Mock persistence — the assignment keeps loans.json read-only.
-        Log.d(TAG, "Persisted ${loans.size} loans")
-    }
-
     private companion object {
         const val ASSET_FILE = "loans.json"
         const val TAG = "MockLoanService"

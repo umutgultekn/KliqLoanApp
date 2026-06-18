@@ -2,6 +2,7 @@ package com.kliq.loanapp.feature.portfolio
 
 import androidx.lifecycle.SavedStateHandle
 import com.kliq.loanapp.core.common.format.DefaultLoanFormatter
+import com.kliq.loanapp.core.common.result.AppError
 import com.kliq.loanapp.core.common.navigation.KliqRoute
 import com.kliq.loanapp.core.common.navigation.NavCommand
 import com.kliq.loanapp.core.model.Loan
@@ -17,6 +18,8 @@ import com.kliq.loanapp.domain.usecase.GetProcessedPortfolioUseCase
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 
@@ -72,6 +75,34 @@ class PortfolioViewModelTest {
         assertEquals(1, vm.uiState.value.cards.size)
         // Summary stays on the full portfolio even though the list narrowed to 1.
         assertEquals(fullSummary, vm.uiState.value.summary.countText)
+    }
+
+    @Test
+    fun `load failure produces an error state`() = runTest {
+        val useCase = GetProcessedPortfolioUseCase(FakeLoanRepository(Result.failure(AppError.AssetMissing)), testLoanProcessor())
+        val vm = PortfolioViewModel(useCase, mapper, session, navigator, SavedStateHandle())
+        val state = vm.uiState.value
+        assertFalse(state.isLoading)
+        assertNotNull(state.error)
+        assertEquals(0, state.cards.size)
+    }
+
+    @Test
+    fun `an empty portfolio is flagged`() = runTest {
+        val vm = viewModel(emptyList())
+        assertTrue(vm.uiState.value.cards.isEmpty())
+        assertTrue(vm.uiState.value.portfolioEmpty)
+    }
+
+    @Test
+    fun `restores the persisted filter from SavedStateHandle`() = runTest {
+        val useCase = GetProcessedPortfolioUseCase(FakeLoanRepository(Result.success(sample)), testLoanProcessor())
+        val vm = PortfolioViewModel(
+            useCase, mapper, session, navigator,
+            SavedStateHandle(mapOf("portfolio_filter" to PortfolioFilter.ACTIVE)),
+        )
+        assertEquals(PortfolioFilter.ACTIVE, vm.uiState.value.selectedFilter)
+        assertEquals(1, vm.uiState.value.cards.size)
     }
 
     @Test

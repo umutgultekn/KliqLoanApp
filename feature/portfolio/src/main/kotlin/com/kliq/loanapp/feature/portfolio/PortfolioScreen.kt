@@ -12,21 +12,26 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
@@ -39,7 +44,10 @@ import com.kliq.loanapp.core.designsystem.component.LoanCard
 import com.kliq.loanapp.core.designsystem.text.asString
 import com.kliq.loanapp.core.designsystem.theme.KliqTheme
 import com.kliq.loanapp.core.model.PortfolioFilter
+import com.kliq.loanapp.core.ui.ObserveAsEvents
+import com.kliq.loanapp.core.ui.UiEvent
 import com.kliq.loanapp.core.ui.mapper.PortfolioSummaryUi
+import kotlinx.coroutines.launch
 
 fun NavGraphBuilder.portfolioScreen() {
     composable<KliqRoute.Portfolio> { PortfolioRoute() }
@@ -48,8 +56,21 @@ fun NavGraphBuilder.portfolioScreen() {
 @Composable
 fun PortfolioRoute(viewModel: PortfolioViewModel = hiltViewModel()) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+
+    ObserveAsEvents(viewModel.events) { event ->
+        when (event) {
+            is UiEvent.ShowSnackbar -> scope.launch {
+                snackbarHostState.showSnackbar(event.message.asString(context))
+            }
+        }
+    }
+
     PortfolioScreen(
         state = state,
+        snackbarHostState = snackbarHostState,
         onFilterSelected = viewModel::onFilterSelected,
         onLogout = viewModel::onLogout,
     )
@@ -58,44 +79,55 @@ fun PortfolioRoute(viewModel: PortfolioViewModel = hiltViewModel()) {
 @Composable
 fun PortfolioScreen(
     state: PortfolioUiState,
+    snackbarHostState: SnackbarHostState,
     onFilterSelected: (PortfolioFilter) -> Unit,
     onLogout: () -> Unit,
 ) {
     val colors = KliqTheme.colors
-    Column(modifier = Modifier.fillMaxSize().background(colors.background)) {
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 4.dp, top = 12.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text(
-                text = stringResource(R.string.portfolio_title),
-                style = KliqTheme.typography.heading,
-                color = colors.textPrimary,
-                modifier = Modifier.weight(1f),
-            )
-            TextButton(onClick = onLogout) { Text(stringResource(R.string.portfolio_logout)) }
-        }
-
-        when {
-            state.isLoading -> CenteredBox { CircularProgressIndicator(color = colors.primary) }
-            state.error != null -> CenteredBox {
-                Text(state.error.asString(), style = KliqTheme.typography.body, color = colors.statusDefault)
+    Scaffold(
+        containerColor = colors.background,
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+    ) { innerPadding ->
+        Column(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 4.dp, top = 12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = stringResource(R.string.portfolio_title),
+                    style = KliqTheme.typography.heading,
+                    color = colors.textPrimary,
+                    modifier = Modifier.weight(1f),
+                )
+                TextButton(onClick = onLogout) { Text(stringResource(R.string.portfolio_logout)) }
             }
-            else -> Column(modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp)) {
-                SummaryCard(state.summary)
-                Spacer(Modifier.height(12.dp))
-                FilterRow(selected = state.selectedFilter, onFilterSelected = onFilterSelected)
-                Spacer(Modifier.height(12.dp))
-                if (state.isEmpty || state.cards.isEmpty()) {
-                    CenteredBox {
-                        Text(stringResource(R.string.portfolio_empty), style = KliqTheme.typography.body, color = colors.textSecondary)
-                    }
-                } else {
-                    LazyColumn(
-                        verticalArrangement = Arrangement.spacedBy(12.dp),
-                        contentPadding = PaddingValues(bottom = 24.dp),
-                    ) {
-                        items(state.cards, key = { it.id }) { card -> LoanCard(config = card) }
+
+            when {
+                state.isLoading -> CenteredBox { CircularProgressIndicator(color = colors.primary) }
+                state.error != null -> CenteredBox {
+                    Text(state.error.asString(), style = KliqTheme.typography.body, color = colors.statusDefault)
+                }
+                else -> Column(modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp)) {
+                    SummaryCard(state.summary)
+                    Spacer(Modifier.height(12.dp))
+                    FilterRow(selected = state.selectedFilter, onFilterSelected = onFilterSelected)
+                    Spacer(Modifier.height(12.dp))
+                    if (state.cards.isEmpty()) {
+                        val emptyMessage = if (state.portfolioEmpty) {
+                            R.string.portfolio_empty_all
+                        } else {
+                            R.string.portfolio_empty_filter
+                        }
+                        CenteredBox {
+                            Text(stringResource(emptyMessage), style = KliqTheme.typography.body, color = colors.textSecondary)
+                        }
+                    } else {
+                        LazyColumn(
+                            verticalArrangement = Arrangement.spacedBy(12.dp),
+                            contentPadding = PaddingValues(bottom = 24.dp),
+                        ) {
+                            items(state.cards, key = { it.id }) { card -> LoanCard(config = card) }
+                        }
                     }
                 }
             }

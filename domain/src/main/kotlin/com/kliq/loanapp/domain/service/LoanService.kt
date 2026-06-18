@@ -9,5 +9,4 @@ import com.kliq.loanapp.core.model.Loan
  */
 interface LoanService {
     suspend fun fetchLoans(): List<Loan>
-    suspend fun persistLoans(loans: List<Loan>)
 }

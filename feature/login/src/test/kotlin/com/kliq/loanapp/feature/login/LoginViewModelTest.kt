@@ -68,4 +68,37 @@ class LoginViewModelTest {
         assertTrue(navigator.received.isEmpty())
         assertFalse(session.current)
     }
+
+    @Test
+    fun `isSubmitting is reset after success and after failure`() = runTest {
+        val ok = viewModel(Result.success(Unit))
+        ok.onEmailChange("user@kliq.com"); ok.onPasswordChange("secret1"); ok.onSubmit()
+        assertFalse(ok.uiState.value.isSubmitting)
+
+        val failing = LoginViewModel(
+            FakeAuthRepository(Result.failure(AppError.Auth(AuthReason.INVALID_CREDENTIALS)), FakeSessionRepository()),
+            FakeNavigator(),
+            SavedStateHandle(),
+        )
+        failing.onEmailChange("user@kliq.com"); failing.onPasswordChange("secret1"); failing.onSubmit()
+        assertFalse(failing.uiState.value.isSubmitting)
+    }
+
+    @Test
+    fun `email validates when advancing via IME Next`() = runTest {
+        val vm = viewModel()
+        vm.onEmailChange("not-an-email")
+        vm.onEmailImeNext()
+        assertTrue(vm.uiState.value.emailState is FieldUiState.Error)
+    }
+
+    @Test
+    fun `email shows focused on focus then validates on blur`() = runTest {
+        val vm = viewModel()
+        vm.onEmailChange("a@b.com")
+        vm.onEmailFocusChanged(focused = true)
+        assertEquals(FieldUiState.Focused, vm.uiState.value.emailState)
+        vm.onEmailFocusChanged(focused = false)
+        assertEquals(FieldUiState.Valid, vm.uiState.value.emailState)
+    }
 }

@@ -24,6 +24,7 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.error
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -88,6 +89,7 @@ fun FormField(
 ) {
     val colors = KliqTheme.colors
     val errorMessage = (state as? FieldUiState.Error)?.message
+    val errorText = errorMessage?.asString()
     val borderColor = when (state) {
         is FieldUiState.Error -> colors.statusDefault
         FieldUiState.Focused, FieldUiState.Valid -> colors.statusActive
@@ -107,7 +109,7 @@ fun FormField(
                 .fillMaxWidth()
                 .let { if (focusRequester != null) it.focusRequester(focusRequester) else it }
                 .onFocusChanged { onFocusChanged(it.isFocused) }
-                .semantics { if (errorMessage != null) error("invalid") },
+                .semantics { if (errorText != null) error(errorText) },
             singleLine = true,
             isError = state is FieldUiState.Error,
             visualTransformation = if (config.keyboard.isSecret) {
@@ -203,7 +205,13 @@ fun PasswordFormField(
         focusRequester = focusRequester,
         onFocusChanged = onFocusChanged,
         trailing = {
-            IconButton(onClick = { visible = !visible }) {
+            val stateDesc = stringResource(
+                if (visible) R.string.kliq_password_shown else R.string.kliq_password_hidden,
+            )
+            IconButton(
+                onClick = { visible = !visible },
+                modifier = Modifier.semantics { stateDescription = stateDesc },
+            ) {
                 Icon(
                     imageVector = if (visible) Icons.Filled.VisibilityOff else Icons.Filled.Visibility,
                     contentDescription = stringResource(

@@ -14,9 +14,6 @@ sealed class AppError : Exception() {
     /** loans.json was present but malformed. */
     data object ParseFailure : AppError()
 
-    /** The portfolio loaded successfully but contained zero records. */
-    data object EmptyPortfolio : AppError()
-
     /** A generic read/IO failure. */
     data object Io : AppError()
 
