@@ -1,6 +1,5 @@
 package com.kliq.loanapp.feature.portfolio
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -15,29 +14,27 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.selection.selectable
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import com.kliq.loanapp.core.common.navigation.KliqRoute
+import com.kliq.loanapp.core.designsystem.component.KliqCard
+import com.kliq.loanapp.core.designsystem.component.KliqFilterChip
+import com.kliq.loanapp.core.designsystem.component.KliqTextButton
 import com.kliq.loanapp.core.designsystem.component.LoanCard
 import com.kliq.loanapp.core.designsystem.text.asString
 import com.kliq.loanapp.core.designsystem.theme.KliqTheme
@@ -97,7 +94,7 @@ fun PortfolioScreen(
                     color = colors.textPrimary,
                     modifier = Modifier.weight(1f),
                 )
-                TextButton(onClick = onLogout) { Text(stringResource(R.string.portfolio_logout)) }
+                KliqTextButton(text = stringResource(R.string.portfolio_logout), onClick = onLogout)
             }
 
             when {
@@ -136,17 +133,15 @@ fun PortfolioScreen(
 @Composable
 private fun SummaryCard(summary: PortfolioSummaryUi) {
     val colors = KliqTheme.colors
-    Surface(
-        modifier = Modifier.fillMaxWidth(),
-        shape = KliqTheme.shapes.cardLarge,
+    KliqCard(
         color = colors.primary,
+        shape = KliqTheme.shapes.cardLarge,
+        elevation = KliqTheme.elevation.none,
     ) {
-        Column(modifier = Modifier.padding(KliqTheme.spacing.xxl)) {
-            Text(summary.totalText, style = KliqTheme.typography.heading, color = colors.onPrimary)
-            Spacer(Modifier.height(KliqTheme.spacing.sm))
-            Text(summary.countText, style = KliqTheme.typography.body, color = colors.onPrimary)
-            Text(summary.avgRateText, style = KliqTheme.typography.caption, color = colors.onPrimary)
-        }
+        Text(summary.totalText, style = KliqTheme.typography.heading, color = colors.onPrimary)
+        Spacer(Modifier.height(KliqTheme.spacing.sm))
+        Text(summary.countText, style = KliqTheme.typography.body, color = colors.onPrimary)
+        Text(summary.avgRateText, style = KliqTheme.typography.caption, color = colors.onPrimary)
     }
 }
 
@@ -157,28 +152,13 @@ private fun FilterRow(selected: PortfolioFilter, onFilterSelected: (PortfolioFil
         horizontalArrangement = Arrangement.spacedBy(KliqTheme.spacing.md),
     ) {
         PortfolioFilter.entries.forEach { filter ->
-            FilterChip(
+            KliqFilterChip(
                 label = filter.label(),
-                isSelected = filter == selected,
+                selected = filter == selected,
                 onClick = { onFilterSelected(filter) },
             )
         }
     }
-}
-
-@Composable
-private fun FilterChip(label: String, isSelected: Boolean, onClick: () -> Unit) {
-    val colors = KliqTheme.colors
-    Text(
-        text = label,
-        style = KliqTheme.typography.caption,
-        color = if (isSelected) colors.onPrimary else colors.textPrimary,
-        modifier = Modifier
-            .clip(KliqTheme.shapes.pill)
-            .background(if (isSelected) colors.primary else colors.surface)
-            .selectable(selected = isSelected, role = Role.Tab, onClick = onClick)
-            .padding(horizontal = KliqTheme.spacing.xl, vertical = KliqTheme.spacing.md),
-    )
 }
 
 @Composable

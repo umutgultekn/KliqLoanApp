@@ -1,8 +1,6 @@
 package com.kliq.loanapp.core.designsystem.component
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
@@ -10,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -41,56 +38,46 @@ data class LoanCardConfig(
 fun LoanCard(
     config: LoanCardConfig,
     modifier: Modifier = Modifier,
-    onClick: (() -> Unit)? = null,
     trailing: @Composable (RowScope.() -> Unit)? = null,
 ) {
     val colors = KliqTheme.colors
-    Surface(
-        modifier = modifier
-            .fillMaxWidth()
-            .let { if (onClick != null) it.clickable(onClick = onClick) else it },
-        shape = KliqTheme.shapes.card,
-        color = colors.surface,
-        shadowElevation = KliqTheme.elevation.card,
-    ) {
-        Column(modifier = Modifier.padding(KliqTheme.spacing.xl)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = config.title,
-                    style = KliqTheme.typography.title,
-                    color = colors.textPrimary,
-                    modifier = Modifier.weight(1f),
-                )
-                StatusBadge(config.typeBadge)
-                Spacer(Modifier.width(KliqTheme.spacing.md))
-                StatusBadge(config.statusBadge)
-            }
-            Spacer(Modifier.height(KliqTheme.spacing.md))
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = config.amountText,
-                    style = KliqTheme.typography.amount,
-                    color = colors.textPrimary,
-                    modifier = Modifier.weight(1f),
-                )
-                Text(
-                    text = config.rateText,
-                    style = KliqTheme.typography.caption,
-                    color = colors.textSecondary,
-                )
-            }
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(top = KliqTheme.spacing.sm),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = config.dueText,
-                    style = KliqTheme.typography.caption,
-                    color = colors.colorFor(config.dueTone),
-                )
-                trailing?.invoke(this)
-            }
+    KliqCard(modifier = modifier) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = config.title,
+                style = KliqTheme.typography.title,
+                color = colors.textPrimary,
+                modifier = Modifier.weight(1f),
+            )
+            StatusBadge(config.typeBadge)
+            Spacer(Modifier.width(KliqTheme.spacing.md))
+            StatusBadge(config.statusBadge)
+        }
+        Spacer(Modifier.height(KliqTheme.spacing.md))
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = config.amountText,
+                style = KliqTheme.typography.amount,
+                color = colors.textPrimary,
+                modifier = Modifier.weight(1f),
+            )
+            Text(
+                text = config.rateText,
+                style = KliqTheme.typography.caption,
+                color = colors.textSecondary,
+            )
+        }
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(top = KliqTheme.spacing.sm),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                text = config.dueText,
+                style = KliqTheme.typography.caption,
+                color = colors.colorFor(config.dueTone),
+            )
+            trailing?.invoke(this)
         }
     }
 }

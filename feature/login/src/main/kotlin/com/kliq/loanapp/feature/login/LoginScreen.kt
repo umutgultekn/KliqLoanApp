@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -21,7 +20,6 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavGraphBuilder
@@ -29,6 +27,7 @@ import androidx.navigation.compose.composable
 import kotlinx.coroutines.launch
 import com.kliq.loanapp.core.common.navigation.KliqRoute
 import com.kliq.loanapp.core.designsystem.component.ButtonConfig
+import com.kliq.loanapp.core.designsystem.component.ButtonSize
 import com.kliq.loanapp.core.designsystem.component.EmailFormField
 import com.kliq.loanapp.core.designsystem.component.KliqButton
 import com.kliq.loanapp.core.designsystem.component.PasswordFormField
@@ -122,11 +121,12 @@ fun LoginScreen(
             KliqButton(
                 config = ButtonConfig(
                     text = stringResource(R.string.login_submit),
+                    size = ButtonSize.Large,
+                    fullWidth = true,
                     enabled = state.submitEnabled,
                     loading = state.isSubmitting,
                 ),
                 onClick = onSubmit,
-                modifier = Modifier.fillMaxWidth().height(52.dp),
             )
         }
     }
