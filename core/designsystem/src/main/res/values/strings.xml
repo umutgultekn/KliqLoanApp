@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="kliq_field_email_label">Email</string>
+    <string name="kliq_field_email_placeholder">you@kliq.com</string>
+    <string name="kliq_field_password_label">Password</string>
+    <string name="kliq_field_password_placeholder">Min 6 characters</string>
+    <string name="kliq_action_show_password">Show password</string>
+    <string name="kliq_action_hide_password">Hide password</string>
+</resources>

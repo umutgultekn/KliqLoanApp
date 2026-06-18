@@ -1,0 +1,6 @@
+int string kliq_action_hide_password 0x0
+int string kliq_action_show_password 0x0
+int string kliq_field_email_label 0x0
+int string kliq_field_email_placeholder 0x0
+int string kliq_field_password_label 0x0
+int string kliq_field_password_placeholder 0x0

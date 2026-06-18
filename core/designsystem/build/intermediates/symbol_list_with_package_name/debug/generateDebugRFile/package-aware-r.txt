@@ -1,1 +1,7 @@
 com.kliq.loanapp.core.designsystem
+string kliq_action_hide_password
+string kliq_action_show_password
+string kliq_field_email_label
+string kliq_field_email_placeholder
+string kliq_field_password_label
+string kliq_field_password_placeholder
