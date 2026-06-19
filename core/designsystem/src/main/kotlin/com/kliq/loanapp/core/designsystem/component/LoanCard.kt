@@ -1,5 +1,6 @@
 package com.kliq.loanapp.core.designsystem.component
 
+import android.content.res.Configuration
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -81,7 +82,8 @@ fun LoanCard(
     }
 }
 
-@Preview(showBackground = true)
+@Preview(name = "Light", showBackground = true)
+@Preview(name = "Dark", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun LoanCardPreview() {
     KliqTheme {
@@ -93,8 +95,8 @@ private fun LoanCardPreview() {
                 rateText = UiText.of("5.4% interest"),
                 dueText = UiText.of("9 days overdue"),
                 dueTone = Tone.Default,
-                typeBadge = BadgeConfig("AUTO", Tone.TypeAuto, "Loan type: auto"),
-                statusBadge = BadgeConfig("OVERDUE", Tone.Overdue, "Status: overdue"),
+                typeBadge = BadgeConfig(UiText.of("AUTO"), Tone.TypeAuto, UiText.of("Loan type: auto")),
+                statusBadge = BadgeConfig(UiText.of("OVERDUE"), Tone.Overdue, UiText.of("Loan status: overdue")),
             ),
             modifier = Modifier.padding(16.dp),
         )

@@ -2,7 +2,15 @@ package com.kliq.loanapp.core.designsystem.theme
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import com.kliq.loanapp.core.common.ui.Tone
+
+/**
+ * Luminance crossover where dark ink overtakes white for foreground contrast on a filled background
+ * (derived from the WCAG contrast formula for near-black vs white text). Fills brighter than this get
+ * [KliqColorScheme.badgeTextDark]; darker fills get [KliqColorScheme.onPrimary].
+ */
+private const val BADGE_FILL_LUMINANCE_THRESHOLD = 0.2f
 
 /**
  * The single source of truth for app colors. Screens and ViewModels never reference raw hex —
@@ -12,6 +20,8 @@ import com.kliq.loanapp.core.common.ui.Tone
 data class KliqColorScheme(
     val primary: Color,
     val onPrimary: Color,
+    // Theme-invariant dark ink for badge foregrounds; [onColorFor] picks it over white by luminance.
+    val badgeTextDark: Color,
     val background: Color,
     val surface: Color,
     val textPrimary: Color,
@@ -53,11 +63,21 @@ data class KliqColorScheme(
         Tone.Paid -> statusPaid
         else -> textPrimary
     }
+
+    /**
+     * AA-contrast foreground for a badge filled with [colorFor]. Chooses dark ink or [onPrimary] by
+     * the fill's luminance, so it stays legible across both themes (the same [Tone] resolves to a
+     * lighter fill in dark mode). Replaces the previous always-white badge text, which fell below
+     * WCAG AA on most fills.
+     */
+    fun onColorFor(tone: Tone): Color =
+        if (colorFor(tone).luminance() > BADGE_FILL_LUMINANCE_THRESHOLD) badgeTextDark else onPrimary
 }
 
 val KliqLightColors = KliqColorScheme(
     primary = Color(0xFF222B45),
     onPrimary = Color(0xFFFFFFFF),
+    badgeTextDark = Color(0xFF1A1A2E),
     background = Color(0xFFF2F2F7),
     surface = Color(0xFFFFFFFF),
     textPrimary = Color(0xFF1A1A2E),
@@ -79,6 +99,7 @@ val KliqLightColors = KliqColorScheme(
 val KliqDarkColors = KliqColorScheme(
     primary = Color(0xFF3D5A99),
     onPrimary = Color(0xFFFFFFFF),
+    badgeTextDark = Color(0xFF1A1A2E),
     background = Color(0xFF121218),
     surface = Color(0xFF1E1E28),
     textPrimary = Color(0xFFECECF1),

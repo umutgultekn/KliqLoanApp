@@ -15,9 +15,9 @@ fun UiText.asString(): String = when (this) {
     is UiText.Resource -> if (args.isEmpty()) {
         stringResource(resId)
     } else {
-        stringResource(resId, *args.toTypedArray())
+        stringResource(resId, *args.resolve())
     }
-    is UiText.Plural -> pluralStringResource(resId, quantity, *args.toTypedArray())
+    is UiText.Plural -> pluralStringResource(resId, quantity, *args.resolve())
     UiText.Empty -> ""
 }
 
@@ -27,8 +27,17 @@ fun UiText.asString(context: Context): String = when (this) {
     is UiText.Resource -> if (args.isEmpty()) {
         context.getString(resId)
     } else {
-        context.getString(resId, *args.toTypedArray())
+        context.getString(resId, *args.resolve(context))
     }
-    is UiText.Plural -> context.resources.getQuantityString(resId, quantity, *args.toTypedArray())
+    is UiText.Plural -> context.resources.getQuantityString(resId, quantity, *args.resolve(context))
     UiText.Empty -> ""
 }
+
+/** Resolves any nested [UiText] args first so a resource can take a localized string as an argument. */
+@Composable
+@ReadOnlyComposable
+private fun List<Any>.resolve(): Array<Any> =
+    map { if (it is UiText) it.asString() else it }.toTypedArray()
+
+private fun List<Any>.resolve(context: Context): Array<Any> =
+    map { if (it is UiText) it.asString(context) else it }.toTypedArray()

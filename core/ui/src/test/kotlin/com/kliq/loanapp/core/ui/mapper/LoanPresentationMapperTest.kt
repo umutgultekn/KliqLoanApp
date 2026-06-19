@@ -18,7 +18,7 @@ class LoanPresentationMapperTest {
         assertEquals(Tone.TypeAuto, card.typeBadge.tone)
         assertEquals(Tone.Overdue, card.statusBadge.tone)
         assertEquals(Tone.Default, card.dueTone) // negative due window
-        assertEquals("AUTO", card.typeBadge.label)
+        assertEquals(UiText.res(com.kliq.loanapp.core.ui.R.string.kliq_loan_type_auto), card.typeBadge.label)
         assertEquals(8, (card.dueText as UiText.Plural).quantity)
     }
 

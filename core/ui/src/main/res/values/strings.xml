@@ -9,4 +9,20 @@
     <string name="kliq_loan_due_today">Due today</string>
     <string name="kliq_loan_rate">%1$s interest</string>
     <string name="kliq_portfolio_avg_rate">Avg. interest rate: %1$s</string>
+
+    <!-- Loan status badge labels -->
+    <string name="kliq_loan_status_active">Active</string>
+    <string name="kliq_loan_status_overdue">Overdue</string>
+    <string name="kliq_loan_status_default">Default</string>
+    <string name="kliq_loan_status_paid">Paid</string>
+
+    <!-- Loan type badge labels -->
+    <string name="kliq_loan_type_personal">Personal</string>
+    <string name="kliq_loan_type_mortgage">Mortgage</string>
+    <string name="kliq_loan_type_auto">Auto</string>
+    <string name="kliq_loan_type_business">Business</string>
+
+    <!-- Badge accessibility descriptions (label resolved as the argument) -->
+    <string name="kliq_a11y_loan_status">Loan status: %1$s</string>
+    <string name="kliq_a11y_loan_type">Loan type: %1$s</string>
 </resources>
