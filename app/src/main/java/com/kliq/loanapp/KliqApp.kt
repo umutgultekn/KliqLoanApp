@@ -11,35 +11,36 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import com.kliq.loanapp.core.common.navigation.KliqRoute
-import com.kliq.loanapp.core.common.navigation.NavCommand
 import com.kliq.loanapp.core.common.navigation.Navigator
 import com.kliq.loanapp.core.designsystem.theme.KliqTheme
 import com.kliq.loanapp.feature.login.loginScreen
 import com.kliq.loanapp.feature.portfolio.portfolioScreen
+import com.kliq.loanapp.navigation.execute
 
 @Composable
 fun KliqApp(navigator: Navigator, startLoggedIn: Boolean) {
     val navController = rememberNavController()
+    val lifecycleOwner = LocalLifecycleOwner.current
 
-    LaunchedEffect(navController) {
-        navigator.commands.collect { command ->
-            when (command) {
-                is NavCommand.To -> navController.navigate(command.route) {
-                    command.popUpTo?.let { popUpTarget ->
-                        popUpTo(popUpTarget) { inclusive = command.inclusive }
-                    }
-                    launchSingleTop = true
-                }
-                NavCommand.Back -> navController.popBackStack()
-            }
+    // The Navigator is the single runtime authority for navigation. Collection is tied to the
+    // STARTED lifecycle (not just the composition) so commands aren't consumed while the UI is
+    // stopped, and the buffered channel replays them on resume.
+    LaunchedEffect(navController, lifecycleOwner) {
+        lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            navigator.commands.collect(navController::execute)
         }
     }
 
     NavHost(
         navController = navController,
+        // Start destination is resolved ONCE from the session (see AppViewModel); runtime moves go
+        // through the Navigator above.
         startDestination = if (startLoggedIn) KliqRoute.Portfolio else KliqRoute.Login,
         enterTransition = { fadeIn() + slideInHorizontally { it / 8 } },
         exitTransition = { fadeOut() },
