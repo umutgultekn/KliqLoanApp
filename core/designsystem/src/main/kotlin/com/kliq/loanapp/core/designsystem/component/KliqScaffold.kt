@@ -18,7 +18,7 @@ fun KliqScaffold(
     Scaffold(
         modifier = modifier,
         containerColor = KliqTheme.colors.background,
-        snackbarHost = { SnackbarHost(snackbarHostState) },
+        snackbarHost = { SnackbarHost(snackbarHostState) { data -> KliqSnackbar(data) } },
         content = content,
     )
 }
