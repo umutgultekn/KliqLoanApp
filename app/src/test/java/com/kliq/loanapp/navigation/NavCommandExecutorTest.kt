@@ -45,10 +45,12 @@ class NavCommandExecutorTest {
     private fun TestNavHostController.routeContains(name: String): Boolean =
         currentBackStackEntry?.destination?.route?.contains(name) == true
 
-    @Test fun `To moves the back stack to the target route`() {
+    @Test fun `To moves the back stack to the target route and the inclusive popUpTo clears the source`() {
         val nav = controller()
         nav.execute(NavCommand.To(KliqRoute.Portfolio, popUpTo = KliqRoute.Login, inclusive = true))
         assertTrue(nav.routeContains("Portfolio"))
+        // inclusive popUpTo = Login must remove Login from the back stack (not just land on Portfolio).
+        assertTrue(nav.currentBackStack.value.none { it.destination.route?.contains("Login") == true })
     }
 
     @Test fun `Back pops to the previous route`() {

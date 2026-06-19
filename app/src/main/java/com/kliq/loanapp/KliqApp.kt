@@ -29,8 +29,9 @@ fun KliqApp(navigator: Navigator, startLoggedIn: Boolean) {
     val lifecycleOwner = LocalLifecycleOwner.current
 
     // The Navigator is the single runtime authority for navigation. Collection is tied to the
-    // STARTED lifecycle (not just the composition) so commands aren't consumed while the UI is
-    // stopped, and the buffered channel replays them on resume.
+    // STARTED lifecycle (not just the composition): commands emitted while the UI is stopped are
+    // not consumed mid-teardown — the buffered channel holds them and delivers once STARTED again
+    // (buffer-and-deliver-once, not a replay cache).
     LaunchedEffect(navController, lifecycleOwner) {
         lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
             navigator.commands.collect(navController::execute)

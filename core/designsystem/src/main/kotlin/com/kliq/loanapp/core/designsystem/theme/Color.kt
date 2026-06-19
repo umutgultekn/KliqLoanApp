@@ -85,7 +85,8 @@ val KliqLightColors = KliqColorScheme(
     border = Color(0xFFD8D8DE),
     statusActive = Color(0xFF2EB873),
     statusOverdue = Color(0xFFF29E26),
-    statusDefault = Color(0xFFE63835),
+    // Darkened from #E63835 so white badge text clears WCAG AA (4.5:1): #E63835 sat at 4.22:1.
+    statusDefault = Color(0xFFC62828),
     statusPaid = Color(0xFF8C8C94),
     statusActiveText = Color(0xFF1B7A4B),
     statusOverdueText = Color(0xFFA66200),
