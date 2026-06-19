@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.SnackbarHostState
@@ -18,13 +17,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.heading
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavGraphBuilder
@@ -39,9 +36,6 @@ import com.kliq.loanapp.core.designsystem.component.PasswordFormField
 import com.kliq.loanapp.core.designsystem.component.PrimaryButton
 import com.kliq.loanapp.core.designsystem.theme.KliqTheme
 import com.kliq.loanapp.core.ui.rememberSnackbarEvents
-
-/** Login logo size — a one-off brand-asset dimension kept as a named constant, not inline. */
-private val LogoSize = 72.dp
 
 /** Registers the login destination in the app's navigation graph. */
 fun NavGraphBuilder.loginScreen() {
@@ -96,16 +90,11 @@ fun LoginScreen(
         ) {
             Image(
                 painter = painterResource(R.drawable.kliq_logo),
-                contentDescription = null,
-                modifier = Modifier.size(LogoSize),
+                contentDescription = stringResource(R.string.login_logo_description),
+                contentScale = ContentScale.Fit,
+                modifier = Modifier.height(KliqTheme.sizes.logoHeight),
             )
-            Spacer(Modifier.height(KliqTheme.spacing.lg))
-            KliqText(
-                text = stringResource(R.string.login_title),
-                style = KliqTextStyle.Heading,
-                color = KliqTheme.colors.primary,
-                modifier = Modifier.semantics { heading() },
-            )
+            Spacer(Modifier.height(KliqTheme.spacing.xl))
             KliqText(text = stringResource(R.string.login_subtitle), style = KliqTextStyle.Body, color = KliqTheme.colors.textSecondary)
             Spacer(Modifier.height(KliqTheme.spacing.huge))
 

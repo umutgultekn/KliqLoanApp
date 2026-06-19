@@ -26,6 +26,9 @@ private val LocalKliqShapes = staticCompositionLocalOf<KliqShapes> {
 private val LocalKliqElevation = staticCompositionLocalOf<KliqElevation> {
     error("No KliqElevation provided. Wrap content in KliqTheme { }.")
 }
+private val LocalKliqSizes = staticCompositionLocalOf<KliqSizes> {
+    error("No KliqSizes provided. Wrap content in KliqTheme { }.")
+}
 
 /**
  * The single source of truth for design tokens. [KliqTheme] also PROJECTS its tokens onto Material3
@@ -51,6 +54,9 @@ object KliqTheme {
     val elevation: KliqElevation
         @Composable @ReadOnlyComposable
         get() = LocalKliqElevation.current
+    val sizes: KliqSizes
+        @Composable @ReadOnlyComposable
+        get() = LocalKliqSizes.current
 }
 
 @Composable
@@ -61,6 +67,7 @@ fun KliqTheme(
     spacing: KliqSpacing = KliqDefaultSpacing,
     shapes: KliqShapes = KliqDefaultShapes,
     elevation: KliqElevation = KliqDefaultElevation,
+    sizes: KliqSizes = KliqDefaultSizes,
     content: @Composable () -> Unit,
 ) {
     CompositionLocalProvider(
@@ -69,6 +76,7 @@ fun KliqTheme(
         LocalKliqSpacing provides spacing,
         LocalKliqShapes provides shapes,
         LocalKliqElevation provides elevation,
+        LocalKliqSizes provides sizes,
     ) {
         MaterialTheme(
             colorScheme = colors.toMaterialColorScheme(darkTheme),

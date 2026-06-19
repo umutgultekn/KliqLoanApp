@@ -13,12 +13,19 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
+import com.kliq.loanapp.core.designsystem.theme.KliqSizes
 import com.kliq.loanapp.core.designsystem.theme.KliqTheme
 
 enum class ButtonStyle { Primary, Secondary, Destructive }
 
-enum class ButtonSize(val minHeight: Dp) { Small(40.dp), Medium(48.dp), Large(52.dp) }
+/** Semantic size; the concrete height comes from [KliqSizes] (resolved in [KliqButton]). */
+enum class ButtonSize { Small, Medium, Large }
+
+private fun ButtonSize.height(sizes: KliqSizes): Dp = when (this) {
+    ButtonSize.Small -> sizes.buttonSmall
+    ButtonSize.Medium -> sizes.buttonMedium
+    ButtonSize.Large -> sizes.buttonLarge
+}
 
 /**
  * Drives a button from a single immutable data class rather than many individual attributes —
@@ -42,27 +49,45 @@ fun KliqButton(
     modifier: Modifier = Modifier,
 ) {
     val colors = KliqTheme.colors
+    val sizes = KliqTheme.sizes
+    val isSecondary = config.style == ButtonStyle.Secondary
     val container = when (config.style) {
         ButtonStyle.Primary -> colors.primary
         ButtonStyle.Secondary -> colors.surface
         ButtonStyle.Destructive -> colors.statusDefault
     }
-    val contentColor = if (config.style == ButtonStyle.Secondary) colors.primary else colors.onPrimary
+    val contentColor = if (isSecondary) colors.primary else colors.onPrimary
 
     Button(
         onClick = onClick,
         enabled = config.enabled && !config.loading,
         modifier = modifier
             .then(if (config.fullWidth) Modifier.fillMaxWidth() else Modifier)
-            .heightIn(min = config.size.minHeight),
-        colors = ButtonDefaults.buttonColors(containerColor = container, contentColor = contentColor),
+            .heightIn(min = config.size.height(sizes)),
+        shape = KliqTheme.shapes.button,
+        colors = ButtonDefaults.buttonColors(
+            containerColor = container,
+            contentColor = contentColor,
+            // Muted, brand-consistent disabled state (not Material's flat grey).
+            disabledContainerColor = if (isSecondary) colors.surface else container.copy(alpha = 0.4f),
+            disabledContentColor = contentColor.copy(alpha = 0.6f),
+        ),
+        // Subtle lift on filled styles for a premium feel; the bordered Secondary stays flat.
+        elevation = if (isSecondary) {
+            null
+        } else {
+            ButtonDefaults.buttonElevation(
+                defaultElevation = KliqTheme.elevation.card,
+                pressedElevation = KliqTheme.elevation.none,
+            )
+        },
         // The Secondary style is surface-on-surface, so give it a visible border.
-        border = if (config.style == ButtonStyle.Secondary) BorderStroke(1.dp, colors.border) else null,
+        border = if (isSecondary) BorderStroke(sizes.borderWidth, colors.border) else null,
     ) {
         if (config.loading) {
             CircularProgressIndicator(
-                modifier = Modifier.size(20.dp),
-                strokeWidth = 2.dp,
+                modifier = Modifier.size(sizes.progressIndicator),
+                strokeWidth = sizes.strokeWidth,
                 color = contentColor,
             )
         } else {

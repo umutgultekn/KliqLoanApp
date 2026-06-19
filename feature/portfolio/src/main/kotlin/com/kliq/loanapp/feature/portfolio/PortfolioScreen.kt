@@ -181,7 +181,7 @@ private fun SummaryCard(summary: PortfolioSummaryUi) {
         modifier = Modifier.semantics(mergeDescendants = true) {},
         color = colors.primary,
         shape = KliqTheme.shapes.cardLarge,
-        elevation = KliqTheme.elevation.none,
+        elevation = KliqTheme.elevation.raised,
     ) {
         KliqText(
             text = stringResource(R.string.portfolio_total_label),

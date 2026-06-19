@@ -20,7 +20,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import com.kliq.loanapp.core.designsystem.theme.KliqTheme
 
 /** Reusable content-shaped loading skeleton: an optional header block + [itemCount] row blocks. */
@@ -32,11 +31,11 @@ fun KliqListSkeleton(
 ) {
     Column(modifier = modifier.fillMaxSize().padding(horizontal = KliqTheme.spacing.xl)) {
         if (showHeader) {
-            ShimmerBox(modifier = Modifier.fillMaxWidth().height(96.dp), shape = KliqTheme.shapes.cardLarge)
+            ShimmerBox(modifier = Modifier.fillMaxWidth().height(KliqTheme.sizes.skeletonHeader), shape = KliqTheme.shapes.cardLarge)
             Spacer(Modifier.height(KliqTheme.spacing.lg))
         }
         repeat(itemCount) {
-            ShimmerBox(modifier = Modifier.fillMaxWidth().height(88.dp))
+            ShimmerBox(modifier = Modifier.fillMaxWidth().height(KliqTheme.sizes.skeletonRow))
             Spacer(Modifier.height(KliqTheme.spacing.lg))
         }
     }

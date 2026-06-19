@@ -94,7 +94,11 @@ fun FormField(
     }
 
     Column(modifier = modifier.fillMaxWidth().animateContentSize()) {
-        KliqText(text = config.text.label.asString(), style = KliqTextStyle.Caption)
+        KliqText(
+            text = config.text.label.asString(),
+            style = KliqTextStyle.Caption,
+            modifier = Modifier.padding(bottom = KliqTheme.spacing.sm),
+        )
         OutlinedTextField(
             value = value,
             onValueChange = onValueChange,
@@ -105,6 +109,7 @@ fun FormField(
                 .semantics { if (errorText != null) error(errorText) },
             singleLine = true,
             isError = state is FieldUiState.Error,
+            shape = KliqTheme.shapes.field,
             visualTransformation = if (config.keyboard.isSecret) {
                 PasswordVisualTransformation()
             } else {
@@ -120,10 +125,14 @@ fun FormField(
             ),
             placeholder = { KliqText(config.text.placeholder.asString(), style = KliqTextStyle.Body, color = colors.textSecondary) },
             trailingIcon = trailing,
+            // A solid surface fill lifts the field off the muted background — a premium, card-like input.
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = borderColor,
                 unfocusedBorderColor = borderColor,
                 errorBorderColor = colors.statusDefault,
+                focusedContainerColor = colors.surface,
+                unfocusedContainerColor = colors.surface,
+                errorContainerColor = colors.surface,
             ),
         )
         val supporting = errorMessage ?: config.text.supporting
