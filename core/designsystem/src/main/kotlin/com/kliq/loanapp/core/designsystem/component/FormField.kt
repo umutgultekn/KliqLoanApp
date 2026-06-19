@@ -7,8 +7,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.runtime.Composable
@@ -24,7 +22,6 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.error
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -201,20 +198,16 @@ fun PasswordFormField(
         focusRequester = focusRequester,
         onFocusChanged = onFocusChanged,
         trailing = {
-            val stateDesc = stringResource(
-                if (visible) R.string.kliq_password_shown else R.string.kliq_password_hidden,
-            )
-            IconButton(
+            KliqIconButton(
+                icon = if (visible) Icons.Filled.VisibilityOff else Icons.Filled.Visibility,
+                contentDescription = stringResource(
+                    if (visible) R.string.kliq_action_hide_password else R.string.kliq_action_show_password,
+                ),
                 onClick = { visible = !visible },
-                modifier = Modifier.semantics { stateDescription = stateDesc },
-            ) {
-                Icon(
-                    imageVector = if (visible) Icons.Filled.VisibilityOff else Icons.Filled.Visibility,
-                    contentDescription = stringResource(
-                        if (visible) R.string.kliq_action_hide_password else R.string.kliq_action_show_password,
-                    ),
-                )
-            }
+                stateDescription = stringResource(
+                    if (visible) R.string.kliq_password_shown else R.string.kliq_password_hidden,
+                ),
+            )
         },
     )
 }

@@ -37,6 +37,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import com.kliq.loanapp.core.common.navigation.KliqRoute
+import com.kliq.loanapp.core.designsystem.component.ChipConfig
 import com.kliq.loanapp.core.designsystem.component.ConfirmDialog
 import com.kliq.loanapp.core.designsystem.component.EmptyState
 import com.kliq.loanapp.core.designsystem.component.KliqCard
@@ -222,8 +223,7 @@ private fun FilterRow(selected: PortfolioFilter, onFilterSelected: (PortfolioFil
     ) {
         PortfolioFilter.entries.forEach { filter ->
             KliqFilterChip(
-                label = filter.label(),
-                selected = filter == selected,
+                config = ChipConfig(label = filter.label(), selected = filter == selected),
                 onClick = { onFilterSelected(filter) },
             )
         }
