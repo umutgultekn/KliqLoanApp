@@ -18,4 +18,5 @@ data class PortfolioUiState(
     /** True when the WHOLE portfolio is empty (vs. just the current filter returning nothing). */
     val portfolioEmpty: Boolean = false,
     val isRefreshing: Boolean = false,
+    val showLogoutConfirm: Boolean = false,
 )

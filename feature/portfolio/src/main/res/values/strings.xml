@@ -9,6 +9,10 @@
     <string name="portfolio_show_all">Show all</string>
     <string name="portfolio_total_label">Portfolio total</string>
     <string name="portfolio_retry">Retry</string>
+    <string name="portfolio_logout_title">Log out?</string>
+    <string name="portfolio_logout_message">You will need to sign in again to view your portfolio.</string>
+    <string name="portfolio_logout_confirm">Log out</string>
+    <string name="portfolio_logout_cancel">Cancel</string>
     <string name="filter_all">All</string>
     <string name="filter_active">Active</string>
     <string name="filter_overdue">Overdue</string>

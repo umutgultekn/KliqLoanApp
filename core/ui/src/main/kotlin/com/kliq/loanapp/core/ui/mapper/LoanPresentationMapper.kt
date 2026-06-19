@@ -4,11 +4,8 @@ import androidx.compose.runtime.Immutable
 import com.kliq.loanapp.core.common.format.LoanFormatter
 import com.kliq.loanapp.core.common.text.UiText
 import com.kliq.loanapp.core.common.ui.Tone
-import com.kliq.loanapp.core.designsystem.component.BadgeConfig
 import com.kliq.loanapp.core.designsystem.component.LoanCardConfig
 import com.kliq.loanapp.core.model.Loan
-import com.kliq.loanapp.core.model.LoanStatus
-import com.kliq.loanapp.core.model.LoanType
 import com.kliq.loanapp.core.ui.R
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
@@ -49,16 +46,8 @@ class LoanPresentationMapper @Inject constructor(
         rateText = UiText.res(R.string.kliq_loan_rate, formatter.percent(loan.interestRate)),
         dueText = dueText(loan.dueInDays),
         dueTone = dueTone(loan.dueInDays),
-        typeBadge = BadgeConfig(
-            label = loan.type.name,
-            tone = loan.type.toTone(),
-            contentDescription = "Loan type: ${loan.type.name.lowercase()}",
-        ),
-        statusBadge = BadgeConfig(
-            label = loan.status.name,
-            tone = loan.status.toTone(),
-            contentDescription = "Status: ${loan.status.name.lowercase()}",
-        ),
+        typeBadge = loan.type.toBadgeConfig(),
+        statusBadge = loan.status.toBadgeConfig(),
     )
 
     fun summary(loans: List<Loan>): PortfolioSummaryUi {
@@ -83,18 +72,4 @@ class LoanPresentationMapper @Inject constructor(
         dueInDays == 0 -> Tone.Overdue
         else -> Tone.Default
     }
-}
-
-private fun LoanStatus.toTone(): Tone = when (this) {
-    LoanStatus.ACTIVE -> Tone.Active
-    LoanStatus.OVERDUE -> Tone.Overdue
-    LoanStatus.DEFAULT -> Tone.Default
-    LoanStatus.PAID -> Tone.Paid
-}
-
-private fun LoanType.toTone(): Tone = when (this) {
-    LoanType.PERSONAL -> Tone.TypePersonal
-    LoanType.MORTGAGE -> Tone.TypeMortgage
-    LoanType.AUTO -> Tone.TypeAuto
-    LoanType.BUSINESS -> Tone.TypeBusiness
 }

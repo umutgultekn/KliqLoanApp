@@ -71,6 +71,41 @@ fun KliqButton(
     }
 }
 
+/* ----- Specialized button wrappers (pre-configure the style; the Small/Medium/LargeLabel analog) ----- */
+
+@Composable
+fun PrimaryButton(
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    size: ButtonSize = ButtonSize.Medium,
+    fullWidth: Boolean = false,
+    enabled: Boolean = true,
+    loading: Boolean = false,
+) = KliqButton(ButtonConfig(text, ButtonStyle.Primary, size, fullWidth, enabled, loading), onClick, modifier)
+
+@Composable
+fun SecondaryButton(
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    size: ButtonSize = ButtonSize.Medium,
+    fullWidth: Boolean = false,
+    enabled: Boolean = true,
+    loading: Boolean = false,
+) = KliqButton(ButtonConfig(text, ButtonStyle.Secondary, size, fullWidth, enabled, loading), onClick, modifier)
+
+@Composable
+fun DestructiveButton(
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    size: ButtonSize = ButtonSize.Medium,
+    fullWidth: Boolean = false,
+    enabled: Boolean = true,
+    loading: Boolean = false,
+) = KliqButton(ButtonConfig(text, ButtonStyle.Destructive, size, fullWidth, enabled, loading), onClick, modifier)
+
 @Preview
 @Composable
 private fun KliqButtonPreview() {

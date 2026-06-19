@@ -30,7 +30,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -38,17 +37,17 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import com.kliq.loanapp.core.common.navigation.KliqRoute
-import com.kliq.loanapp.core.designsystem.component.ButtonConfig
-import com.kliq.loanapp.core.designsystem.component.ButtonStyle
+import com.kliq.loanapp.core.designsystem.component.ConfirmDialog
 import com.kliq.loanapp.core.designsystem.component.EmptyState
-import com.kliq.loanapp.core.designsystem.component.KliqButton
 import com.kliq.loanapp.core.designsystem.component.KliqCard
 import com.kliq.loanapp.core.designsystem.component.KliqFilterChip
+import com.kliq.loanapp.core.designsystem.component.KliqListSkeleton
 import com.kliq.loanapp.core.designsystem.component.KliqText
 import com.kliq.loanapp.core.designsystem.component.KliqTextButton
 import com.kliq.loanapp.core.designsystem.component.KliqTextStyle
+import com.kliq.loanapp.core.designsystem.component.KliqTopBar
 import com.kliq.loanapp.core.designsystem.component.LoanCard
-import com.kliq.loanapp.core.designsystem.component.ShimmerBox
+import com.kliq.loanapp.core.designsystem.component.SecondaryButton
 import com.kliq.loanapp.core.designsystem.text.asString
 import com.kliq.loanapp.core.designsystem.theme.KliqTheme
 import com.kliq.loanapp.core.model.PortfolioFilter
@@ -87,7 +86,9 @@ fun PortfolioRoute(viewModel: PortfolioViewModel = hiltViewModel()) {
         onFilterSelected = viewModel::onFilterSelected,
         onRetry = viewModel::onRetry,
         onRefresh = viewModel::onRefresh,
-        onLogout = viewModel::onLogout,
+        onLogoutClicked = viewModel::onLogoutClicked,
+        onLogoutConfirmed = viewModel::onLogoutConfirmed,
+        onLogoutDismissed = viewModel::onLogoutDismissed,
     )
 }
 
@@ -99,24 +100,30 @@ fun PortfolioScreen(
     onFilterSelected: (PortfolioFilter) -> Unit,
     onRetry: () -> Unit,
     onRefresh: () -> Unit,
-    onLogout: () -> Unit,
+    onLogoutClicked: () -> Unit,
+    onLogoutConfirmed: () -> Unit,
+    onLogoutDismissed: () -> Unit,
 ) {
     val colors = KliqTheme.colors
+
+    if (state.showLogoutConfirm) {
+        ConfirmDialog(
+            title = stringResource(R.string.portfolio_logout_title),
+            message = stringResource(R.string.portfolio_logout_message),
+            confirmLabel = stringResource(R.string.portfolio_logout_confirm),
+            dismissLabel = stringResource(R.string.portfolio_logout_cancel),
+            onConfirm = onLogoutConfirmed,
+            onDismiss = onLogoutDismissed,
+        )
+    }
+
     Scaffold(
         containerColor = colors.background,
         snackbarHost = { SnackbarHost(snackbarHostState) },
     ) { innerPadding ->
         Column(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = KliqTheme.spacing.xl, vertical = KliqTheme.spacing.lg),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                KliqText(
-                    text = stringResource(R.string.portfolio_title),
-                    style = KliqTextStyle.Heading,
-                    modifier = Modifier.weight(1f).semantics { heading() },
-                )
-                KliqTextButton(text = stringResource(R.string.portfolio_logout), onClick = onLogout)
+            KliqTopBar(title = stringResource(R.string.portfolio_title)) {
+                KliqTextButton(text = stringResource(R.string.portfolio_logout), onClick = onLogoutClicked)
             }
 
             val mode = when {
@@ -126,17 +133,14 @@ fun PortfolioScreen(
             }
             Crossfade(targetState = mode, label = "portfolioMode") { current ->
                 when (current) {
-                    PortfolioMode.Loading -> PortfolioSkeleton()
+                    PortfolioMode.Loading -> KliqListSkeleton()
                     PortfolioMode.Error -> CenteredBox {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             state.error?.let { err ->
                                 KliqText(err.asString(), style = KliqTextStyle.Body, color = colors.statusDefault)
                             }
                             Spacer(Modifier.height(KliqTheme.spacing.lg))
-                            KliqButton(
-                                config = ButtonConfig(text = stringResource(R.string.portfolio_retry), style = ButtonStyle.Secondary),
-                                onClick = onRetry,
-                            )
+                            SecondaryButton(text = stringResource(R.string.portfolio_retry), onClick = onRetry)
                         }
                     }
                     PortfolioMode.Content -> Column(modifier = Modifier.fillMaxSize().padding(horizontal = KliqTheme.spacing.xl)) {
@@ -207,18 +211,6 @@ private fun SummaryCard(summary: PortfolioSummaryUi) {
         Spacer(Modifier.height(KliqTheme.spacing.sm))
         KliqText(summary.countText.asString(), style = KliqTextStyle.Body, color = colors.onPrimary)
         KliqText(summary.avgRateText.asString(), style = KliqTextStyle.Caption, color = colors.onPrimary)
-    }
-}
-
-@Composable
-private fun PortfolioSkeleton() {
-    Column(modifier = Modifier.fillMaxSize().padding(horizontal = KliqTheme.spacing.xl)) {
-        ShimmerBox(modifier = Modifier.fillMaxWidth().height(96.dp), shape = KliqTheme.shapes.cardLarge)
-        Spacer(Modifier.height(KliqTheme.spacing.lg))
-        repeat(4) {
-            ShimmerBox(modifier = Modifier.fillMaxWidth().height(88.dp))
-            Spacer(Modifier.height(KliqTheme.spacing.lg))
-        }
     }
 }
 

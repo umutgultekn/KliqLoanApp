@@ -123,9 +123,20 @@ class PortfolioViewModelTest {
     }
 
     @Test
-    fun `logout clears the session and navigates to login`() = runTest {
+    fun `logout clicked shows confirmation without leaving`() = runTest {
         val vm = viewModel(sample)
-        vm.onLogout()
+        vm.onLogoutClicked()
+        assertTrue(vm.uiState.value.showLogoutConfirm)
+        assertTrue(session.current) // still logged in — only confirmed logout signs out
+        assertTrue(navigator.received.isEmpty())
+    }
+
+    @Test
+    fun `confirming logout clears the session and navigates to login`() = runTest {
+        val vm = viewModel(sample)
+        vm.onLogoutClicked()
+        vm.onLogoutConfirmed()
+        assertFalse(vm.uiState.value.showLogoutConfirm)
         assertFalse(session.current)
         assertEquals(
             NavCommand.To(KliqRoute.Login, popUpTo = KliqRoute.Portfolio, inclusive = true),

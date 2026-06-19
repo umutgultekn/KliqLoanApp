@@ -37,10 +37,11 @@ class PortfolioViewModel @Inject constructor(
     // Processing always runs on the freshly-fetched raw list (deterministic across reloads).
     private val loadState = MutableStateFlow<LoadState>(LoadState.Loading)
     private val refreshing = MutableStateFlow(false)
+    private val logoutConfirm = MutableStateFlow(false)
 
     init {
         reload(showLoading = true)
-        combine(loadState, selectedFilter, refreshing, ::reduce)
+        combine(loadState, selectedFilter, refreshing, logoutConfirm, ::reduce)
             .onEach { state -> setState { state } }
             .launchIn(viewModelScope)
     }
@@ -55,9 +56,15 @@ class PortfolioViewModel @Inject constructor(
     /** Background reload that keeps the current content — used by pull-to-refresh. */
     fun onRefresh() = reload(showLoading = false)
 
-    fun onLogout() = launchSafe {
-        sessionRepository.setLoggedIn(false)
-        navigator.navigate(NavCommand.To(KliqRoute.Login, popUpTo = KliqRoute.Portfolio, inclusive = true))
+    fun onLogoutClicked() { logoutConfirm.value = true }
+    fun onLogoutDismissed() { logoutConfirm.value = false }
+
+    fun onLogoutConfirmed() {
+        logoutConfirm.value = false
+        launchSafe {
+            sessionRepository.setLoggedIn(false)
+            navigator.navigate(NavCommand.To(KliqRoute.Login, popUpTo = KliqRoute.Portfolio, inclusive = true))
+        }
     }
 
     private fun reload(showLoading: Boolean): Job = launchSafe {
@@ -71,28 +78,38 @@ class PortfolioViewModel @Inject constructor(
         onFailure = { LoadState.Error(it.toAppError()) },
     )
 
-    private fun reduce(load: LoadState, filter: PortfolioFilter, isRefreshing: Boolean): PortfolioUiState =
-        when (load) {
-            LoadState.Loading -> PortfolioUiState(isLoading = true, selectedFilter = filter)
-            is LoadState.Error -> PortfolioUiState(
+    private fun reduce(
+        load: LoadState,
+        filter: PortfolioFilter,
+        isRefreshing: Boolean,
+        showLogoutConfirm: Boolean,
+    ): PortfolioUiState = when (load) {
+        LoadState.Loading -> PortfolioUiState(
+            isLoading = true,
+            selectedFilter = filter,
+            showLogoutConfirm = showLogoutConfirm,
+        )
+        is LoadState.Error -> PortfolioUiState(
+            isLoading = false,
+            error = load.error.asUiText(),
+            selectedFilter = filter,
+            isRefreshing = isRefreshing,
+            showLogoutConfirm = showLogoutConfirm,
+        )
+        is LoadState.Success -> {
+            val filtered = load.loans.filter(filter::matches)
+            PortfolioUiState(
                 isLoading = false,
-                error = load.error.asUiText(),
+                cards = mapper.toCards(filtered),
+                // The summary card reflects the WHOLE portfolio; the filter only narrows the list.
+                summary = mapper.summary(load.loans),
                 selectedFilter = filter,
+                portfolioEmpty = load.loans.isEmpty(),
                 isRefreshing = isRefreshing,
+                showLogoutConfirm = showLogoutConfirm,
             )
-            is LoadState.Success -> {
-                val filtered = load.loans.filter(filter::matches)
-                PortfolioUiState(
-                    isLoading = false,
-                    cards = mapper.toCards(filtered),
-                    // The summary card reflects the WHOLE portfolio; the filter only narrows the list.
-                    summary = mapper.summary(load.loans),
-                    selectedFilter = filter,
-                    portfolioEmpty = load.loans.isEmpty(),
-                    isRefreshing = isRefreshing,
-                )
-            }
         }
+    }
 
     private sealed interface LoadState {
         data object Loading : LoadState

@@ -9,9 +9,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -20,6 +22,25 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.style.TextAlign
 import com.kliq.loanapp.core.designsystem.theme.KliqTheme
+
+/** Reusable content-shaped loading skeleton: an optional header block + [itemCount] row blocks. */
+@Composable
+fun KliqListSkeleton(
+    modifier: Modifier = Modifier,
+    itemCount: Int = 4,
+    showHeader: Boolean = true,
+) {
+    Column(modifier = modifier.fillMaxSize().padding(horizontal = KliqTheme.spacing.xl)) {
+        if (showHeader) {
+            ShimmerBox(modifier = Modifier.fillMaxWidth().height(96.dp), shape = KliqTheme.shapes.cardLarge)
+            Spacer(Modifier.height(KliqTheme.spacing.lg))
+        }
+        repeat(itemCount) {
+            ShimmerBox(modifier = Modifier.fillMaxWidth().height(88.dp))
+            Spacer(Modifier.height(KliqTheme.spacing.lg))
+        }
+    }
+}
 
 /** A pulsing placeholder block used to build loading skeletons. */
 @Composable

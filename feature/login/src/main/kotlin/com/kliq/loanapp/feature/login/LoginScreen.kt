@@ -35,11 +35,10 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import kotlinx.coroutines.launch
 import com.kliq.loanapp.core.common.navigation.KliqRoute
-import com.kliq.loanapp.core.designsystem.component.ButtonConfig
 import com.kliq.loanapp.core.designsystem.component.ButtonSize
 import com.kliq.loanapp.core.designsystem.component.EmailFormField
-import com.kliq.loanapp.core.designsystem.component.KliqButton
 import com.kliq.loanapp.core.designsystem.component.KliqText
+import com.kliq.loanapp.core.designsystem.component.PrimaryButton
 import com.kliq.loanapp.core.designsystem.component.KliqTextStyle
 import com.kliq.loanapp.core.designsystem.component.PasswordFormField
 import com.kliq.loanapp.core.designsystem.text.asString
@@ -147,15 +146,13 @@ fun LoginScreen(
                 imeAction = ImeAction.Done,
             )
             Spacer(Modifier.height(KliqTheme.spacing.xxxl))
-            KliqButton(
-                config = ButtonConfig(
-                    text = stringResource(R.string.login_submit),
-                    size = ButtonSize.Large,
-                    fullWidth = true,
-                    enabled = state.submitEnabled,
-                    loading = state.isSubmitting,
-                ),
+            PrimaryButton(
+                text = stringResource(R.string.login_submit),
                 onClick = submit,
+                size = ButtonSize.Large,
+                fullWidth = true,
+                enabled = state.submitEnabled,
+                loading = state.isSubmitting,
             )
         }
     }
