@@ -4,7 +4,6 @@ import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -52,6 +51,9 @@ import com.kliq.loanapp.core.ui.mapper.PortfolioSummaryUi
 import com.kliq.loanapp.core.ui.rememberSnackbarEvents
 
 private enum class PortfolioMode { Loading, Error, Content }
+
+/** Minimum comfortable width for a loan card; the grid fits as many columns as the width allows. */
+private val LoanCardMinWidth = 300.dp
 
 fun NavGraphBuilder.portfolioScreen() {
     composable<KliqRoute.Portfolio> { PortfolioRoute() }
@@ -149,18 +151,18 @@ fun PortfolioScreen(
                                 onRefresh = onRefresh,
                                 modifier = Modifier.fillMaxSize(),
                             ) {
-                                BoxWithConstraints {
-                                    val columns = if (maxWidth >= 600.dp) 2 else 1
-                                    LazyVerticalGrid(
-                                        columns = GridCells.Fixed(columns),
-                                        modifier = Modifier.fillMaxSize(),
-                                        verticalArrangement = Arrangement.spacedBy(KliqTheme.spacing.lg),
-                                        horizontalArrangement = Arrangement.spacedBy(KliqTheme.spacing.lg),
-                                        contentPadding = PaddingValues(bottom = KliqTheme.spacing.xxxl),
-                                    ) {
-                                        items(state.cards, key = { it.id }) { card ->
-                                            LoanCard(config = card, modifier = Modifier.animateItem())
-                                        }
+                                // Adaptive columns: the grid fits as many >= LoanCardMinWidth cells as
+                                // the available width allows (1 on phones, 2+ on tablets/landscape) —
+                                // no BoxWithConstraints, no manual width breakpoint or column count.
+                                LazyVerticalGrid(
+                                    columns = GridCells.Adaptive(minSize = LoanCardMinWidth),
+                                    modifier = Modifier.fillMaxSize(),
+                                    verticalArrangement = Arrangement.spacedBy(KliqTheme.spacing.lg),
+                                    horizontalArrangement = Arrangement.spacedBy(KliqTheme.spacing.lg),
+                                    contentPadding = PaddingValues(bottom = KliqTheme.spacing.xxxl),
+                                ) {
+                                    items(state.cards, key = { it.id }) { card ->
+                                        LoanCard(config = card, modifier = Modifier.animateItem())
                                     }
                                 }
                             }

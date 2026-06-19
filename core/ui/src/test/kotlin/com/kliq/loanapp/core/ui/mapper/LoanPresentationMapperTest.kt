@@ -40,7 +40,10 @@ class LoanPresentationMapperTest {
         assertTrue(summary.avgRateText is UiText.Resource)
     }
 
-    @Test fun `empty portfolio yields the empty summary`() {
-        assertEquals(PortfolioSummaryUi.Empty, mapper.summary(PortfolioSummary.from(emptyList())))
+    @Test fun `empty portfolio summary is formatted through the formatter, not hardcoded`() {
+        val summary = mapper.summary(PortfolioSummary.from(emptyList()))
+        assertEquals("$0", summary.totalText) // produced by formatter.money(Money.Zero), not a literal
+        assertEquals(0, (summary.countText as UiText.Plural).quantity)
+        assertTrue(summary.avgRateText is UiText.Resource)
     }
 }

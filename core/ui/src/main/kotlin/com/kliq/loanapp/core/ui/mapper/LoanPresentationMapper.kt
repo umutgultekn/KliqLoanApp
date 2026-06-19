@@ -21,11 +21,10 @@ data class PortfolioSummaryUi(
     val avgRateText: UiText,
 ) {
     companion object {
-        val Empty = PortfolioSummaryUi(
-            totalText = "$0",
-            countText = UiText.plural(R.plurals.kliq_portfolio_loan_count, 0, 0),
-            avgRateText = UiText.res(R.string.kliq_portfolio_avg_rate, "0.0%"),
-        )
+        // Neutral placeholder for the pre-content default state only. Every RENDERED summary —
+        // including the empty portfolio — is produced by summary() through the formatter, so no
+        // currency/percent string is ever hardcoded here.
+        val Empty = PortfolioSummaryUi(totalText = "", countText = UiText.Empty, avgRateText = UiText.Empty)
     }
 }
 
@@ -51,15 +50,16 @@ class LoanPresentationMapper @Inject constructor(
         statusBadge = loan.status.toBadgeConfig(),
     )
 
-    /** Pure formatting of the domain [PortfolioSummary]; the aggregation math lives in the model. */
-    fun summary(summary: PortfolioSummary): PortfolioSummaryUi {
-        if (summary.loanCount == 0) return PortfolioSummaryUi.Empty
-        return PortfolioSummaryUi(
-            totalText = formatter.money(summary.totalPrincipal),
-            countText = UiText.plural(R.plurals.kliq_portfolio_loan_count, summary.loanCount, summary.loanCount),
-            avgRateText = UiText.res(R.string.kliq_portfolio_avg_rate, formatter.percent(summary.averageInterestRate)),
-        )
-    }
+    /**
+     * Pure formatting of the domain [PortfolioSummary]. The aggregation math lives in the model, and
+     * every figure — including the empty-portfolio zeroes (Money.Zero / Rate.Zero) — goes through
+     * [formatter], never a hardcoded currency/percent literal, so it honors the same locale rules.
+     */
+    fun summary(summary: PortfolioSummary): PortfolioSummaryUi = PortfolioSummaryUi(
+        totalText = formatter.money(summary.totalPrincipal),
+        countText = UiText.plural(R.plurals.kliq_portfolio_loan_count, summary.loanCount, summary.loanCount),
+        avgRateText = UiText.res(R.string.kliq_portfolio_avg_rate, formatter.percent(summary.averageInterestRate)),
+    )
 
     private fun dueText(dueInDays: Int): UiText = when {
         dueInDays > 0 -> UiText.plural(R.plurals.kliq_loan_due_remaining, dueInDays, dueInDays)
