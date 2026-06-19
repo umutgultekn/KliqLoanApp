@@ -102,7 +102,7 @@ class PortfolioViewModelTest {
         val useCase = GetProcessedPortfolioUseCase(FakeLoanRepository(Result.success(sample)), testLoanProcessor())
         val vm = PortfolioViewModel(
             useCase, mapper, session, navigator,
-            SavedStateHandle(mapOf("portfolio_filter" to PortfolioFilter.ACTIVE)),
+            SavedStateHandle(mapOf(PortfolioViewModel.KEY_FILTER to PortfolioFilter.ACTIVE)),
         )
         assertEquals(PortfolioFilter.ACTIVE, vm.uiState.value.selectedFilter)
         assertEquals(1, vm.uiState.value.cards.size)

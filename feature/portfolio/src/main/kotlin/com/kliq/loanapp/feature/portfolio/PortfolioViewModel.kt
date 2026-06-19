@@ -118,7 +118,7 @@ class PortfolioViewModel @Inject constructor(
         data class Error(val error: AppError) : LoadState
     }
 
-    private companion object {
+    internal companion object {
         const val KEY_FILTER = "portfolio_filter"
     }
 }

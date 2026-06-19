@@ -20,7 +20,7 @@ class SessionManager @Inject constructor(
     private val dispatchers: DispatcherProvider,
 ) : SessionRepository {
 
-    private val loggedInKey = booleanPreferencesKey("is_logged_in")
+    private val loggedInKey = booleanPreferencesKey(KEY_IS_LOGGED_IN)
 
     override val isLoggedIn: Flow<Boolean> = dataStore.data
         .catch { error -> if (error is IOException) emit(emptyPreferences()) else throw error }
@@ -30,5 +30,9 @@ class SessionManager @Inject constructor(
         withContext(dispatchers.io) {
             dataStore.edit { it[loggedInKey] = value }
         }
+    }
+
+    private companion object {
+        const val KEY_IS_LOGGED_IN = "is_logged_in"
     }
 }

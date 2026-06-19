@@ -20,6 +20,8 @@ private const val BADGE_FILL_LUMINANCE_THRESHOLD = 0.2f
 data class KliqColorScheme(
     val primary: Color,
     val onPrimary: Color,
+    // De-emphasized foreground on the primary surface (e.g. the summary card's label/caption).
+    val onPrimaryMuted: Color,
     // Theme-invariant dark ink for badge foregrounds; [onColorFor] picks it over white by luminance.
     val badgeTextDark: Color,
     val background: Color,
@@ -77,6 +79,7 @@ data class KliqColorScheme(
 val KliqLightColors = KliqColorScheme(
     primary = Color(0xFF222B45),
     onPrimary = Color(0xFFFFFFFF),
+    onPrimaryMuted = Color(0xB3FFFFFF), // white @ 70% — de-emphasized text on the primary surface
     badgeTextDark = Color(0xFF1A1A2E),
     background = Color(0xFFF2F2F7),
     surface = Color(0xFFFFFFFF),
@@ -100,6 +103,7 @@ val KliqLightColors = KliqColorScheme(
 val KliqDarkColors = KliqColorScheme(
     primary = Color(0xFF3D5A99),
     onPrimary = Color(0xFFFFFFFF),
+    onPrimaryMuted = Color(0xB3FFFFFF), // white @ 70% — de-emphasized text on the primary surface
     badgeTextDark = Color(0xFF1A1A2E),
     background = Color(0xFF121218),
     surface = Color(0xFF1E1E28),

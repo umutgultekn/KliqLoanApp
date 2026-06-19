@@ -186,7 +186,7 @@ private fun SummaryCard(summary: PortfolioSummaryUi) {
         KliqText(
             text = stringResource(R.string.portfolio_total_label),
             style = KliqTextStyle.Caption,
-            color = colors.onPrimary.copy(alpha = 0.7f),
+            color = colors.onPrimaryMuted,
         )
         KliqText(summary.totalText, style = KliqTextStyle.Heading, color = colors.onPrimary)
         Spacer(Modifier.height(KliqTheme.spacing.sm))

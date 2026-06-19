@@ -27,7 +27,6 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import javax.inject.Singleton
 
@@ -58,10 +57,14 @@ internal abstract class DataModule {
         fun gson(): Gson = Gson()
 
         @Provides @Singleton
-        fun dataStore(@ApplicationContext context: Context): DataStore<Preferences> =
+        fun dataStore(
+            @ApplicationContext context: Context,
+            dispatchers: DispatcherProvider,
+        ): DataStore<Preferences> =
             PreferenceDataStoreFactory.create(
                 corruptionHandler = ReplaceFileCorruptionHandler { emptyPreferences() },
-                scope = CoroutineScope(Dispatchers.IO + SupervisorJob()),
+                // IO dispatcher comes from the provider, like every other dispatcher (no raw Dispatchers.IO).
+                scope = CoroutineScope(dispatchers.io + SupervisorJob()),
                 produceFile = { context.preferencesDataStoreFile("kliq_session") },
             )
     }

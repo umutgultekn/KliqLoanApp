@@ -40,6 +40,9 @@ import com.kliq.loanapp.core.designsystem.component.PrimaryButton
 import com.kliq.loanapp.core.designsystem.theme.KliqTheme
 import com.kliq.loanapp.core.ui.rememberSnackbarEvents
 
+/** Login logo size — a one-off brand-asset dimension kept as a named constant, not inline. */
+private val LogoSize = 72.dp
+
 /** Registers the login destination in the app's navigation graph. */
 fun NavGraphBuilder.loginScreen() {
     composable<KliqRoute.Login> { LoginRoute() }
@@ -94,7 +97,7 @@ fun LoginScreen(
             Image(
                 painter = painterResource(R.drawable.kliq_logo),
                 contentDescription = null,
-                modifier = Modifier.size(72.dp),
+                modifier = Modifier.size(LogoSize),
             )
             Spacer(Modifier.height(KliqTheme.spacing.lg))
             KliqText(
