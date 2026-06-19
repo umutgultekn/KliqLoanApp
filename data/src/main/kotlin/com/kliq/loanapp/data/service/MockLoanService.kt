@@ -1,9 +1,9 @@
 package com.kliq.loanapp.data.service
 
 import android.content.Context
-import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import com.kliq.loanapp.core.common.log.Logger
 import com.kliq.loanapp.core.model.Loan
 import com.kliq.loanapp.data.dto.LoanDto
 import com.kliq.loanapp.data.mapper.toDomainOrNull
@@ -15,6 +15,7 @@ import javax.inject.Inject
 class MockLoanService @Inject constructor(
     @ApplicationContext private val context: Context,
     private val gson: Gson,
+    private val logger: Logger,
 ) : LoanService {
 
     override suspend fun fetchLoans(): List<Loan> {
@@ -24,12 +25,11 @@ class MockLoanService @Inject constructor(
 
         val loans = dtos.mapNotNull { it.toDomainOrNull() }
         val dropped = dtos.size - loans.size
-        if (dropped > 0) Log.w(TAG, "Dropped $dropped malformed loan record(s)")
+        if (dropped > 0) logger.warn("Dropped $dropped malformed loan record(s)")
         return loans
     }
 
     private companion object {
         const val ASSET_FILE = "loans.json"
-        const val TAG = "MockLoanService"
     }
 }

@@ -1,9 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <!--
+      allowBackup is off by design: the only persisted state is the auth flag in the kliq_session
+      DataStore. Backing it up / device-transferring it would restore a device into a pre-authenticated
+      state, so we opt out rather than ship backup/data-extraction exclusion rules for a single flag.
+    -->
     <application
         android:name=".KliqApplication"
-        android:allowBackup="true"
+        android:allowBackup="false"
         android:icon="@drawable/kliq_logo"
         android:label="@string/app_name"
         android:supportsRtl="true"

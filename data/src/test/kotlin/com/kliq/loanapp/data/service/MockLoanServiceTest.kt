@@ -5,6 +5,7 @@ import androidx.test.core.app.ApplicationProvider
 import com.google.gson.Gson
 import com.kliq.loanapp.core.model.LoanStatus
 import com.kliq.loanapp.core.model.LoanType
+import com.kliq.loanapp.core.testing.RecordingLogger
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -19,7 +20,7 @@ import org.robolectric.RobolectricTestRunner
 class MockLoanServiceTest {
 
     private val context = ApplicationProvider.getApplicationContext<Context>()
-    private val service = MockLoanService(context, Gson())
+    private val service = MockLoanService(context, Gson(), RecordingLogger())
 
     @Test
     fun `parses all 29 records`() = runTest {

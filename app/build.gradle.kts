@@ -20,7 +20,10 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            // R8 on: shrink + obfuscate code and strip unused resources. Keep rules are narrow
+            // (see proguard-rules.pro + data's consumer-rules.pro) so the seam is actually exercised.
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",

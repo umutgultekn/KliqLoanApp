@@ -4,6 +4,7 @@ import com.google.gson.JsonSyntaxException
 import com.kliq.loanapp.core.common.result.AppError
 import com.kliq.loanapp.core.testing.FakeLoanService
 import com.kliq.loanapp.core.testing.LoanFixtures
+import com.kliq.loanapp.core.testing.RecordingLogger
 import com.kliq.loanapp.core.testing.TestDispatcherProvider
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
@@ -18,7 +19,7 @@ class LoanRepositoryImplTest {
 
     // Build the repository with a dispatcher bound to runTest's scheduler so withContext(io) runs.
     private fun TestScope.repository(service: FakeLoanService) =
-        LoanRepositoryImpl(service, TestDispatcherProvider(StandardTestDispatcher(testScheduler)))
+        LoanRepositoryImpl(service, TestDispatcherProvider(StandardTestDispatcher(testScheduler)), RecordingLogger())
 
     @Test fun `returns loans on success`() = runTest {
         val service = FakeLoanService(loans = listOf(LoanFixtures.consumerCredit))
