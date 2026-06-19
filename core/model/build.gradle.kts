@@ -4,4 +4,5 @@ plugins {
 
 dependencies {
     // Pure Kotlin domain model — no Android, no third-party deps.
+    testImplementation(libs.junit4)
 }

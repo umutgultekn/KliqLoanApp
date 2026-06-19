@@ -6,6 +6,7 @@ import com.kliq.loanapp.core.common.text.UiText
 import com.kliq.loanapp.core.common.ui.Tone
 import com.kliq.loanapp.core.designsystem.component.LoanCardConfig
 import com.kliq.loanapp.core.model.Loan
+import com.kliq.loanapp.core.model.PortfolioSummary
 import com.kliq.loanapp.core.ui.R
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
@@ -50,14 +51,13 @@ class LoanPresentationMapper @Inject constructor(
         statusBadge = loan.status.toBadgeConfig(),
     )
 
-    fun summary(loans: List<Loan>): PortfolioSummaryUi {
-        if (loans.isEmpty()) return PortfolioSummaryUi.Empty
-        val total = loans.sumOf { it.principalAmount }
-        val avgRate = loans.sumOf { it.interestRate } / loans.size
+    /** Pure formatting of the domain [PortfolioSummary]; the aggregation math lives in the model. */
+    fun summary(summary: PortfolioSummary): PortfolioSummaryUi {
+        if (summary.loanCount == 0) return PortfolioSummaryUi.Empty
         return PortfolioSummaryUi(
-            totalText = formatter.money(total),
-            countText = UiText.plural(R.plurals.kliq_portfolio_loan_count, loans.size, loans.size),
-            avgRateText = UiText.res(R.string.kliq_portfolio_avg_rate, formatter.percent(avgRate)),
+            totalText = formatter.money(summary.totalPrincipal),
+            countText = UiText.plural(R.plurals.kliq_portfolio_loan_count, summary.loanCount, summary.loanCount),
+            avgRateText = UiText.res(R.string.kliq_portfolio_avg_rate, formatter.percent(summary.averageInterestRate)),
         )
     }
 

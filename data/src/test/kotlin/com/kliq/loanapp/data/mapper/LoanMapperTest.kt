@@ -13,7 +13,7 @@ class LoanMapperTest {
         val dto = LoanDto("Consumer Credit", 8_500.0, 2.9, "active", 45, "personal")
         val loan = dto.toDomainOrNull()!!
         assertEquals("Consumer Credit", loan.name)
-        assertEquals(8_500.0, loan.principalAmount, 0.0)
+        assertEquals(8_500.0, loan.principalAmount.amount, 0.0)
         assertEquals(LoanStatus.ACTIVE, loan.status)
         assertEquals(LoanType.PERSONAL, loan.type)
     }

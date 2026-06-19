@@ -9,6 +9,7 @@ import com.kliq.loanapp.core.common.result.AppError
 import com.kliq.loanapp.core.common.result.toAppError
 import com.kliq.loanapp.core.model.Loan
 import com.kliq.loanapp.core.model.PortfolioFilter
+import com.kliq.loanapp.core.model.PortfolioSummary
 import com.kliq.loanapp.core.ui.BaseViewModel
 import com.kliq.loanapp.core.ui.error.asUiText
 import com.kliq.loanapp.core.ui.mapper.LoanPresentationMapper
@@ -102,7 +103,7 @@ class PortfolioViewModel @Inject constructor(
                 isLoading = false,
                 cards = mapper.toCards(filtered),
                 // The summary card reflects the WHOLE portfolio; the filter only narrows the list.
-                summary = mapper.summary(load.loans),
+                summary = mapper.summary(PortfolioSummary.from(load.loans)),
                 selectedFilter = filter,
                 portfolioEmpty = load.loans.isEmpty(),
                 isRefreshing = isRefreshing,

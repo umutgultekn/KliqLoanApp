@@ -26,7 +26,7 @@ class LoanProcessorTest {
         val result = processor.process(
             loan(type = LoanType.PERSONAL, status = LoanStatus.ACTIVE, dueInDays = 1, principalAmount = 5_000.0, interestRate = 3.0),
         )
-        assertEquals(3.3, result.interestRate, DELTA)
+        assertEquals(3.3, result.interestRate.percent, DELTA)
         assertEquals(0, result.dueInDays)
         assertEquals(LoanStatus.ACTIVE, result.status)
     }
@@ -35,7 +35,7 @@ class LoanProcessorTest {
         val result = processor.process(
             loan(type = LoanType.PERSONAL, status = LoanStatus.ACTIVE, dueInDays = 0, principalAmount = 5_000.0, interestRate = 3.0),
         )
-        assertEquals(3.6, result.interestRate, DELTA)
+        assertEquals(3.6, result.interestRate.percent, DELTA)
         assertEquals(-1, result.dueInDays)
     }
 
@@ -45,28 +45,28 @@ class LoanProcessorTest {
         val result = processor.process(
             loan(type = LoanType.PERSONAL, status = LoanStatus.ACTIVE, dueInDays = -90, principalAmount = 5_000.0, interestRate = 3.0),
         )
-        assertEquals(3.6, result.interestRate, DELTA)
+        assertEquals(3.6, result.interestRate.percent, DELTA)
         assertEquals(-91, result.dueInDays)
         assertEquals(LoanStatus.DEFAULT, result.status)
     }
 
     @Test fun `terminal loans skip the strategy but are still decremented`() {
         val result = processor.process(LoanFixtures.commercialCredit) // DEFAULT, -40, 4.3
-        assertEquals(4.3, result.interestRate, DELTA) // unchanged: no strategy applied
+        assertEquals(4.3, result.interestRate.percent, DELTA) // unchanged: no strategy applied
         assertEquals(-41, result.dueInDays) // still decremented
         assertEquals(LoanStatus.DEFAULT, result.status)
     }
 
     @Test fun `real record Vehicle Finance stays overdue`() {
         val result = processor.process(LoanFixtures.vehicleFinance) // AUTO OVERDUE 42000 -8 3.6
-        assertEquals(5.4, result.interestRate, DELTA)
+        assertEquals(5.4, result.interestRate.percent, DELTA)
         assertEquals(-9, result.dueInDays)
         assertEquals(LoanStatus.OVERDUE, result.status)
     }
 
     @Test fun `real record Premium Auto Lease defaults`() {
         val result = processor.process(LoanFixtures.premiumAutoLease) // AUTO OVERDUE 62000 -14 4.7
-        assertEquals(6.5, result.interestRate, DELTA)
+        assertEquals(6.5, result.interestRate.percent, DELTA)
         assertEquals(-15, result.dueInDays)
         assertEquals(LoanStatus.DEFAULT, result.status)
     }

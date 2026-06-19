@@ -3,6 +3,7 @@ package com.kliq.loanapp.core.ui.mapper
 import com.kliq.loanapp.core.common.format.DefaultLoanFormatter
 import com.kliq.loanapp.core.common.text.UiText
 import com.kliq.loanapp.core.common.ui.Tone
+import com.kliq.loanapp.core.model.PortfolioSummary
 import com.kliq.loanapp.core.testing.LoanFixtures
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -33,13 +34,13 @@ class LoanPresentationMapperTest {
             LoanFixtures.loan(principalAmount = 10_000.0, interestRate = 2.0),
             LoanFixtures.loan(principalAmount = 30_000.0, interestRate = 4.0),
         )
-        val summary = mapper.summary(loans)
+        val summary = mapper.summary(PortfolioSummary.from(loans))
         assertEquals("$40,000", summary.totalText)
         assertEquals(2, (summary.countText as UiText.Plural).quantity)
         assertTrue(summary.avgRateText is UiText.Resource)
     }
 
     @Test fun `empty portfolio yields the empty summary`() {
-        assertEquals(PortfolioSummaryUi.Empty, mapper.summary(emptyList()))
+        assertEquals(PortfolioSummaryUi.Empty, mapper.summary(PortfolioSummary.from(emptyList())))
     }
 }

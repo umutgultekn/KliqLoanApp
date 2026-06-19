@@ -20,14 +20,14 @@ enum class LoanStatus {
  */
 data class Loan(
     val name: String,
-    val principalAmount: Double,
-    val interestRate: Double,
+    val principalAmount: Money,
+    val interestRate: Rate,
     val status: LoanStatus,
     val dueInDays: Int,
     val type: LoanType,
 ) {
     /** Returns a copy with [delta] added to the interest rate. */
-    fun addRate(delta: Double): Loan = copy(interestRate = interestRate + delta)
+    fun addRate(delta: Rate): Loan = copy(interestRate = interestRate + delta)
 
     /** Returns a copy with the given [newStatus]. */
     fun withStatus(newStatus: LoanStatus): Loan = copy(status = newStatus)

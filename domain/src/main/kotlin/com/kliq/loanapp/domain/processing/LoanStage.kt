@@ -2,6 +2,7 @@ package com.kliq.loanapp.domain.processing
 
 import com.kliq.loanapp.core.model.Loan
 import com.kliq.loanapp.core.model.LoanStatus
+import com.kliq.loanapp.core.model.Money
 
 /** A single, pure, dependency-free step in the global loan lifecycle pipeline. */
 fun interface LoanStage {
@@ -26,5 +27,5 @@ object OverdueDefaultStage : LoanStage {
 /** Settlement wins last: a fully-repaid loan is marked paid. */
 object SettlementStage : LoanStage {
     override fun invoke(loan: Loan): Loan =
-        if (loan.principalAmount <= 0.0) loan.withStatus(LoanStatus.PAID) else loan
+        if (loan.principalAmount <= Money.Zero) loan.withStatus(LoanStatus.PAID) else loan
 }

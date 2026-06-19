@@ -3,6 +3,8 @@ package com.kliq.loanapp.data.mapper
 import com.kliq.loanapp.core.model.Loan
 import com.kliq.loanapp.core.model.LoanStatus
 import com.kliq.loanapp.core.model.LoanType
+import com.kliq.loanapp.core.model.Money
+import com.kliq.loanapp.core.model.Rate
 import com.kliq.loanapp.data.dto.LoanDto
 
 /**
@@ -22,8 +24,8 @@ internal fun LoanDto.toDomainOrNull(): Loan? {
     val loanType = parseType(type) ?: return null
     return Loan(
         name = safeName,
-        principalAmount = principal,
-        interestRate = rate,
+        principalAmount = Money(principal),
+        interestRate = Rate(rate),
         status = parseStatus(status),
         dueInDays = due,
         type = loanType,
