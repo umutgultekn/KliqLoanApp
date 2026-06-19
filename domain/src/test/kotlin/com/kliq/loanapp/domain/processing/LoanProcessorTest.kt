@@ -53,7 +53,7 @@ class LoanProcessorTest {
     @Test fun `terminal loans skip the strategy but are still decremented`() {
         val result = processor.process(LoanFixtures.commercialCredit) // DEFAULT, -40, 4.3
         assertEquals(4.3, result.interestRate, DELTA) // unchanged: no strategy applied
-        assertEquals(-41, result.dueInDays)           // still decremented
+        assertEquals(-41, result.dueInDays) // still decremented
         assertEquals(LoanStatus.DEFAULT, result.status)
     }
 

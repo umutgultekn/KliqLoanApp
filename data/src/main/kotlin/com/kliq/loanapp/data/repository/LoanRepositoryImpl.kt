@@ -20,6 +20,9 @@ class LoanRepositoryImpl @Inject constructor(
     private val dispatchers: DispatcherProvider,
 ) : LoanRepository {
 
+    // Each known data-source failure is deliberately translated to a typed AppError — the original is
+    // not propagated because the AppError taxonomy is the contract the rest of the app consumes.
+    @Suppress("SwallowedException", "TooGenericExceptionCaught")
     override suspend fun getLoans(): Result<List<Loan>> = withContext(dispatchers.io) {
         try {
             Result.success(service.fetchLoans())

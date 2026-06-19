@@ -2,10 +2,10 @@ package com.kliq.loanapp.feature.portfolio
 
 import androidx.lifecycle.SavedStateHandle
 import com.kliq.loanapp.core.common.format.DefaultLoanFormatter
-import com.kliq.loanapp.core.common.result.AppError
-import com.kliq.loanapp.core.common.text.UiText
 import com.kliq.loanapp.core.common.navigation.KliqRoute
 import com.kliq.loanapp.core.common.navigation.NavCommand
+import com.kliq.loanapp.core.common.result.AppError
+import com.kliq.loanapp.core.common.text.UiText
 import com.kliq.loanapp.core.model.Loan
 import com.kliq.loanapp.core.model.PortfolioFilter
 import com.kliq.loanapp.core.testing.FakeLoanRepository
@@ -81,7 +81,8 @@ class PortfolioViewModelTest {
 
     @Test
     fun `load failure produces an error state`() = runTest {
-        val useCase = GetProcessedPortfolioUseCase(FakeLoanRepository(Result.failure(AppError.AssetMissing)), testLoanProcessor())
+        val useCase =
+            GetProcessedPortfolioUseCase(FakeLoanRepository(Result.failure(AppError.AssetMissing)), testLoanProcessor())
         val vm = PortfolioViewModel(useCase, mapper, session, navigator, SavedStateHandle())
         val state = vm.uiState.value
         assertFalse(state.isLoading)

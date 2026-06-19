@@ -42,6 +42,8 @@ abstract class BaseViewModel<S>(initialState: S) : ViewModel() {
      * Launches [block] in [viewModelScope], rethrowing cancellation (never swallowed) and routing any
      * other failure to [onError], which defaults to a snackbar event.
      */
+    // Intentional error boundary: catch-all maps to AppError; CancellationException is rethrown above.
+    @Suppress("TooGenericExceptionCaught")
     protected fun launchSafe(
         onError: (AppError) -> Unit = { sendEvent(UiEvent.ShowSnackbar(it.asUiText())) },
         block: suspend CoroutineScope.() -> Unit,

@@ -33,18 +33,18 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
-import kotlinx.coroutines.launch
 import com.kliq.loanapp.core.common.navigation.KliqRoute
 import com.kliq.loanapp.core.designsystem.component.ButtonSize
 import com.kliq.loanapp.core.designsystem.component.EmailFormField
 import com.kliq.loanapp.core.designsystem.component.KliqText
-import com.kliq.loanapp.core.designsystem.component.PrimaryButton
 import com.kliq.loanapp.core.designsystem.component.KliqTextStyle
 import com.kliq.loanapp.core.designsystem.component.PasswordFormField
+import com.kliq.loanapp.core.designsystem.component.PrimaryButton
 import com.kliq.loanapp.core.designsystem.text.asString
 import com.kliq.loanapp.core.designsystem.theme.KliqTheme
 import com.kliq.loanapp.core.ui.ObserveAsEvents
 import com.kliq.loanapp.core.ui.UiEvent
+import kotlinx.coroutines.launch
 
 /** Registers the login destination in the app's navigation graph. */
 fun NavGraphBuilder.loginScreen() {

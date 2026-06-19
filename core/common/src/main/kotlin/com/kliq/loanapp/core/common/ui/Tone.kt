@@ -7,11 +7,13 @@ package com.kliq.loanapp.core.common.ui
 enum class Tone {
     Neutral,
     Primary,
+
     // Status tones
     Active,
     Overdue,
     Default,
     Paid,
+
     // Loan-type tones
     TypePersonal,
     TypeMortgage,

@@ -29,7 +29,8 @@ class LoanMapperTest {
     }
 
     @Test fun `missing required numeric field is dropped`() {
-        val dto = LoanDto(name = "X", principalAmount = null, interestRate = 1.0, status = "active", dueInDays = 1, type = "auto")
+        val dto =
+            LoanDto(name = "X", principalAmount = null, interestRate = 1.0, status = "active", dueInDays = 1, type = "auto")
         assertNull(dto.toDomainOrNull())
     }
 

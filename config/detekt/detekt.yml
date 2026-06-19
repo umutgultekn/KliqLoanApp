@@ -1,0 +1,64 @@
+# Compose-pragmatic detekt config. buildUponDefaultConfig = true, so this only overrides defaults.
+formatting:
+  active: true
+  android: true
+  MaximumLineLength:
+    active: true
+    maxLineLength: 160
+  # Very opinionated multi-line wrapping rules — disabled to respect the hand-formatted Compose style.
+  ArgumentListWrapping:
+    active: false
+  ParameterListWrapping:
+    active: false
+  Wrapping:
+    active: false
+  FunctionSignature:
+    active: false
+  TrailingCommaOnCallSite:
+    active: false
+  TrailingCommaOnDeclarationSite:
+    active: false
+
+complexity:
+  LongMethod:
+    active: true
+    threshold: 100
+  LongParameterList:
+    active: true
+    functionThreshold: 10
+    constructorThreshold: 10
+    ignoreAnnotated: ['Composable', 'HiltViewModel']
+  CyclomaticComplexMethod:
+    active: true
+    threshold: 20
+  TooManyFunctions:
+    active: false
+
+performance:
+  # Spreading already-built arrays into vararg resource/format calls is idiomatic here, not a hotspot.
+  SpreadOperator:
+    active: false
+
+style:
+  MagicNumber:
+    active: false
+  MaxLineLength:
+    active: true
+    maxLineLength: 160
+  ReturnCount:
+    active: true
+    max: 7 # guard-clause validation mappers (one early return per required field) are idiomatic
+  UnusedPrivateMember:
+    active: true
+    ignoreAnnotated: ['Preview'] # @Preview composables are tooling entry points, not dead code
+
+naming:
+  FunctionNaming:
+    active: true
+    ignoreAnnotated: ['Composable']
+  TopLevelPropertyNaming:
+    active: false
+  # Token/component files intentionally group a type with its defaults/instances (e.g. Color.kt
+  # holds KliqColorScheme + light/dark schemes), so the filename need not match a single declaration.
+  MatchingDeclarationName:
+    active: false

@@ -37,15 +37,20 @@ private val LocalKliqElevation = staticCompositionLocalOf<KliqElevation> {
  */
 object KliqTheme {
     val colors: KliqColorScheme
-        @Composable @ReadOnlyComposable get() = LocalKliqColors.current
+        @Composable @ReadOnlyComposable
+        get() = LocalKliqColors.current
     val typography: KliqTypography
-        @Composable @ReadOnlyComposable get() = LocalKliqTypography.current
+        @Composable @ReadOnlyComposable
+        get() = LocalKliqTypography.current
     val spacing: KliqSpacing
-        @Composable @ReadOnlyComposable get() = LocalKliqSpacing.current
+        @Composable @ReadOnlyComposable
+        get() = LocalKliqSpacing.current
     val shapes: KliqShapes
-        @Composable @ReadOnlyComposable get() = LocalKliqShapes.current
+        @Composable @ReadOnlyComposable
+        get() = LocalKliqShapes.current
     val elevation: KliqElevation
-        @Composable @ReadOnlyComposable get() = LocalKliqElevation.current
+        @Composable @ReadOnlyComposable
+        get() = LocalKliqElevation.current
 }
 
 @Composable

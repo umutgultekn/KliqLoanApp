@@ -100,6 +100,15 @@ Out of scope for an architecture-weighted take-home, noted for honesty:
 ```bash
 ./gradlew :app:installDebug   # build & install
 ./gradlew test                # all unit tests
+./gradlew detekt              # static analysis + ktlint formatting (auto-corrects)
+./gradlew koverHtmlReport     # aggregated test-coverage report
 ```
 
 Requires Android SDK (compileSdk 34), JDK 17+, minSdk 24. The Gradle wrapper is included.
+
+## Code quality
+
+- **detekt** (+ **detekt-formatting**/ktlint) for static analysis & formatting, configured Compose-pragmatically
+  in `config/detekt/detekt.yml`, applied to every module; intentional exceptions are `@Suppress`ed with a reason.
+- **Kover** for aggregated test coverage across the domain/data/ui/feature modules.
+- **`.editorconfig`** as the single source of formatting rules.

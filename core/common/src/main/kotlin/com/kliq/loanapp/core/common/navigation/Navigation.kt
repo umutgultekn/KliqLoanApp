@@ -7,6 +7,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 sealed interface KliqRoute {
     @Serializable data object Login : KliqRoute
+
     @Serializable data object Portfolio : KliqRoute
 }
 

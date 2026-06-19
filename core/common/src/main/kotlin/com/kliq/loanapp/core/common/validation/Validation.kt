@@ -28,8 +28,11 @@ class RequiredRule(private val error: UiText) : ValidationRule {
  */
 class EmailRule(private val error: UiText) : ValidationRule {
     override fun validate(input: String): ValidationResult =
-        if (input.isNotBlank() && input.contains('@')) ValidationResult.Success
-        else ValidationResult.Failure(error)
+        if (input.isNotBlank() && input.contains('@')) {
+            ValidationResult.Success
+        } else {
+            ValidationResult.Failure(error)
+        }
 }
 
 /** Minimum-length rule (defaults reproduce the starter's >= 6 password check). */
