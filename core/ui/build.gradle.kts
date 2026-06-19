@@ -11,6 +11,7 @@ dependencies {
     api(project(":core:model"))
     api(project(":core:common"))
 
+    implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.kotlinx.collections.immutable)

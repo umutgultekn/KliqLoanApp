@@ -18,17 +18,12 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
@@ -43,6 +38,7 @@ import com.kliq.loanapp.core.designsystem.component.EmptyState
 import com.kliq.loanapp.core.designsystem.component.KliqCard
 import com.kliq.loanapp.core.designsystem.component.KliqFilterChip
 import com.kliq.loanapp.core.designsystem.component.KliqListSkeleton
+import com.kliq.loanapp.core.designsystem.component.KliqScaffold
 import com.kliq.loanapp.core.designsystem.component.KliqText
 import com.kliq.loanapp.core.designsystem.component.KliqTextButton
 import com.kliq.loanapp.core.designsystem.component.KliqTextStyle
@@ -52,10 +48,8 @@ import com.kliq.loanapp.core.designsystem.component.SecondaryButton
 import com.kliq.loanapp.core.designsystem.text.asString
 import com.kliq.loanapp.core.designsystem.theme.KliqTheme
 import com.kliq.loanapp.core.model.PortfolioFilter
-import com.kliq.loanapp.core.ui.ObserveAsEvents
-import com.kliq.loanapp.core.ui.UiEvent
 import com.kliq.loanapp.core.ui.mapper.PortfolioSummaryUi
-import kotlinx.coroutines.launch
+import com.kliq.loanapp.core.ui.rememberSnackbarEvents
 
 private enum class PortfolioMode { Loading, Error, Content }
 
@@ -66,20 +60,7 @@ fun NavGraphBuilder.portfolioScreen() {
 @Composable
 fun PortfolioRoute(viewModel: PortfolioViewModel = hiltViewModel()) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
-    val snackbarHostState = remember { SnackbarHostState() }
-    val context = LocalContext.current
-    val scope = rememberCoroutineScope()
-
-    ObserveAsEvents(viewModel.events) { event ->
-        when (event) {
-            is UiEvent.ShowSnackbar -> scope.launch {
-                snackbarHostState.showSnackbar(
-                    message = event.message.asString(context),
-                    actionLabel = event.actionLabel?.asString(context),
-                )
-            }
-        }
-    }
+    val snackbarHostState = rememberSnackbarEvents(viewModel.events)
 
     PortfolioScreen(
         state = state,
@@ -118,10 +99,7 @@ fun PortfolioScreen(
         )
     }
 
-    Scaffold(
-        containerColor = colors.background,
-        snackbarHost = { SnackbarHost(snackbarHostState) },
-    ) { innerPadding ->
+    KliqScaffold(snackbarHostState = snackbarHostState) { innerPadding ->
         Column(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
             KliqTopBar(title = stringResource(R.string.portfolio_title)) {
                 KliqTextButton(text = stringResource(R.string.portfolio_logout), onClick = onLogoutClicked)
