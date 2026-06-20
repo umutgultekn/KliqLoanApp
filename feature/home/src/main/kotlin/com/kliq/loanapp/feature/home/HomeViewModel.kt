@@ -1,4 +1,4 @@
-package com.kliq.loanapp.feature.portfolio
+package com.kliq.loanapp.feature.home
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
@@ -24,13 +24,13 @@ import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
 
 @HiltViewModel
-class PortfolioViewModel @Inject constructor(
+class HomeViewModel @Inject constructor(
     private val getProcessedPortfolio: GetProcessedPortfolioUseCase,
     private val mapper: LoanPresentationMapper,
     private val sessionRepository: SessionRepository,
     private val navigator: Navigator,
     private val savedStateHandle: SavedStateHandle,
-) : BaseViewModel<PortfolioUiState>(PortfolioUiState()) {
+) : BaseViewModel<HomeUiState>(HomeUiState()) {
 
     // Persisted across process death; the selected filter survives restoration.
     private val selectedFilter = savedStateHandle.getStateFlow(KEY_FILTER, PortfolioFilter.ALL)
@@ -64,7 +64,7 @@ class PortfolioViewModel @Inject constructor(
         logoutConfirm.value = false
         launchSafe {
             sessionRepository.setLoggedIn(false)
-            navigator.navigate(NavCommand.To(KliqRoute.Login, popUpTo = KliqRoute.Portfolio, inclusive = true))
+            navigator.navigate(NavCommand.To(KliqRoute.Login, popUpTo = KliqRoute.Home, inclusive = true))
         }
     }
 
@@ -84,13 +84,13 @@ class PortfolioViewModel @Inject constructor(
         filter: PortfolioFilter,
         isRefreshing: Boolean,
         showLogoutConfirm: Boolean,
-    ): PortfolioUiState = when (load) {
-        LoadState.Loading -> PortfolioUiState(
+    ): HomeUiState = when (load) {
+        LoadState.Loading -> HomeUiState(
             isLoading = true,
             selectedFilter = filter,
             showLogoutConfirm = showLogoutConfirm,
         )
-        is LoadState.Error -> PortfolioUiState(
+        is LoadState.Error -> HomeUiState(
             isLoading = false,
             error = load.error.asUiText(),
             selectedFilter = filter,
@@ -99,7 +99,7 @@ class PortfolioViewModel @Inject constructor(
         )
         is LoadState.Success -> {
             val filtered = load.loans.filter(filter::matches)
-            PortfolioUiState(
+            HomeUiState(
                 isLoading = false,
                 cards = mapper.toCards(filtered),
                 // The summary card reflects the WHOLE portfolio; the filter only narrows the list.

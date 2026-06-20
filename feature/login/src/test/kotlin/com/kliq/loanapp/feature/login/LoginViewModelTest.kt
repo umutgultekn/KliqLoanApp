@@ -51,7 +51,7 @@ class LoginViewModelTest {
 
         assertTrue(session.current)
         assertEquals(
-            NavCommand.To(KliqRoute.Portfolio, popUpTo = KliqRoute.Login, inclusive = true),
+            NavCommand.To(KliqRoute.Home, popUpTo = KliqRoute.Login, inclusive = true),
             navigator.last,
         )
     }

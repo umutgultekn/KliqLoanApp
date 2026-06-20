@@ -56,5 +56,5 @@ dependencies {
     kover(project(":core:designsystem"))
     kover(project(":core:ui"))
     kover(project(":feature:login"))
-    kover(project(":feature:portfolio"))
+    kover(project(":feature:home"))
 }

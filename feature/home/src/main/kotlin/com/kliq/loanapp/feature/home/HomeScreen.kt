@@ -1,4 +1,4 @@
-package com.kliq.loanapp.feature.portfolio
+package com.kliq.loanapp.feature.home
 
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.horizontalScroll
@@ -50,21 +50,21 @@ import com.kliq.loanapp.core.model.PortfolioFilter
 import com.kliq.loanapp.core.ui.mapper.PortfolioSummaryUi
 import com.kliq.loanapp.core.ui.rememberSnackbarEvents
 
-private enum class PortfolioMode { Loading, Error, Content }
+private enum class HomeMode { Loading, Error, Content }
 
 /** Minimum comfortable width for a loan card; the grid fits as many columns as the width allows. */
 private val LoanCardMinWidth = 300.dp
 
-fun NavGraphBuilder.portfolioScreen() {
-    composable<KliqRoute.Portfolio> { PortfolioRoute() }
+fun NavGraphBuilder.homeScreen() {
+    composable<KliqRoute.Home> { HomeRoute() }
 }
 
 @Composable
-fun PortfolioRoute(viewModel: PortfolioViewModel = hiltViewModel()) {
+fun HomeRoute(viewModel: HomeViewModel = hiltViewModel()) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = rememberSnackbarEvents(viewModel.events)
 
-    PortfolioScreen(
+    HomeScreen(
         state = state,
         snackbarHostState = snackbarHostState,
         onFilterSelected = viewModel::onFilterSelected,
@@ -78,8 +78,8 @@ fun PortfolioRoute(viewModel: PortfolioViewModel = hiltViewModel()) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PortfolioScreen(
-    state: PortfolioUiState,
+fun HomeScreen(
+    state: HomeUiState,
     snackbarHostState: SnackbarHostState,
     onFilterSelected: (PortfolioFilter) -> Unit,
     onRetry: () -> Unit,
@@ -108,14 +108,14 @@ fun PortfolioScreen(
             }
 
             val mode = when {
-                state.isLoading -> PortfolioMode.Loading
-                state.error != null -> PortfolioMode.Error
-                else -> PortfolioMode.Content
+                state.isLoading -> HomeMode.Loading
+                state.error != null -> HomeMode.Error
+                else -> HomeMode.Content
             }
             Crossfade(targetState = mode, label = "portfolioMode") { current ->
                 when (current) {
-                    PortfolioMode.Loading -> KliqListSkeleton()
-                    PortfolioMode.Error -> CenteredBox {
+                    HomeMode.Loading -> KliqListSkeleton()
+                    HomeMode.Error -> CenteredBox {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             state.error?.let { err ->
                                 KliqText(err.asString(), style = KliqTextStyle.Body, color = colors.statusDefault)
@@ -124,7 +124,7 @@ fun PortfolioScreen(
                             SecondaryButton(text = stringResource(R.string.portfolio_retry), onClick = onRetry)
                         }
                     }
-                    PortfolioMode.Content -> Column(modifier = Modifier.fillMaxSize().padding(horizontal = KliqTheme.spacing.xl)) {
+                    HomeMode.Content -> Column(modifier = Modifier.fillMaxSize().padding(horizontal = KliqTheme.spacing.xl)) {
                         SummaryCard(state.summary)
                         Spacer(Modifier.height(KliqTheme.spacing.lg))
                         FilterRow(selected = state.selectedFilter, onFilterSelected = onFilterSelected)

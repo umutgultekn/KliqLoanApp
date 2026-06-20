@@ -92,7 +92,7 @@ class LoginViewModel @Inject constructor(
             .onSuccess {
                 setState { copy(isSubmitting = false) }
                 navigator.navigate(
-                    NavCommand.To(KliqRoute.Portfolio, popUpTo = KliqRoute.Login, inclusive = true),
+                    NavCommand.To(KliqRoute.Home, popUpTo = KliqRoute.Login, inclusive = true),
                 )
             }
             .onFailure {

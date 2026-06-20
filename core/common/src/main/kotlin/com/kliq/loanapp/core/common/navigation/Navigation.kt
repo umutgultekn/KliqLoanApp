@@ -8,7 +8,7 @@ import kotlinx.serialization.Serializable
 sealed interface KliqRoute {
     @Serializable data object Login : KliqRoute
 
-    @Serializable data object Portfolio : KliqRoute
+    @Serializable data object Home : KliqRoute
 }
 
 /** A navigation intent emitted by ViewModels, translated to NavController calls in the app module. */

@@ -1,4 +1,4 @@
-package com.kliq.loanapp.feature.portfolio
+package com.kliq.loanapp.feature.home
 
 import androidx.compose.runtime.Immutable
 import com.kliq.loanapp.core.common.text.UiText
@@ -9,7 +9,7 @@ import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 
 @Immutable
-data class PortfolioUiState(
+data class HomeUiState(
     val isLoading: Boolean = true,
     val error: UiText? = null,
     val cards: ImmutableList<LoanCardConfig> = persistentListOf(),

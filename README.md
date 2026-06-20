@@ -3,8 +3,8 @@
 A loan-portfolio management app rebuilt from a legacy Android View-system starter into a modern,
 multi-module **Jetpack Compose** application following clean-architecture principles.
 
-Two screens — **Login** (validated form with a managed focus chain) and **Portfolio** (summary card,
-status filtering, a list of loan cards) — backed by a bundled JSON data source (29 loans across
+Two screens — **Login** (validated form with a managed focus chain) and **Home** (the loan portfolio:
+summary card, status filtering, a list of loan cards) — backed by a bundled JSON data source (29 loans across
 `personal`, `mortgage`, `auto`, `business`).
 
 ## Tech stack
@@ -27,7 +27,7 @@ Dependencies flow inward only; `:core:designsystem` depends only on `:core:commo
 ```
 :app                  @HiltAndroidApp, single MainActivity, NavHost + NavigatorImpl, auth-gated start
 :feature:login        LoginScreen/ViewModel, form state, focus chain, SavedStateHandle
-:feature:portfolio    PortfolioScreen/ViewModel, filtering, summary, retry, pull-to-refresh, logout
+:feature:home         HomeScreen/ViewModel, filtering, summary, retry, pull-to-refresh, logout
 :core:ui              BaseViewModel<S>, UiEvent, LoanPresentationMapper, AppError→UiText
 :core:designsystem    KliqTheme (color/type/spacing/shape/elevation tokens + Material3 bridge), config-driven components
 :core:common          Result/AppError, DispatcherProvider, ValidationRule, Navigator, Tone, UiText, LoanFormatter  (pure JVM)

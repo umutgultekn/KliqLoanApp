@@ -3,7 +3,7 @@ plugins {
 }
 
 android {
-    namespace = "com.kliq.loanapp.feature.portfolio"
+    namespace = "com.kliq.loanapp.feature.home"
 }
 
 dependencies {

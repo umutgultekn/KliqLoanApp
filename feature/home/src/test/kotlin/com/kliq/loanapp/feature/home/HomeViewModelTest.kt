@@ -1,4 +1,4 @@
-package com.kliq.loanapp.feature.portfolio
+package com.kliq.loanapp.feature.home
 
 import androidx.lifecycle.SavedStateHandle
 import com.kliq.loanapp.core.common.format.DefaultLoanFormatter
@@ -25,7 +25,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 
-class PortfolioViewModelTest {
+class HomeViewModelTest {
 
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
@@ -34,9 +34,9 @@ class PortfolioViewModelTest {
     private val session = FakeSessionRepository(initial = true)
     private val mapper = LoanPresentationMapper(DefaultLoanFormatter())
 
-    private fun viewModel(loans: List<Loan>): PortfolioViewModel {
+    private fun viewModel(loans: List<Loan>): HomeViewModel {
         val useCase = GetProcessedPortfolioUseCase(FakeLoanRepository(Result.success(loans)), testLoanProcessor())
-        return PortfolioViewModel(useCase, mapper, session, navigator, SavedStateHandle())
+        return HomeViewModel(useCase, mapper, session, navigator, SavedStateHandle())
     }
 
     // After processing: Consumer Credit stays ACTIVE, Vehicle Finance stays OVERDUE, Commercial Credit stays DEFAULT.
@@ -83,7 +83,7 @@ class PortfolioViewModelTest {
     fun `load failure produces an error state`() = runTest {
         val useCase =
             GetProcessedPortfolioUseCase(FakeLoanRepository(Result.failure(AppError.AssetMissing)), testLoanProcessor())
-        val vm = PortfolioViewModel(useCase, mapper, session, navigator, SavedStateHandle())
+        val vm = HomeViewModel(useCase, mapper, session, navigator, SavedStateHandle())
         val state = vm.uiState.value
         assertFalse(state.isLoading)
         assertNotNull(state.error)
@@ -100,9 +100,9 @@ class PortfolioViewModelTest {
     @Test
     fun `restores the persisted filter from SavedStateHandle`() = runTest {
         val useCase = GetProcessedPortfolioUseCase(FakeLoanRepository(Result.success(sample)), testLoanProcessor())
-        val vm = PortfolioViewModel(
+        val vm = HomeViewModel(
             useCase, mapper, session, navigator,
-            SavedStateHandle(mapOf(PortfolioViewModel.KEY_FILTER to PortfolioFilter.ACTIVE)),
+            SavedStateHandle(mapOf(HomeViewModel.KEY_FILTER to PortfolioFilter.ACTIVE)),
         )
         assertEquals(PortfolioFilter.ACTIVE, vm.uiState.value.selectedFilter)
         assertEquals(1, vm.uiState.value.cards.size)
@@ -111,7 +111,7 @@ class PortfolioViewModelTest {
     @Test
     fun `retry recovers from a load error`() = runTest {
         val repo = FakeLoanRepository(Result.failure(AppError.AssetMissing))
-        val vm = PortfolioViewModel(
+        val vm = HomeViewModel(
             GetProcessedPortfolioUseCase(repo, testLoanProcessor()), mapper, session, navigator, SavedStateHandle(),
         )
         assertNotNull(vm.uiState.value.error)
@@ -140,7 +140,7 @@ class PortfolioViewModelTest {
         assertFalse(vm.uiState.value.showLogoutConfirm)
         assertFalse(session.current)
         assertEquals(
-            NavCommand.To(KliqRoute.Login, popUpTo = KliqRoute.Portfolio, inclusive = true),
+            NavCommand.To(KliqRoute.Login, popUpTo = KliqRoute.Home, inclusive = true),
             navigator.last,
         )
     }

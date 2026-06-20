@@ -37,7 +37,7 @@ class NavCommandExecutorTest {
             navigatorProvider.addNavigator(ComposeNavigator())
             graph = createGraph(startDestination = KliqRoute.Login) {
                 composable<KliqRoute.Login> {}
-                composable<KliqRoute.Portfolio> {}
+                composable<KliqRoute.Home> {}
             }
         }
     }
@@ -47,15 +47,15 @@ class NavCommandExecutorTest {
 
     @Test fun `To moves the back stack to the target route and the inclusive popUpTo clears the source`() {
         val nav = controller()
-        nav.execute(NavCommand.To(KliqRoute.Portfolio, popUpTo = KliqRoute.Login, inclusive = true))
-        assertTrue(nav.routeContains("Portfolio"))
-        // inclusive popUpTo = Login must remove Login from the back stack (not just land on Portfolio).
+        nav.execute(NavCommand.To(KliqRoute.Home, popUpTo = KliqRoute.Login, inclusive = true))
+        assertTrue(nav.routeContains("Home"))
+        // inclusive popUpTo = Login must remove Login from the back stack (not just land on Home).
         assertTrue(nav.currentBackStack.value.none { it.destination.route?.contains("Login") == true })
     }
 
     @Test fun `Back pops to the previous route`() {
         val nav = controller()
-        nav.execute(NavCommand.To(KliqRoute.Portfolio))
+        nav.execute(NavCommand.To(KliqRoute.Home))
         nav.execute(NavCommand.Back)
         assertTrue(nav.routeContains("Login"))
     }

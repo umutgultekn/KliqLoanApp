@@ -19,8 +19,8 @@ import androidx.navigation.compose.rememberNavController
 import com.kliq.loanapp.core.common.navigation.KliqRoute
 import com.kliq.loanapp.core.common.navigation.Navigator
 import com.kliq.loanapp.core.designsystem.theme.KliqTheme
+import com.kliq.loanapp.feature.home.homeScreen
 import com.kliq.loanapp.feature.login.loginScreen
-import com.kliq.loanapp.feature.portfolio.portfolioScreen
 import com.kliq.loanapp.navigation.execute
 
 @Composable
@@ -42,14 +42,14 @@ fun KliqApp(navigator: Navigator, startLoggedIn: Boolean) {
         navController = navController,
         // Start destination is resolved ONCE from the session (see AppViewModel); runtime moves go
         // through the Navigator above.
-        startDestination = if (startLoggedIn) KliqRoute.Portfolio else KliqRoute.Login,
+        startDestination = if (startLoggedIn) KliqRoute.Home else KliqRoute.Login,
         enterTransition = { fadeIn() + slideInHorizontally { it / 8 } },
         exitTransition = { fadeOut() },
         popEnterTransition = { fadeIn() },
         popExitTransition = { fadeOut() + slideOutHorizontally { it / 8 } },
     ) {
         loginScreen()
-        portfolioScreen()
+        homeScreen()
     }
 }
 
