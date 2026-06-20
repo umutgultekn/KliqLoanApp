@@ -70,10 +70,10 @@ class LoginViewModelTest {
     }
 
     @Test
-    fun `isSubmitting is reset after success and after failure`() = runTest {
+    fun `shared isLoading is reset after success and after failure`() = runTest {
         val ok = viewModel(Result.success(Unit))
         ok.onEmailChange("user@kliq.com"); ok.onPasswordChange("secret1"); ok.onSubmit()
-        assertFalse(ok.uiState.value.isSubmitting)
+        assertFalse(ok.isLoading.value)
 
         val failing = LoginViewModel(
             FakeAuthRepository(Result.failure(AppError.Auth(AuthReason.INVALID_CREDENTIALS)), FakeSessionRepository()),
@@ -81,7 +81,7 @@ class LoginViewModelTest {
             SavedStateHandle(),
         )
         failing.onEmailChange("user@kliq.com"); failing.onPasswordChange("secret1"); failing.onSubmit()
-        assertFalse(failing.uiState.value.isSubmitting)
+        assertFalse(failing.isLoading.value)
     }
 
     @Test

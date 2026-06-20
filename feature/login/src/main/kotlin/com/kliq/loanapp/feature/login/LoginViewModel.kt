@@ -81,22 +81,17 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-    private fun login() = launchSafe(
-        onError = {
-            setState { copy(isSubmitting = false) }
-            sendEvent(UiEvent.ShowSnackbar(it.asUiText()))
-        },
-    ) {
-        setState { copy(isSubmitting = true) }
+    // Loading is the shared BaseViewModel.isLoading flag (toggled by launchSafe); the known auth
+    // failure is surfaced as a snackbar, and any unexpected throwable falls through to launchSafe's
+    // default snackbar handler.
+    private fun login() = launchSafe(loading = true) {
         authRepository.login(currentState.email, currentState.password)
             .onSuccess {
-                setState { copy(isSubmitting = false) }
                 navigator.navigate(
                     NavCommand.To(KliqRoute.Home, popUpTo = KliqRoute.Login, inclusive = true),
                 )
             }
             .onFailure {
-                setState { copy(isSubmitting = false) }
                 sendEvent(UiEvent.ShowSnackbar(it.toAppError().asUiText()))
             }
     }

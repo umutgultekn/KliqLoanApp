@@ -36,13 +36,14 @@ class HomeViewModel @Inject constructor(
     private val selectedFilter = savedStateHandle.getStateFlow(KEY_FILTER, PortfolioFilter.ALL)
 
     // Processing always runs on the freshly-fetched raw list (deterministic across reloads).
-    private val loadState = MutableStateFlow<LoadState>(LoadState.Loading)
+    // null = not loaded yet; the full-screen loading state comes from the shared BaseViewModel.isLoading.
+    private val loadState = MutableStateFlow<LoadState?>(null)
     private val refreshing = MutableStateFlow(false)
     private val logoutConfirm = MutableStateFlow(false)
 
     init {
         reload(showLoading = true)
-        combine(loadState, selectedFilter, refreshing, logoutConfirm, ::reduce)
+        combine(loadState, isLoading, selectedFilter, refreshing, logoutConfirm, ::reduce)
             .onEach { state -> setState { state } }
             .launchIn(viewModelScope)
     }
@@ -68,8 +69,8 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private fun reload(showLoading: Boolean): Job = launchSafe {
-        if (showLoading) loadState.value = LoadState.Loading else refreshing.value = true
+    private fun reload(showLoading: Boolean): Job = launchSafe(loading = showLoading) {
+        if (!showLoading) refreshing.value = true
         loadState.value = loadOnce()
         refreshing.value = false
     }
@@ -80,40 +81,46 @@ class HomeViewModel @Inject constructor(
     )
 
     private fun reduce(
-        load: LoadState,
+        load: LoadState?,
+        isLoading: Boolean,
         filter: PortfolioFilter,
         isRefreshing: Boolean,
         showLogoutConfirm: Boolean,
-    ): HomeUiState = when (load) {
-        LoadState.Loading -> HomeUiState(
-            isLoading = true,
-            selectedFilter = filter,
-            showLogoutConfirm = showLogoutConfirm,
-        )
-        is LoadState.Error -> HomeUiState(
-            isLoading = false,
-            error = load.error.asUiText(),
-            selectedFilter = filter,
-            isRefreshing = isRefreshing,
-            showLogoutConfirm = showLogoutConfirm,
-        )
-        is LoadState.Success -> {
-            val filtered = load.loans.filter(filter::matches)
-            HomeUiState(
-                isLoading = false,
-                cards = mapper.toCards(filtered),
-                // The summary card reflects the WHOLE portfolio; the filter only narrows the list.
-                summary = mapper.summary(PortfolioSummary.from(load.loans)),
+    ): HomeUiState {
+        // Full-screen loading is the shared BaseViewModel flag (initial fetch + retry); a pull-to-
+        // refresh (isLoading = false) keeps the current content and shows isRefreshing instead.
+        if (isLoading || load == null) {
+            return HomeUiState(
+                isLoading = true,
                 selectedFilter = filter,
-                portfolioEmpty = load.loans.isEmpty(),
+                showLogoutConfirm = showLogoutConfirm,
+            )
+        }
+        return when (load) {
+            is LoadState.Error -> HomeUiState(
+                isLoading = false,
+                error = load.error.asUiText(),
+                selectedFilter = filter,
                 isRefreshing = isRefreshing,
                 showLogoutConfirm = showLogoutConfirm,
             )
+            is LoadState.Success -> {
+                val filtered = load.loans.filter(filter::matches)
+                HomeUiState(
+                    isLoading = false,
+                    cards = mapper.toCards(filtered),
+                    // The summary card reflects the WHOLE portfolio; the filter only narrows the list.
+                    summary = mapper.summary(PortfolioSummary.from(load.loans)),
+                    selectedFilter = filter,
+                    portfolioEmpty = load.loans.isEmpty(),
+                    isRefreshing = isRefreshing,
+                    showLogoutConfirm = showLogoutConfirm,
+                )
+            }
         }
     }
 
     private sealed interface LoadState {
-        data object Loading : LoadState
         data class Success(val loans: List<Loan>) : LoadState
         data class Error(val error: AppError) : LoadState
     }

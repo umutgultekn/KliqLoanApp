@@ -46,10 +46,12 @@ fun NavGraphBuilder.loginScreen() {
 fun LoginRoute(viewModel: LoginViewModel = hiltViewModel()) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = rememberSnackbarEvents(viewModel.events)
+    val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
 
     LoginScreen(
         state = state,
         snackbarHostState = snackbarHostState,
+        loading = isLoading,
         onEmailChange = viewModel::onEmailChange,
         onPasswordChange = viewModel::onPasswordChange,
         onEmailFocusChanged = viewModel::onEmailFocusChanged,
@@ -63,6 +65,7 @@ fun LoginRoute(viewModel: LoginViewModel = hiltViewModel()) {
 fun LoginScreen(
     state: LoginUiState,
     snackbarHostState: SnackbarHostState,
+    loading: Boolean,
     onEmailChange: (String) -> Unit,
     onPasswordChange: (String) -> Unit,
     onEmailFocusChanged: (Boolean) -> Unit,
@@ -125,7 +128,7 @@ fun LoginScreen(
                 size = ButtonSize.Large,
                 fullWidth = true,
                 enabled = state.submitEnabled,
-                loading = state.isSubmitting,
+                loading = loading,
             )
         }
     }
