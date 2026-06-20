@@ -5,4 +5,5 @@
     <string name="login_email_error">Please enter a valid email.</string>
     <string name="login_password_error">Password must be at least 6 characters.</string>
     <string name="login_submit">Sign In</string>
+    <string name="login_loading">Signing in…</string>
 </resources>

@@ -26,6 +26,8 @@ data class KliqColorScheme(
     val badgeTextDark: Color,
     val background: Color,
     val surface: Color,
+    // Translucent veil behind blocking overlays (e.g. the loading overlay) that dims the content.
+    val scrim: Color,
     val textPrimary: Color,
     val textSecondary: Color,
     val border: Color,
@@ -83,6 +85,7 @@ val KliqLightColors = KliqColorScheme(
     badgeTextDark = Color(0xFF1A1A2E),
     background = Color(0xFFF2F2F7),
     surface = Color(0xFFFFFFFF),
+    scrim = Color(0x99121218), // ~60% dark veil for blocking overlays
     textPrimary = Color(0xFF1A1A2E),
     textSecondary = Color(0xFF8C8C94),
     border = Color(0xFFD8D8DE),
@@ -107,6 +110,7 @@ val KliqDarkColors = KliqColorScheme(
     badgeTextDark = Color(0xFF1A1A2E),
     background = Color(0xFF121218),
     surface = Color(0xFF1E1E28),
+    scrim = Color(0xB3000000), // ~70% black veil for blocking overlays
     textPrimary = Color(0xFFECECF1),
     textSecondary = Color(0xFF9A9AA5),
     border = Color(0xFF3A3A46),

@@ -8,4 +8,5 @@
     <string name="kliq_action_hide_password">Hide password</string>
     <string name="kliq_password_shown">Password shown</string>
     <string name="kliq_password_hidden">Password hidden</string>
+    <string name="kliq_loading">Loading</string>
 </resources>
