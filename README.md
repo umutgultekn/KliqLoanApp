@@ -1,5 +1,7 @@
 # KliqLoanApp
 
+[![CI](https://github.com/umutgultekn/KliqLoanApp/actions/workflows/ci.yml/badge.svg)](https://github.com/umutgultekn/KliqLoanApp/actions/workflows/ci.yml)
+
 A loan-portfolio management app rebuilt from a legacy Android View-system starter into a modern,
 multi-module **Jetpack Compose** application following clean-architecture principles.
 
@@ -91,9 +93,9 @@ build-logic           convention plugins (android app/library/compose, jvm libra
 
 Out of scope for an architecture-weighted take-home, noted for honesty:
 
-- **Screenshot tests (Paparazzi)** and **instrumented Compose UI tests** (focus chain, TalkBack) — both add
-  most value in CI with a controlled host/emulator; component behavior is covered by ViewModel-level tests.
-- **DataStore `SessionManager` Robolectric test** — session behavior is exercised via fakes in the VM tests.
+- **Screenshot tests (Paparazzi/Roborazzi)** and **instrumented Compose UI tests on a device** — the Compose
+  layer is already exercised by a Robolectric UI test (`LoginScreenTest`); pixel-diffing and on-device runs
+  are the next step but add most value with a controlled host/emulator.
 - **Baseline Profiles / macrobenchmark** — negligible for a two-screen sample.
 
 ## Build & run
@@ -113,3 +115,5 @@ Requires Android SDK (compileSdk 34), JDK 17+, minSdk 24. The Gradle wrapper is 
   in `config/detekt/detekt.yml`, applied to every module; intentional exceptions are `@Suppress`ed with a reason.
 - **Kover** for aggregated test coverage across the domain/data/ui/feature modules.
 - **`.editorconfig`** as the single source of formatting rules.
+- **CI** (GitHub Actions, `.github/workflows/ci.yml`) runs the same gates — `test`, `detekt`,
+  `assembleDebug`, `assembleRelease` — on every push and PR.
