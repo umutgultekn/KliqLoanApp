@@ -4,6 +4,8 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.kliq.loanapp.core.common.navigation.NavCommand
 import com.kliq.loanapp.core.common.navigation.Navigator
+import com.kliq.loanapp.core.common.result.Result
+import com.kliq.loanapp.core.common.result.asResult
 import com.kliq.loanapp.core.common.result.toAppError
 import com.kliq.loanapp.core.model.Loan
 import com.kliq.loanapp.core.model.PortfolioFilter
@@ -17,7 +19,9 @@ import com.kliq.loanapp.domain.usecase.LogoutUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
@@ -70,13 +74,27 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    // Bridge the one-shot use case into a Flow + asResult so the load goes through the shared,
+    // canonical Loading/Success/Error pipeline (ready for a real Flow-based network/DB source).
+    // asResult emits Loading first: on a full load it shows the loading phase; on pull-to-refresh
+    // (showLoading = false) it only flips isRefreshing so the current content stays visible.
     private fun reload(showLoading: Boolean): Job = launchSafe {
-        if (showLoading) loadResult.value = UiState.Loading else refreshing.value = true
-        loadResult.value = getProcessedPortfolio().fold(
-            onSuccess = { UiState.Content(it) },
-            onFailure = { UiState.Error(it.toAppError().asUiText()) },
-        )
-        refreshing.value = false
+        flow { emit(getProcessedPortfolio().getOrThrow()) }
+            .asResult()
+            .collect { result ->
+                when (result) {
+                    Result.Loading ->
+                        if (showLoading) loadResult.value = UiState.Loading else refreshing.value = true
+                    is Result.Success -> {
+                        loadResult.value = UiState.Content(result.data)
+                        refreshing.value = false
+                    }
+                    is Result.Error -> {
+                        loadResult.value = UiState.Error(result.throwable.toAppError().asUiText())
+                        refreshing.value = false
+                    }
+                }
+            }
     }
 
     private fun reduce(
