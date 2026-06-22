@@ -11,14 +11,20 @@ sealed interface KliqRoute {
     @Serializable data object Home : KliqRoute
 }
 
-/** A navigation intent emitted by ViewModels, translated to NavController calls in the app module. */
+/**
+ * A SEMANTIC navigation intent emitted by ViewModels — "where to go", not "how". ViewModels know
+ * nothing about routes or back-stack mechanics (popUpTo/inclusive); the executor in the app module
+ * owns that routing policy. This keeps navigation decisions in the UI layer while ViewModels stay
+ * framework-free and testable.
+ */
 sealed interface NavCommand {
-    data class To(
-        val route: KliqRoute,
-        val popUpTo: KliqRoute? = null,
-        val inclusive: Boolean = false,
-    ) : NavCommand
+    /** Post-login: go to Home (the executor clears the auth back stack). */
+    data object ToHome : NavCommand
 
+    /** Post-logout: return to Login (the executor clears the app back stack). */
+    data object ToLogin : NavCommand
+
+    /** Pop the current destination. */
     data object Back : NavCommand
 }
 

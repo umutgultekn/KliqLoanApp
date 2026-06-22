@@ -2,7 +2,6 @@ package com.kliq.loanapp.feature.home
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import com.kliq.loanapp.core.common.navigation.KliqRoute
 import com.kliq.loanapp.core.common.navigation.NavCommand
 import com.kliq.loanapp.core.common.navigation.Navigator
 import com.kliq.loanapp.core.common.result.AppError
@@ -66,7 +65,7 @@ class HomeViewModel @Inject constructor(
         logoutConfirm.value = false
         launchSafe {
             logout()
-            navigator.navigate(NavCommand.To(KliqRoute.Login, popUpTo = KliqRoute.Home, inclusive = true))
+            navigator.navigate(NavCommand.ToLogin)
         }
     }
 

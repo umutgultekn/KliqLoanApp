@@ -2,7 +2,6 @@ package com.kliq.loanapp.feature.login
 
 import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
-import com.kliq.loanapp.core.common.navigation.KliqRoute
 import com.kliq.loanapp.core.common.navigation.NavCommand
 import com.kliq.loanapp.core.common.result.AppError
 import com.kliq.loanapp.core.common.result.AuthReason
@@ -51,10 +50,7 @@ class LoginViewModelTest {
         vm.onSubmit()
 
         assertTrue(session.current)
-        assertEquals(
-            NavCommand.To(KliqRoute.Home, popUpTo = KliqRoute.Login, inclusive = true),
-            navigator.last,
-        )
+        assertEquals(NavCommand.ToHome, navigator.last)
     }
 
     @Test

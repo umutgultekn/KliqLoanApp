@@ -2,7 +2,6 @@ package com.kliq.loanapp.feature.home
 
 import androidx.lifecycle.SavedStateHandle
 import com.kliq.loanapp.core.common.format.DefaultLoanFormatter
-import com.kliq.loanapp.core.common.navigation.KliqRoute
 import com.kliq.loanapp.core.common.navigation.NavCommand
 import com.kliq.loanapp.core.common.result.AppError
 import com.kliq.loanapp.core.common.text.UiText
@@ -146,9 +145,6 @@ class HomeViewModelTest {
         vm.onLogoutConfirmed()
         assertFalse(vm.uiState.value.showLogoutConfirm)
         assertFalse(session.current)
-        assertEquals(
-            NavCommand.To(KliqRoute.Login, popUpTo = KliqRoute.Home, inclusive = true),
-            navigator.last,
-        )
+        assertEquals(NavCommand.ToLogin, navigator.last)
     }
 }

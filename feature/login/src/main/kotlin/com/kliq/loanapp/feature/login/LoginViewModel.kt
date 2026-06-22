@@ -1,7 +1,6 @@
 package com.kliq.loanapp.feature.login
 
 import androidx.lifecycle.SavedStateHandle
-import com.kliq.loanapp.core.common.navigation.KliqRoute
 import com.kliq.loanapp.core.common.navigation.NavCommand
 import com.kliq.loanapp.core.common.navigation.Navigator
 import com.kliq.loanapp.core.common.result.toAppError
@@ -87,9 +86,7 @@ class LoginViewModel @Inject constructor(
     private fun login() = launchSafe(loading = true) {
         loginUseCase(currentState.email, currentState.password)
             .onSuccess {
-                navigator.navigate(
-                    NavCommand.To(KliqRoute.Home, popUpTo = KliqRoute.Login, inclusive = true),
-                )
+                navigator.navigate(NavCommand.ToHome)
             }
             .onFailure {
                 sendEvent(UiEvent.ShowSnackbar(it.toAppError().asUiText()))
