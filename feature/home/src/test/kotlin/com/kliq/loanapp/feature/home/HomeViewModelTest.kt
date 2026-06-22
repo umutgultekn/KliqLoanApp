@@ -15,6 +15,7 @@ import com.kliq.loanapp.core.testing.FakeSessionRepository
 import com.kliq.loanapp.core.testing.LoanFixtures
 import com.kliq.loanapp.core.testing.MainDispatcherRule
 import com.kliq.loanapp.core.testing.testLoanProcessor
+import com.kliq.loanapp.core.ui.UiState
 import com.kliq.loanapp.core.ui.mapper.LoanPresentationMapper
 import com.kliq.loanapp.domain.usecase.GetProcessedPortfolioUseCase
 import com.kliq.loanapp.domain.usecase.LogoutUseCase
@@ -43,11 +44,11 @@ class HomeViewModelTest {
         return HomeViewModel(useCase, mapper, logout, navigator, SavedStateHandle())
     }
 
-    /** The current content, asserted to be the loaded [HomeContent.Content] phase. */
-    private fun HomeViewModel.loaded(): HomeContent.Content {
+    /** The current content, asserted to be the loaded [UiState.Content] phase. */
+    private fun HomeViewModel.loaded(): HomeData {
         val content = uiState.value.content
-        assertTrue("expected Content but was $content", content is HomeContent.Content)
-        return content as HomeContent.Content
+        assertTrue("expected Content but was $content", content is UiState.Content)
+        return (content as UiState.Content<HomeData>).data
     }
 
     // After processing: Consumer Credit stays ACTIVE, Vehicle Finance stays OVERDUE, Commercial Credit stays DEFAULT.
@@ -93,7 +94,7 @@ class HomeViewModelTest {
         val useCase =
             GetProcessedPortfolioUseCase(FakeLoanRepository(Result.failure(AppError.AssetMissing)), testLoanProcessor())
         val vm = HomeViewModel(useCase, mapper, logout, navigator, SavedStateHandle())
-        assertTrue(vm.uiState.value.content is HomeContent.Error)
+        assertTrue(vm.uiState.value.content is UiState.Error)
     }
 
     @Test
@@ -121,7 +122,7 @@ class HomeViewModelTest {
         val vm = HomeViewModel(
             GetProcessedPortfolioUseCase(repo, testLoanProcessor()), mapper, logout, navigator, SavedStateHandle(),
         )
-        assertTrue(vm.uiState.value.content is HomeContent.Error)
+        assertTrue(vm.uiState.value.content is UiState.Error)
 
         repo.result = Result.success(sample)
         vm.onRetry()

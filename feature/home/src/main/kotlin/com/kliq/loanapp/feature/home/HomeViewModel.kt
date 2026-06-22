@@ -11,6 +11,7 @@ import com.kliq.loanapp.core.model.Loan
 import com.kliq.loanapp.core.model.PortfolioFilter
 import com.kliq.loanapp.core.model.PortfolioSummary
 import com.kliq.loanapp.core.ui.BaseViewModel
+import com.kliq.loanapp.core.ui.UiState
 import com.kliq.loanapp.core.ui.error.asUiText
 import com.kliq.loanapp.core.ui.mapper.LoanPresentationMapper
 import com.kliq.loanapp.domain.usecase.GetProcessedPortfolioUseCase
@@ -89,16 +90,18 @@ class HomeViewModel @Inject constructor(
     ): HomeUiState {
         // Full-screen loading is the shared BaseViewModel flag (initial fetch + retry); a pull-to-
         // refresh (isLoading = false) keeps the current content and shows isRefreshing instead.
-        val content: HomeContent = if (isLoading || load == null) {
-            HomeContent.Loading
+        val content: UiState<HomeData> = if (isLoading || load == null) {
+            UiState.Loading
         } else {
             when (load) {
-                is LoadState.Error -> HomeContent.Error(load.error.asUiText())
-                is LoadState.Success -> HomeContent.Content(
-                    cards = mapper.toCards(load.loans.filter(filter::matches)),
-                    // The summary card reflects the WHOLE portfolio; the filter only narrows the list.
-                    summary = mapper.summary(PortfolioSummary.from(load.loans)),
-                    portfolioEmpty = load.loans.isEmpty(),
+                is LoadState.Error -> UiState.Error(load.error.asUiText())
+                is LoadState.Success -> UiState.Content(
+                    HomeData(
+                        cards = mapper.toCards(load.loans.filter(filter::matches)),
+                        // The summary card reflects the WHOLE portfolio; the filter only narrows the list.
+                        summary = mapper.summary(PortfolioSummary.from(load.loans)),
+                        portfolioEmpty = load.loans.isEmpty(),
+                    ),
                 )
             }
         }

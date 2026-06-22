@@ -50,6 +50,7 @@ import com.kliq.loanapp.core.designsystem.component.SecondaryButton
 import com.kliq.loanapp.core.designsystem.text.asString
 import com.kliq.loanapp.core.designsystem.theme.KliqTheme
 import com.kliq.loanapp.core.model.PortfolioFilter
+import com.kliq.loanapp.core.ui.UiState
 import com.kliq.loanapp.core.ui.mapper.PortfolioSummaryUi
 import com.kliq.loanapp.core.ui.rememberSnackbarEvents
 
@@ -112,10 +113,10 @@ fun HomeScreen(
                 label = "homeContent",
             ) { content ->
                 when (content) {
-                    HomeContent.Loading -> KliqListSkeleton()
-                    is HomeContent.Error -> ErrorContent(message = content.message, onRetry = onRetry)
-                    is HomeContent.Content -> LoadedContent(
-                        content = content,
+                    UiState.Loading -> KliqListSkeleton()
+                    is UiState.Error -> ErrorContent(message = content.message, onRetry = onRetry)
+                    is UiState.Content -> LoadedContent(
+                        data = content.data,
                         selectedFilter = state.selectedFilter,
                         isRefreshing = state.isRefreshing,
                         onFilterSelected = onFilterSelected,
@@ -141,20 +142,20 @@ private fun ErrorContent(message: UiText, onRetry: () -> Unit) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun LoadedContent(
-    content: HomeContent.Content,
+    data: HomeData,
     selectedFilter: PortfolioFilter,
     isRefreshing: Boolean,
     onFilterSelected: (PortfolioFilter) -> Unit,
     onRefresh: () -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxSize().padding(horizontal = KliqTheme.spacing.xl)) {
-        SummaryCard(content.summary)
+        SummaryCard(data.summary)
         Spacer(Modifier.height(KliqTheme.spacing.lg))
         FilterRow(selected = selectedFilter, onFilterSelected = onFilterSelected)
         Spacer(Modifier.height(KliqTheme.spacing.lg))
-        if (content.cards.isEmpty()) {
+        if (data.cards.isEmpty()) {
             CenteredBox {
-                if (content.portfolioEmpty) {
+                if (data.portfolioEmpty) {
                     EmptyState(
                         title = stringResource(R.string.portfolio_empty_all_title),
                         message = stringResource(R.string.portfolio_empty_all),
@@ -184,7 +185,7 @@ private fun LoadedContent(
                     horizontalArrangement = Arrangement.spacedBy(KliqTheme.spacing.lg),
                     contentPadding = PaddingValues(bottom = KliqTheme.spacing.xxxl),
                 ) {
-                    items(content.cards, key = { it.id }) { card ->
+                    items(data.cards, key = { it.id }) { card ->
                         LoanCard(config = card, modifier = Modifier.animateItem())
                     }
                 }
