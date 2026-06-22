@@ -25,7 +25,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavGraphBuilder
@@ -51,9 +50,6 @@ import com.kliq.loanapp.core.ui.mapper.PortfolioSummaryUi
 import com.kliq.loanapp.core.ui.rememberSnackbarEvents
 
 private enum class HomeMode { Loading, Error, Content }
-
-/** Minimum comfortable width for a loan card; the grid fits as many columns as the width allows. */
-private val LoanCardMinWidth = 300.dp
 
 fun NavGraphBuilder.homeScreen() {
     composable<KliqRoute.Home> { HomeRoute() }
@@ -151,11 +147,11 @@ fun HomeScreen(
                                 onRefresh = onRefresh,
                                 modifier = Modifier.fillMaxSize(),
                             ) {
-                                // Adaptive columns: the grid fits as many >= LoanCardMinWidth cells as
+                                // Adaptive columns: the grid fits as many cells >= the token min-width as
                                 // the available width allows (1 on phones, 2+ on tablets/landscape) —
                                 // no BoxWithConstraints, no manual width breakpoint or column count.
                                 LazyVerticalGrid(
-                                    columns = GridCells.Adaptive(minSize = LoanCardMinWidth),
+                                    columns = GridCells.Adaptive(minSize = KliqTheme.sizes.loanCardMinWidth),
                                     modifier = Modifier.fillMaxSize(),
                                     verticalArrangement = Arrangement.spacedBy(KliqTheme.spacing.lg),
                                     horizontalArrangement = Arrangement.spacedBy(KliqTheme.spacing.lg),

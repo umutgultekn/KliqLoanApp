@@ -21,6 +21,8 @@ data class KliqSizes(
     val logoHeight: Dp = 44.dp,
     val skeletonHeader: Dp = 104.dp,
     val skeletonRow: Dp = 92.dp,
+    // Minimum comfortable width for a loan card; the adaptive grid fits as many columns as fit.
+    val loanCardMinWidth: Dp = 300.dp,
 )
 
 val KliqDefaultSizes = KliqSizes()
