@@ -43,7 +43,7 @@ class LoginViewModelTest {
     }
 
     @Test
-    fun `valid credentials log in and navigate to portfolio`() = runTest {
+    fun `valid credentials log in and navigate to home`() = runTest {
         val vm = viewModel(Result.success(Unit))
         vm.onEmailChange("user@kliq.com")
         vm.onPasswordChange("secret1")

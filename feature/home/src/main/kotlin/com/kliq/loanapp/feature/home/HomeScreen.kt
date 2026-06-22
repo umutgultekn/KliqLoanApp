@@ -112,7 +112,7 @@ fun HomeScreen(
                 state.error != null -> HomeMode.Error
                 else -> HomeMode.Content
             }
-            Crossfade(targetState = mode, label = "portfolioMode") { current ->
+            Crossfade(targetState = mode, label = "homeMode") { current ->
                 when (current) {
                     HomeMode.Loading -> KliqListSkeleton()
                     HomeMode.Error -> CenteredBox {

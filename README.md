@@ -54,9 +54,10 @@ build-logic           convention plugins (android app/library/compose, jvm libra
    cancellation and routes errors; a single immutable `UiState` per screen.
 6. **Form & focus chain** — `FormField` + specialized `EmailFormField`/`PasswordFormField`; email→IME-Next→
    password focus transition; success/error borders and inline messages; field state driven by the ViewModel.
-7. **Auth & session** — an `AuthRepository` (`login`/`logout`) backed by a mock service, plus a
-   DataStore-backed `SessionRepository` exposing `Flow<Boolean>`; app launch reads the session for the start
-   destination; logout clears it.
+7. **Auth & session** — the assignment's `AuthService` role is the `AuthRepository` interface
+   (`login`/`logout`), named for repository-pattern consistency with `LoanRepository`/`SessionRepository`,
+   backed by a mock service; plus a DataStore-backed `SessionRepository` exposing `Flow<Boolean>`; app
+   launch reads the session for the start destination; logout clears it.
 8. **Layered & modular** — the module graph above, wired by Hilt; Domain has zero Android types.
 9. **Unit tests** — strategies, lifecycle stages, the processor (ordering/edge cases on real records),
    validation rules, the presentation mapper, both ViewModels (coroutines-test + Turbine + fakes), the
