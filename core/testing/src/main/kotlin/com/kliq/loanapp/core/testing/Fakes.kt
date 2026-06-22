@@ -13,23 +13,12 @@ import com.kliq.loanapp.domain.processing.PersonalLoanStrategy
 import com.kliq.loanapp.domain.repository.AuthRepository
 import com.kliq.loanapp.domain.repository.LoanRepository
 import com.kliq.loanapp.domain.repository.SessionRepository
-import com.kliq.loanapp.domain.service.LoanService
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-
-/** Configurable fake data source: returns [loans], or throws [error] if set. */
-class FakeLoanService(
-    private val loans: List<Loan> = emptyList(),
-    private val error: Throwable? = null,
-) : LoanService {
-    override suspend fun fetchLoans(): List<Loan> {
-        error?.let { throw it }
-        return loans
-    }
-}
+import kotlinx.coroutines.flow.flow
 
 /** In-memory session for asserting login/logout transitions. */
 class FakeSessionRepository(initial: Boolean = false) : SessionRepository {
@@ -63,11 +52,15 @@ class FakeAuthRepository(
     override suspend fun logout() = session.setLoggedIn(false)
 }
 
-/** Returns a fixed [result] (or a success list) for repository tests. */
+/** Emits [loans] (or throws [error]) as a reactive stream, for repository/use-case/VM tests. */
 class FakeLoanRepository(
-    var result: Result<List<Loan>> = Result.success(emptyList()),
+    var loans: List<Loan> = emptyList(),
+    var error: Throwable? = null,
 ) : LoanRepository {
-    override suspend fun getLoans(): Result<List<Loan>> = result
+    override fun getLoans(): Flow<List<Loan>> = flow {
+        error?.let { throw it }
+        emit(loans)
+    }
 }
 
 /** Captures log calls so tests can assert the observability seam fired (or just stay silent). */

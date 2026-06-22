@@ -39,7 +39,7 @@ class HomeViewModelTest {
     private val mapper = LoanPresentationMapper(DefaultLoanFormatter())
 
     private fun viewModel(loans: List<Loan>): HomeViewModel {
-        val useCase = GetProcessedPortfolioUseCase(FakeLoanRepository(Result.success(loans)), testLoanProcessor())
+        val useCase = GetProcessedPortfolioUseCase(FakeLoanRepository(loans = loans), testLoanProcessor())
         return HomeViewModel(useCase, mapper, logout, navigator, SavedStateHandle())
     }
 
@@ -91,7 +91,7 @@ class HomeViewModelTest {
     @Test
     fun `load failure produces an Error phase`() = runTest {
         val useCase =
-            GetProcessedPortfolioUseCase(FakeLoanRepository(Result.failure(AppError.AssetMissing)), testLoanProcessor())
+            GetProcessedPortfolioUseCase(FakeLoanRepository(error = AppError.AssetMissing), testLoanProcessor())
         val vm = HomeViewModel(useCase, mapper, logout, navigator, SavedStateHandle())
         assertTrue(vm.uiState.value.content is UiState.Error)
     }
@@ -106,7 +106,7 @@ class HomeViewModelTest {
 
     @Test
     fun `restores the persisted filter from SavedStateHandle`() = runTest {
-        val useCase = GetProcessedPortfolioUseCase(FakeLoanRepository(Result.success(sample)), testLoanProcessor())
+        val useCase = GetProcessedPortfolioUseCase(FakeLoanRepository(loans = sample), testLoanProcessor())
         val vm = HomeViewModel(
             useCase, mapper, logout, navigator,
             SavedStateHandle(mapOf(HomeViewModel.KEY_FILTER to PortfolioFilter.ACTIVE)),
@@ -117,13 +117,14 @@ class HomeViewModelTest {
 
     @Test
     fun `retry recovers from a load error`() = runTest {
-        val repo = FakeLoanRepository(Result.failure(AppError.AssetMissing))
+        val repo = FakeLoanRepository(error = AppError.AssetMissing)
         val vm = HomeViewModel(
             GetProcessedPortfolioUseCase(repo, testLoanProcessor()), mapper, logout, navigator, SavedStateHandle(),
         )
         assertTrue(vm.uiState.value.content is UiState.Error)
 
-        repo.result = Result.success(sample)
+        repo.loans = sample
+        repo.error = null
         vm.onRetry()
 
         assertEquals(3, vm.loaded().cards.size)

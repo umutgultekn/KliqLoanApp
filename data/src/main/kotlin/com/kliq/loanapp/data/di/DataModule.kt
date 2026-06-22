@@ -11,15 +11,15 @@ import com.google.gson.Gson
 import com.kliq.loanapp.core.common.dispatcher.DispatcherProvider
 import com.kliq.loanapp.core.common.format.DefaultLoanFormatter
 import com.kliq.loanapp.core.common.format.LoanFormatter
+import com.kliq.loanapp.data.datasource.JsonLoanRemoteDataSource
+import com.kliq.loanapp.data.datasource.LoanRemoteDataSource
 import com.kliq.loanapp.data.dispatcher.DefaultDispatcherProvider
 import com.kliq.loanapp.data.repository.AuthRepositoryImpl
 import com.kliq.loanapp.data.repository.LoanRepositoryImpl
-import com.kliq.loanapp.data.service.MockLoanService
 import com.kliq.loanapp.data.session.SessionManager
 import com.kliq.loanapp.domain.repository.AuthRepository
 import com.kliq.loanapp.domain.repository.LoanRepository
 import com.kliq.loanapp.domain.repository.SessionRepository
-import com.kliq.loanapp.domain.service.LoanService
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -44,7 +44,7 @@ internal abstract class DataModule {
     abstract fun sessionRepository(impl: SessionManager): SessionRepository
 
     @Binds @Singleton
-    abstract fun loanService(impl: MockLoanService): LoanService
+    abstract fun loanRemoteDataSource(impl: JsonLoanRemoteDataSource): LoanRemoteDataSource
 
     @Binds @Singleton
     abstract fun dispatcherProvider(impl: DefaultDispatcherProvider): DispatcherProvider

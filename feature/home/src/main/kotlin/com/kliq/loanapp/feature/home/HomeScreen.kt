@@ -118,7 +118,6 @@ fun HomeScreen(
                     is UiState.Content -> LoadedContent(
                         data = content.data,
                         selectedFilter = state.selectedFilter,
-                        isRefreshing = state.isRefreshing,
                         onFilterSelected = onFilterSelected,
                         onRefresh = onRefresh,
                     )
@@ -144,7 +143,6 @@ private fun ErrorContent(message: UiText, onRetry: () -> Unit) {
 private fun LoadedContent(
     data: HomeData,
     selectedFilter: PortfolioFilter,
-    isRefreshing: Boolean,
     onFilterSelected: (PortfolioFilter) -> Unit,
     onRefresh: () -> Unit,
 ) {
@@ -171,7 +169,7 @@ private fun LoadedContent(
             }
         } else {
             PullToRefreshBox(
-                isRefreshing = isRefreshing,
+                isRefreshing = data.isRefreshing,
                 onRefresh = onRefresh,
                 modifier = Modifier.fillMaxSize(),
             ) {

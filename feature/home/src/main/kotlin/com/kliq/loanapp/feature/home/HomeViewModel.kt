@@ -21,7 +21,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
@@ -38,11 +37,11 @@ class HomeViewModel @Inject constructor(
     // Persisted across process death; the selected filter survives restoration.
     private val selectedFilter = savedStateHandle.getStateFlow(KEY_FILTER, PortfolioFilter.ALL)
 
-    // The raw load phase as ONE stream that starts at Loading — the canonical pattern (no nullable
-    // "not-loaded-yet" sentinel, no separate loading flag). Holds the unprocessed loans so a filter
-    // change re-derives cards without re-fetching. Pull-to-refresh keeps the current content visible
-    // via [refreshing] instead of flipping back to Loading.
-    private val loadResult = MutableStateFlow<UiState<List<Loan>>>(UiState.Loading)
+    // The raw load phase as ONE stream that starts at Loading (the canonical pattern — no nullable
+    // "not-loaded-yet" sentinel). Internally it's a [Result] (data envelope, carries the Throwable);
+    // reduce maps it to the presentation [UiState]. Holds the unprocessed loans so a filter change
+    // re-derives cards without re-fetching. Pull-to-refresh keeps content visible via [refreshing].
+    private val loadResult = MutableStateFlow<Result<List<Loan>>>(Result.Loading)
     private val refreshing = MutableStateFlow(false)
     private val logoutConfirm = MutableStateFlow(false)
 
@@ -74,51 +73,48 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    // Bridge the one-shot use case into a Flow + asResult so the load goes through the shared,
-    // canonical Loading/Success/Error pipeline (ready for a real Flow-based network/DB source).
-    // asResult emits Loading first: on a full load it shows the loading phase; on pull-to-refresh
-    // (showLoading = false) it only flips isRefreshing so the current content stays visible.
+    // Collect the use case's reactive stream through asResult: Loading on start, then Success/Error.
+    // On a full load the Loading phase is shown; on pull-to-refresh (showLoading = false) it only
+    // flips isRefreshing so the current content stays visible.
     private fun reload(showLoading: Boolean): Job = launchSafe {
-        flow { emit(getProcessedPortfolio().getOrThrow()) }
+        getProcessedPortfolio()
             .asResult()
             .collect { result ->
                 when (result) {
-                    Result.Loading ->
-                        if (showLoading) loadResult.value = UiState.Loading else refreshing.value = true
-                    is Result.Success -> {
-                        loadResult.value = UiState.Content(result.data)
-                        refreshing.value = false
-                    }
-                    is Result.Error -> {
-                        loadResult.value = UiState.Error(result.throwable.toAppError().asUiText())
+                    Result.Loading -> if (showLoading) loadResult.value = Result.Loading else refreshing.value = true
+                    else -> {
+                        loadResult.value = result
                         refreshing.value = false
                     }
                 }
             }
     }
 
+    // Pure mapping from the data envelope [Result] to the presentation [UiState]; the error Throwable
+    // becomes a user-facing message here, in the presentation layer.
     private fun reduce(
-        result: UiState<List<Loan>>,
+        result: Result<List<Loan>>,
         filter: PortfolioFilter,
         isRefreshing: Boolean,
         showLogoutConfirm: Boolean,
     ): HomeUiState {
         val content: UiState<HomeData> = when (result) {
-            UiState.Loading -> UiState.Loading
-            is UiState.Error -> result
-            is UiState.Content -> UiState.Content(
+            Result.Loading -> UiState.Loading
+            is Result.Error -> UiState.Error(result.throwable.toAppError().asUiText())
+            is Result.Success -> UiState.Content(
                 HomeData(
                     cards = mapper.toCards(result.data.filter(filter::matches)),
                     // The summary card reflects the WHOLE portfolio; the filter only narrows the list.
                     summary = mapper.summary(PortfolioSummary.from(result.data)),
                     portfolioEmpty = result.data.isEmpty(),
+                    // Refresh is meaningful only with content, so it rides on the Content phase.
+                    isRefreshing = isRefreshing,
                 ),
             )
         }
         return HomeUiState(
             content = content,
             selectedFilter = filter,
-            isRefreshing = isRefreshing,
             showLogoutConfirm = showLogoutConfirm,
         )
     }
