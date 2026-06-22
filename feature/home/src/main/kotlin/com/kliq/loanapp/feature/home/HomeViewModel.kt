@@ -4,7 +4,6 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.kliq.loanapp.core.common.navigation.NavCommand
 import com.kliq.loanapp.core.common.navigation.Navigator
-import com.kliq.loanapp.core.common.result.AppError
 import com.kliq.loanapp.core.common.result.toAppError
 import com.kliq.loanapp.core.model.Loan
 import com.kliq.loanapp.core.model.PortfolioFilter
@@ -35,15 +34,17 @@ class HomeViewModel @Inject constructor(
     // Persisted across process death; the selected filter survives restoration.
     private val selectedFilter = savedStateHandle.getStateFlow(KEY_FILTER, PortfolioFilter.ALL)
 
-    // Processing always runs on the freshly-fetched raw list (deterministic across reloads).
-    // null = not loaded yet; the full-screen loading state comes from the shared BaseViewModel.isLoading.
-    private val loadState = MutableStateFlow<LoadState?>(null)
+    // The raw load phase as ONE stream that starts at Loading — the canonical pattern (no nullable
+    // "not-loaded-yet" sentinel, no separate loading flag). Holds the unprocessed loans so a filter
+    // change re-derives cards without re-fetching. Pull-to-refresh keeps the current content visible
+    // via [refreshing] instead of flipping back to Loading.
+    private val loadResult = MutableStateFlow<UiState<List<Loan>>>(UiState.Loading)
     private val refreshing = MutableStateFlow(false)
     private val logoutConfirm = MutableStateFlow(false)
 
     init {
         reload(showLoading = true)
-        combine(loadState, isLoading, selectedFilter, refreshing, logoutConfirm, ::reduce)
+        combine(loadResult, selectedFilter, refreshing, logoutConfirm, ::reduce)
             .onEach { state -> setState { state } }
             .launchIn(viewModelScope)
     }
@@ -52,7 +53,7 @@ class HomeViewModel @Inject constructor(
         savedStateHandle[KEY_FILTER] = filter
     }
 
-    /** Full reload with a loading state — used by the error-state retry button. */
+    /** Full reload that shows the loading phase — used by the error-state retry button. */
     fun onRetry() = reload(showLoading = true)
 
     /** Background reload that keeps the current content — used by pull-to-refresh. */
@@ -69,40 +70,32 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private fun reload(showLoading: Boolean): Job = launchSafe(loading = showLoading) {
-        if (!showLoading) refreshing.value = true
-        loadState.value = loadOnce()
+    private fun reload(showLoading: Boolean): Job = launchSafe {
+        if (showLoading) loadResult.value = UiState.Loading else refreshing.value = true
+        loadResult.value = getProcessedPortfolio().fold(
+            onSuccess = { UiState.Content(it) },
+            onFailure = { UiState.Error(it.toAppError().asUiText()) },
+        )
         refreshing.value = false
     }
 
-    private suspend fun loadOnce(): LoadState = getProcessedPortfolio().fold(
-        onSuccess = { LoadState.Success(it) },
-        onFailure = { LoadState.Error(it.toAppError()) },
-    )
-
     private fun reduce(
-        load: LoadState?,
-        isLoading: Boolean,
+        result: UiState<List<Loan>>,
         filter: PortfolioFilter,
         isRefreshing: Boolean,
         showLogoutConfirm: Boolean,
     ): HomeUiState {
-        // Full-screen loading is the shared BaseViewModel flag (initial fetch + retry); a pull-to-
-        // refresh (isLoading = false) keeps the current content and shows isRefreshing instead.
-        val content: UiState<HomeData> = if (isLoading || load == null) {
-            UiState.Loading
-        } else {
-            when (load) {
-                is LoadState.Error -> UiState.Error(load.error.asUiText())
-                is LoadState.Success -> UiState.Content(
-                    HomeData(
-                        cards = mapper.toCards(load.loans.filter(filter::matches)),
-                        // The summary card reflects the WHOLE portfolio; the filter only narrows the list.
-                        summary = mapper.summary(PortfolioSummary.from(load.loans)),
-                        portfolioEmpty = load.loans.isEmpty(),
-                    ),
-                )
-            }
+        val content: UiState<HomeData> = when (result) {
+            UiState.Loading -> UiState.Loading
+            is UiState.Error -> result
+            is UiState.Content -> UiState.Content(
+                HomeData(
+                    cards = mapper.toCards(result.data.filter(filter::matches)),
+                    // The summary card reflects the WHOLE portfolio; the filter only narrows the list.
+                    summary = mapper.summary(PortfolioSummary.from(result.data)),
+                    portfolioEmpty = result.data.isEmpty(),
+                ),
+            )
         }
         return HomeUiState(
             content = content,
@@ -110,11 +103,6 @@ class HomeViewModel @Inject constructor(
             isRefreshing = isRefreshing,
             showLogoutConfirm = showLogoutConfirm,
         )
-    }
-
-    private sealed interface LoadState {
-        data class Success(val loans: List<Loan>) : LoadState
-        data class Error(val error: AppError) : LoadState
     }
 
     internal companion object {
