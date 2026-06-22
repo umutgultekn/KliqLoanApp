@@ -21,8 +21,6 @@ import com.kliq.loanapp.domain.usecase.LogoutUseCase
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNotNull
-import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -45,6 +43,13 @@ class HomeViewModelTest {
         return HomeViewModel(useCase, mapper, logout, navigator, SavedStateHandle())
     }
 
+    /** The current content, asserted to be the loaded [HomeContent.Content] phase. */
+    private fun HomeViewModel.loaded(): HomeContent.Content {
+        val content = uiState.value.content
+        assertTrue("expected Content but was $content", content is HomeContent.Content)
+        return content as HomeContent.Content
+    }
+
     // After processing: Consumer Credit stays ACTIVE, Vehicle Finance stays OVERDUE, Commercial Credit stays DEFAULT.
     private val sample = listOf(
         LoanFixtures.consumerCredit,
@@ -53,54 +58,50 @@ class HomeViewModelTest {
     )
 
     @Test
-    fun `loads all processed loans`() = runTest {
+    fun `loads all processed loans into the Content phase`() = runTest {
         val vm = viewModel(sample)
-        val state = vm.uiState.value
-        assertFalse(state.isLoading)
-        assertEquals(3, state.cards.size)
+        assertEquals(3, vm.loaded().cards.size)
     }
 
     @Test
     fun `selecting a status filter narrows the list`() = runTest {
         val vm = viewModel(sample)
         vm.onFilterSelected(PortfolioFilter.ACTIVE)
-        assertEquals(1, vm.uiState.value.cards.size)
+        assertEquals(1, vm.loaded().cards.size)
 
         vm.onFilterSelected(PortfolioFilter.DEFAULT)
-        assertEquals(1, vm.uiState.value.cards.size)
+        assertEquals(1, vm.loaded().cards.size)
 
         vm.onFilterSelected(PortfolioFilter.PAID)
-        assertEquals(0, vm.uiState.value.cards.size)
+        assertEquals(0, vm.loaded().cards.size)
     }
 
     @Test
     fun `summary reflects the whole portfolio regardless of the active filter`() = runTest {
         val vm = viewModel(sample)
-        val fullSummary = vm.uiState.value.summary.countText
+        val fullSummary = vm.loaded().summary.countText
         assertEquals(3, (fullSummary as UiText.Plural).quantity)
 
         vm.onFilterSelected(PortfolioFilter.ACTIVE)
-        assertEquals(1, vm.uiState.value.cards.size)
+        assertEquals(1, vm.loaded().cards.size)
         // Summary stays on the full portfolio even though the list narrowed to 1.
-        assertEquals(fullSummary, vm.uiState.value.summary.countText)
+        assertEquals(fullSummary, vm.loaded().summary.countText)
     }
 
     @Test
-    fun `load failure produces an error state`() = runTest {
+    fun `load failure produces an Error phase`() = runTest {
         val useCase =
             GetProcessedPortfolioUseCase(FakeLoanRepository(Result.failure(AppError.AssetMissing)), testLoanProcessor())
         val vm = HomeViewModel(useCase, mapper, logout, navigator, SavedStateHandle())
-        val state = vm.uiState.value
-        assertFalse(state.isLoading)
-        assertNotNull(state.error)
-        assertEquals(0, state.cards.size)
+        assertTrue(vm.uiState.value.content is HomeContent.Error)
     }
 
     @Test
     fun `an empty portfolio is flagged`() = runTest {
         val vm = viewModel(emptyList())
-        assertTrue(vm.uiState.value.cards.isEmpty())
-        assertTrue(vm.uiState.value.portfolioEmpty)
+        val content = vm.loaded()
+        assertTrue(content.cards.isEmpty())
+        assertTrue(content.portfolioEmpty)
     }
 
     @Test
@@ -111,7 +112,7 @@ class HomeViewModelTest {
             SavedStateHandle(mapOf(HomeViewModel.KEY_FILTER to PortfolioFilter.ACTIVE)),
         )
         assertEquals(PortfolioFilter.ACTIVE, vm.uiState.value.selectedFilter)
-        assertEquals(1, vm.uiState.value.cards.size)
+        assertEquals(1, vm.loaded().cards.size)
     }
 
     @Test
@@ -120,13 +121,12 @@ class HomeViewModelTest {
         val vm = HomeViewModel(
             GetProcessedPortfolioUseCase(repo, testLoanProcessor()), mapper, logout, navigator, SavedStateHandle(),
         )
-        assertNotNull(vm.uiState.value.error)
+        assertTrue(vm.uiState.value.content is HomeContent.Error)
 
         repo.result = Result.success(sample)
         vm.onRetry()
 
-        assertNull(vm.uiState.value.error)
-        assertEquals(3, vm.uiState.value.cards.size)
+        assertEquals(3, vm.loaded().cards.size)
     }
 
     @Test

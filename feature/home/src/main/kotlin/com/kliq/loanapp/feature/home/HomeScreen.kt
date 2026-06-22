@@ -1,6 +1,9 @@
 package com.kliq.loanapp.feature.home
 
-import androidx.compose.animation.Crossfade
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -30,6 +33,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import com.kliq.loanapp.core.common.navigation.KliqRoute
+import com.kliq.loanapp.core.common.text.UiText
 import com.kliq.loanapp.core.designsystem.component.ChipConfig
 import com.kliq.loanapp.core.designsystem.component.ConfirmDialog
 import com.kliq.loanapp.core.designsystem.component.EmptyState
@@ -48,8 +52,6 @@ import com.kliq.loanapp.core.designsystem.theme.KliqTheme
 import com.kliq.loanapp.core.model.PortfolioFilter
 import com.kliq.loanapp.core.ui.mapper.PortfolioSummaryUi
 import com.kliq.loanapp.core.ui.rememberSnackbarEvents
-
-private enum class HomeMode { Loading, Error, Content }
 
 fun NavGraphBuilder.homeScreen() {
     composable<KliqRoute.Home> { HomeRoute() }
@@ -84,8 +86,6 @@ fun HomeScreen(
     onLogoutConfirmed: () -> Unit,
     onLogoutDismissed: () -> Unit,
 ) {
-    val colors = KliqTheme.colors
-
     if (state.showLogoutConfirm) {
         ConfirmDialog(
             title = stringResource(R.string.portfolio_logout_title),
@@ -103,66 +103,89 @@ fun HomeScreen(
                 KliqTextButton(text = stringResource(R.string.portfolio_logout), onClick = onLogoutClicked)
             }
 
-            val mode = when {
-                state.isLoading -> HomeMode.Loading
-                state.error != null -> HomeMode.Error
-                else -> HomeMode.Content
+            // Animate only between the three phases (keyed by type), so a filter change within
+            // Content re-flows the grid (animateItem) instead of cross-fading the whole screen.
+            AnimatedContent(
+                targetState = state.content,
+                transitionSpec = { fadeIn() togetherWith fadeOut() },
+                contentKey = { it::class },
+                label = "homeContent",
+            ) { content ->
+                when (content) {
+                    HomeContent.Loading -> KliqListSkeleton()
+                    is HomeContent.Error -> ErrorContent(message = content.message, onRetry = onRetry)
+                    is HomeContent.Content -> LoadedContent(
+                        content = content,
+                        selectedFilter = state.selectedFilter,
+                        isRefreshing = state.isRefreshing,
+                        onFilterSelected = onFilterSelected,
+                        onRefresh = onRefresh,
+                    )
+                }
             }
-            Crossfade(targetState = mode, label = "homeMode") { current ->
-                when (current) {
-                    HomeMode.Loading -> KliqListSkeleton()
-                    HomeMode.Error -> CenteredBox {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            state.error?.let { err ->
-                                KliqText(err.asString(), style = KliqTextStyle.Body, color = colors.statusDefault)
-                            }
-                            Spacer(Modifier.height(KliqTheme.spacing.lg))
-                            SecondaryButton(text = stringResource(R.string.portfolio_retry), onClick = onRetry)
-                        }
-                    }
-                    HomeMode.Content -> Column(modifier = Modifier.fillMaxSize().padding(horizontal = KliqTheme.spacing.xl)) {
-                        SummaryCard(state.summary)
-                        Spacer(Modifier.height(KliqTheme.spacing.lg))
-                        FilterRow(selected = state.selectedFilter, onFilterSelected = onFilterSelected)
-                        Spacer(Modifier.height(KliqTheme.spacing.lg))
-                        if (state.cards.isEmpty()) {
-                            CenteredBox {
-                                if (state.portfolioEmpty) {
-                                    EmptyState(
-                                        title = stringResource(R.string.portfolio_empty_all_title),
-                                        message = stringResource(R.string.portfolio_empty_all),
-                                    )
-                                } else {
-                                    EmptyState(
-                                        title = stringResource(R.string.portfolio_empty_filter_title),
-                                        message = stringResource(R.string.portfolio_empty_filter),
-                                        actionLabel = stringResource(R.string.portfolio_show_all),
-                                        onAction = { onFilterSelected(PortfolioFilter.ALL) },
-                                    )
-                                }
-                            }
-                        } else {
-                            PullToRefreshBox(
-                                isRefreshing = state.isRefreshing,
-                                onRefresh = onRefresh,
-                                modifier = Modifier.fillMaxSize(),
-                            ) {
-                                // Adaptive columns: the grid fits as many cells >= the token min-width as
-                                // the available width allows (1 on phones, 2+ on tablets/landscape) —
-                                // no BoxWithConstraints, no manual width breakpoint or column count.
-                                LazyVerticalGrid(
-                                    columns = GridCells.Adaptive(minSize = KliqTheme.sizes.loanCardMinWidth),
-                                    modifier = Modifier.fillMaxSize(),
-                                    verticalArrangement = Arrangement.spacedBy(KliqTheme.spacing.lg),
-                                    horizontalArrangement = Arrangement.spacedBy(KliqTheme.spacing.lg),
-                                    contentPadding = PaddingValues(bottom = KliqTheme.spacing.xxxl),
-                                ) {
-                                    items(state.cards, key = { it.id }) { card ->
-                                        LoanCard(config = card, modifier = Modifier.animateItem())
-                                    }
-                                }
-                            }
-                        }
+        }
+    }
+}
+
+@Composable
+private fun ErrorContent(message: UiText, onRetry: () -> Unit) {
+    CenteredBox {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            KliqText(message.asString(), style = KliqTextStyle.Body, color = KliqTheme.colors.statusDefault)
+            Spacer(Modifier.height(KliqTheme.spacing.lg))
+            SecondaryButton(text = stringResource(R.string.portfolio_retry), onClick = onRetry)
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun LoadedContent(
+    content: HomeContent.Content,
+    selectedFilter: PortfolioFilter,
+    isRefreshing: Boolean,
+    onFilterSelected: (PortfolioFilter) -> Unit,
+    onRefresh: () -> Unit,
+) {
+    Column(modifier = Modifier.fillMaxSize().padding(horizontal = KliqTheme.spacing.xl)) {
+        SummaryCard(content.summary)
+        Spacer(Modifier.height(KliqTheme.spacing.lg))
+        FilterRow(selected = selectedFilter, onFilterSelected = onFilterSelected)
+        Spacer(Modifier.height(KliqTheme.spacing.lg))
+        if (content.cards.isEmpty()) {
+            CenteredBox {
+                if (content.portfolioEmpty) {
+                    EmptyState(
+                        title = stringResource(R.string.portfolio_empty_all_title),
+                        message = stringResource(R.string.portfolio_empty_all),
+                    )
+                } else {
+                    EmptyState(
+                        title = stringResource(R.string.portfolio_empty_filter_title),
+                        message = stringResource(R.string.portfolio_empty_filter),
+                        actionLabel = stringResource(R.string.portfolio_show_all),
+                        onAction = { onFilterSelected(PortfolioFilter.ALL) },
+                    )
+                }
+            }
+        } else {
+            PullToRefreshBox(
+                isRefreshing = isRefreshing,
+                onRefresh = onRefresh,
+                modifier = Modifier.fillMaxSize(),
+            ) {
+                // Adaptive columns: the grid fits as many cells >= the token min-width as
+                // the available width allows (1 on phones, 2+ on tablets/landscape) —
+                // no BoxWithConstraints, no manual width breakpoint or column count.
+                LazyVerticalGrid(
+                    columns = GridCells.Adaptive(minSize = KliqTheme.sizes.loanCardMinWidth),
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.spacedBy(KliqTheme.spacing.lg),
+                    horizontalArrangement = Arrangement.spacedBy(KliqTheme.spacing.lg),
+                    contentPadding = PaddingValues(bottom = KliqTheme.spacing.xxxl),
+                ) {
+                    items(content.cards, key = { it.id }) { card ->
+                        LoanCard(config = card, modifier = Modifier.animateItem())
                     }
                 }
             }

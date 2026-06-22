@@ -89,35 +89,25 @@ class HomeViewModel @Inject constructor(
     ): HomeUiState {
         // Full-screen loading is the shared BaseViewModel flag (initial fetch + retry); a pull-to-
         // refresh (isLoading = false) keeps the current content and shows isRefreshing instead.
-        if (isLoading || load == null) {
-            return HomeUiState(
-                isLoading = true,
-                selectedFilter = filter,
-                showLogoutConfirm = showLogoutConfirm,
-            )
-        }
-        return when (load) {
-            is LoadState.Error -> HomeUiState(
-                isLoading = false,
-                error = load.error.asUiText(),
-                selectedFilter = filter,
-                isRefreshing = isRefreshing,
-                showLogoutConfirm = showLogoutConfirm,
-            )
-            is LoadState.Success -> {
-                val filtered = load.loans.filter(filter::matches)
-                HomeUiState(
-                    isLoading = false,
-                    cards = mapper.toCards(filtered),
+        val content: HomeContent = if (isLoading || load == null) {
+            HomeContent.Loading
+        } else {
+            when (load) {
+                is LoadState.Error -> HomeContent.Error(load.error.asUiText())
+                is LoadState.Success -> HomeContent.Content(
+                    cards = mapper.toCards(load.loans.filter(filter::matches)),
                     // The summary card reflects the WHOLE portfolio; the filter only narrows the list.
                     summary = mapper.summary(PortfolioSummary.from(load.loans)),
-                    selectedFilter = filter,
                     portfolioEmpty = load.loans.isEmpty(),
-                    isRefreshing = isRefreshing,
-                    showLogoutConfirm = showLogoutConfirm,
                 )
             }
         }
+        return HomeUiState(
+            content = content,
+            selectedFilter = filter,
+            isRefreshing = isRefreshing,
+            showLogoutConfirm = showLogoutConfirm,
+        )
     }
 
     private sealed interface LoadState {
