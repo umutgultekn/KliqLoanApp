@@ -8,6 +8,7 @@ import com.kliq.loanapp.core.common.result.AppError
 import com.kliq.loanapp.core.common.text.UiText
 import com.kliq.loanapp.core.model.Loan
 import com.kliq.loanapp.core.model.PortfolioFilter
+import com.kliq.loanapp.core.testing.FakeAuthRepository
 import com.kliq.loanapp.core.testing.FakeLoanRepository
 import com.kliq.loanapp.core.testing.FakeNavigator
 import com.kliq.loanapp.core.testing.FakeSessionRepository
@@ -16,6 +17,7 @@ import com.kliq.loanapp.core.testing.MainDispatcherRule
 import com.kliq.loanapp.core.testing.testLoanProcessor
 import com.kliq.loanapp.core.ui.mapper.LoanPresentationMapper
 import com.kliq.loanapp.domain.usecase.GetProcessedPortfolioUseCase
+import com.kliq.loanapp.domain.usecase.LogoutUseCase
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -32,11 +34,15 @@ class HomeViewModelTest {
 
     private val navigator = FakeNavigator()
     private val session = FakeSessionRepository(initial = true)
+
+    // Logout flows through the use case -> FakeAuthRepository -> the shared session, so the existing
+    // session.current assertions still hold.
+    private val logout = LogoutUseCase(FakeAuthRepository(session = session))
     private val mapper = LoanPresentationMapper(DefaultLoanFormatter())
 
     private fun viewModel(loans: List<Loan>): HomeViewModel {
         val useCase = GetProcessedPortfolioUseCase(FakeLoanRepository(Result.success(loans)), testLoanProcessor())
-        return HomeViewModel(useCase, mapper, session, navigator, SavedStateHandle())
+        return HomeViewModel(useCase, mapper, logout, navigator, SavedStateHandle())
     }
 
     // After processing: Consumer Credit stays ACTIVE, Vehicle Finance stays OVERDUE, Commercial Credit stays DEFAULT.
@@ -83,7 +89,7 @@ class HomeViewModelTest {
     fun `load failure produces an error state`() = runTest {
         val useCase =
             GetProcessedPortfolioUseCase(FakeLoanRepository(Result.failure(AppError.AssetMissing)), testLoanProcessor())
-        val vm = HomeViewModel(useCase, mapper, session, navigator, SavedStateHandle())
+        val vm = HomeViewModel(useCase, mapper, logout, navigator, SavedStateHandle())
         val state = vm.uiState.value
         assertFalse(state.isLoading)
         assertNotNull(state.error)
@@ -101,7 +107,7 @@ class HomeViewModelTest {
     fun `restores the persisted filter from SavedStateHandle`() = runTest {
         val useCase = GetProcessedPortfolioUseCase(FakeLoanRepository(Result.success(sample)), testLoanProcessor())
         val vm = HomeViewModel(
-            useCase, mapper, session, navigator,
+            useCase, mapper, logout, navigator,
             SavedStateHandle(mapOf(HomeViewModel.KEY_FILTER to PortfolioFilter.ACTIVE)),
         )
         assertEquals(PortfolioFilter.ACTIVE, vm.uiState.value.selectedFilter)
@@ -112,7 +118,7 @@ class HomeViewModelTest {
     fun `retry recovers from a load error`() = runTest {
         val repo = FakeLoanRepository(Result.failure(AppError.AssetMissing))
         val vm = HomeViewModel(
-            GetProcessedPortfolioUseCase(repo, testLoanProcessor()), mapper, session, navigator, SavedStateHandle(),
+            GetProcessedPortfolioUseCase(repo, testLoanProcessor()), mapper, logout, navigator, SavedStateHandle(),
         )
         assertNotNull(vm.uiState.value.error)
 

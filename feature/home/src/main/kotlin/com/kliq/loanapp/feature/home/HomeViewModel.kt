@@ -13,8 +13,8 @@ import com.kliq.loanapp.core.model.PortfolioSummary
 import com.kliq.loanapp.core.ui.BaseViewModel
 import com.kliq.loanapp.core.ui.error.asUiText
 import com.kliq.loanapp.core.ui.mapper.LoanPresentationMapper
-import com.kliq.loanapp.domain.repository.SessionRepository
 import com.kliq.loanapp.domain.usecase.GetProcessedPortfolioUseCase
+import com.kliq.loanapp.domain.usecase.LogoutUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -27,7 +27,7 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val getProcessedPortfolio: GetProcessedPortfolioUseCase,
     private val mapper: LoanPresentationMapper,
-    private val sessionRepository: SessionRepository,
+    private val logout: LogoutUseCase,
     private val navigator: Navigator,
     private val savedStateHandle: SavedStateHandle,
 ) : BaseViewModel<HomeUiState>(HomeUiState()) {
@@ -64,7 +64,7 @@ class HomeViewModel @Inject constructor(
     fun onLogoutConfirmed() {
         logoutConfirm.value = false
         launchSafe {
-            sessionRepository.setLoggedIn(false)
+            logout()
             navigator.navigate(NavCommand.To(KliqRoute.Login, popUpTo = KliqRoute.Home, inclusive = true))
         }
     }

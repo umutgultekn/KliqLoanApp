@@ -3,7 +3,7 @@ package com.kliq.loanapp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kliq.loanapp.core.common.navigation.Navigator
-import com.kliq.loanapp.domain.repository.SessionRepository
+import com.kliq.loanapp.domain.usecase.ObserveAuthStateUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -23,11 +23,11 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class AppViewModel @Inject constructor(
-    sessionRepository: SessionRepository,
+    observeAuthState: ObserveAuthStateUseCase,
     val navigator: Navigator,
 ) : ViewModel() {
 
-    val startState: StateFlow<StartState> = sessionRepository.isLoggedIn
+    val startState: StateFlow<StartState> = observeAuthState()
         .map<Boolean, StartState> { StartState.Ready(loggedIn = it) }
         .take(1)
         .stateIn(viewModelScope, SharingStarted.Eagerly, StartState.Loading)

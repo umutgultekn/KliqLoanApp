@@ -12,6 +12,7 @@ import com.kliq.loanapp.core.testing.FakeNavigator
 import com.kliq.loanapp.core.testing.FakeSessionRepository
 import com.kliq.loanapp.core.testing.MainDispatcherRule
 import com.kliq.loanapp.core.ui.UiEvent
+import com.kliq.loanapp.domain.usecase.LoginUseCase
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -28,7 +29,7 @@ class LoginViewModelTest {
     private val navigator = FakeNavigator()
 
     private fun viewModel(loginResult: Result<Unit> = Result.success(Unit)) =
-        LoginViewModel(FakeAuthRepository(loginResult, session), navigator, SavedStateHandle())
+        LoginViewModel(LoginUseCase(FakeAuthRepository(loginResult, session)), navigator, SavedStateHandle())
 
     @Test
     fun `invalid email blocks submission`() = runTest {
@@ -76,7 +77,7 @@ class LoginViewModelTest {
         assertFalse(ok.isLoading.value)
 
         val failing = LoginViewModel(
-            FakeAuthRepository(Result.failure(AppError.Auth(AuthReason.INVALID_CREDENTIALS)), FakeSessionRepository()),
+            LoginUseCase(FakeAuthRepository(Result.failure(AppError.Auth(AuthReason.INVALID_CREDENTIALS)), FakeSessionRepository())),
             FakeNavigator(),
             SavedStateHandle(),
         )

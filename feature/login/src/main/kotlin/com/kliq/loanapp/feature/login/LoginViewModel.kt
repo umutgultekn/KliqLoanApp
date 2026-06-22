@@ -13,13 +13,13 @@ import com.kliq.loanapp.core.designsystem.component.FieldUiState
 import com.kliq.loanapp.core.ui.BaseViewModel
 import com.kliq.loanapp.core.ui.UiEvent
 import com.kliq.loanapp.core.ui.error.asUiText
-import com.kliq.loanapp.domain.repository.AuthRepository
+import com.kliq.loanapp.domain.usecase.LoginUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    private val authRepository: AuthRepository,
+    private val loginUseCase: LoginUseCase,
     private val navigator: Navigator,
     private val savedStateHandle: SavedStateHandle,
 ) : BaseViewModel<LoginUiState>(LoginUiState()) {
@@ -85,7 +85,7 @@ class LoginViewModel @Inject constructor(
     // failure is surfaced as a snackbar, and any unexpected throwable falls through to launchSafe's
     // default snackbar handler.
     private fun login() = launchSafe(loading = true) {
-        authRepository.login(currentState.email, currentState.password)
+        loginUseCase(currentState.email, currentState.password)
             .onSuccess {
                 navigator.navigate(
                     NavCommand.To(KliqRoute.Home, popUpTo = KliqRoute.Login, inclusive = true),
