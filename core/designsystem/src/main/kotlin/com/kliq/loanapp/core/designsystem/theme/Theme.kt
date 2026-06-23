@@ -9,6 +9,7 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 
 private val LocalKliqColors = staticCompositionLocalOf<KliqColorScheme> {
@@ -66,6 +67,18 @@ fun KliqTheme(
     sizes: KliqSizes = KliqDefaultSizes,
     content: @Composable () -> Unit,
 ) {
+    // Cache the Material projections so they're rebuilt only when a token set actually changes
+    // (e.g. light↔dark), not on every recomposition of this provider.
+    val materialColors = remember(colors, darkTheme) { colors.toMaterialColorScheme(darkTheme) }
+    val materialTypography = remember(typography) { typography.toMaterialTypography() }
+    val materialShapes = remember(shapes) {
+        Shapes(
+            extraSmall = shapes.badge,
+            small = shapes.card,
+            medium = shapes.card,
+            large = shapes.cardLarge,
+        )
+    }
     CompositionLocalProvider(
         LocalKliqColors provides colors,
         LocalKliqTypography provides typography,
@@ -75,14 +88,9 @@ fun KliqTheme(
         LocalKliqSizes provides sizes,
     ) {
         MaterialTheme(
-            colorScheme = colors.toMaterialColorScheme(darkTheme),
-            typography = typography.toMaterialTypography(),
-            shapes = Shapes(
-                extraSmall = shapes.badge,
-                small = shapes.card,
-                medium = shapes.card,
-                large = shapes.cardLarge,
-            ),
+            colorScheme = materialColors,
+            typography = materialTypography,
+            shapes = materialShapes,
             content = content,
         )
     }

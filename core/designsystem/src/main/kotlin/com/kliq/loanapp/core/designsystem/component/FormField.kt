@@ -56,6 +56,7 @@ data class FormFieldConfig(
 )
 
 /** Hoisted visual state of a field. Validation is computed by the ViewModel and rendered here. */
+@Immutable
 sealed interface FieldUiState {
     data object Idle : FieldUiState
     data object Focused : FieldUiState
