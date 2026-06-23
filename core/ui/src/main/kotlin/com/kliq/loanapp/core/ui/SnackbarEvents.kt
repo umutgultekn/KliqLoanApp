@@ -10,9 +10,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
 /**
- * Wires a ViewModel's one-shot [UiEvent] stream to a [SnackbarHostState]: collects lifecycle-aware,
- * resolves [com.kliq.loanapp.core.common.text.UiText] to a string, and shows the snackbar. Removes
- * the identical boilerplate every screen would otherwise repeat.
+ * Wires a ViewModel's one-shot [UiEvent] stream to a [SnackbarHostState] — lifecycle-aware collect,
+ * [com.kliq.loanapp.core.common.text.UiText] resolved, snackbar shown — so screens don't repeat it.
  */
 @Composable
 fun rememberSnackbarEvents(events: Flow<UiEvent>): SnackbarHostState {

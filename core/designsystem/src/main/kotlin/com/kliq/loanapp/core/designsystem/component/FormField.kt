@@ -35,8 +35,6 @@ import com.kliq.loanapp.core.designsystem.R
 import com.kliq.loanapp.core.designsystem.text.asString
 import com.kliq.loanapp.core.designsystem.theme.KliqTheme
 
-/* ----- Nested configuration, mirroring the Configuration { TextConfig, ... } pattern ----- */
-
 @Immutable
 data class TextConfig(
     val label: UiText,
@@ -66,11 +64,8 @@ sealed interface FieldUiState {
 }
 
 /**
- * Config-driven, fully-hoisted form field: label + input + validation feedback + focus wiring.
- *
- * Faithful to the interviewer's FormField philosophy (nested config, success/error border, inline
- * error, specialized wrappers below) but adapted to Compose UDF: the field is stateless and the
- * ValidationRule strategy executes in the ViewModel, which feeds back a [FieldUiState].
+ * Config-driven, fully-hoisted form field: label + input + validation feedback + focus wiring. The
+ * field is stateless; validation runs in the ViewModel and is fed back as a [FieldUiState].
  */
 @Composable
 fun FormField(
@@ -125,7 +120,7 @@ fun FormField(
             ),
             placeholder = { KliqText(config.text.placeholder.asString(), style = KliqTextStyle.Body, color = colors.textSecondary) },
             trailingIcon = trailing,
-            // A solid surface fill lifts the field off the muted background — a premium, card-like input.
+            // Solid surface fill lifts the field off the muted background.
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = borderColor,
                 unfocusedBorderColor = borderColor,
@@ -146,8 +141,6 @@ fun FormField(
         }
     }
 }
-
-/* ----- Specialized fields that pre-configure the base (the "EmailFormField/PasswordFormField" pattern) ----- */
 
 @Composable
 fun EmailFormField(

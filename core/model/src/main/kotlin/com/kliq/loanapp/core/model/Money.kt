@@ -1,10 +1,9 @@
 package com.kliq.loanapp.core.model
 
 /**
- * A loan principal as a typed value instead of a bare [Double]. Makes the domain self-documenting
- * and prevents mixing an amount with a rate or a raw count at a call site. Kept thin (Double-backed,
- * inline) on purpose — the domain never multiplies/divides money, so a full BigDecimal type would be
- * over-engineering here; the value is in the type, not in decimal precision.
+ * A loan principal as a typed value (not a bare [Double]) so it can't be mixed up with a rate or
+ * count. Double-backed on purpose — the domain only sums/compares money, never multiplies/divides,
+ * so BigDecimal would be over-engineering.
  */
 @JvmInline
 value class Money(val amount: Double) : Comparable<Money> {

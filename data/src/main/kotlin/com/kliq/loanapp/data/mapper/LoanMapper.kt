@@ -8,13 +8,9 @@ import com.kliq.loanapp.core.model.Rate
 import com.kliq.loanapp.data.dto.LoanDto
 
 /**
- * Pure DTO → domain mapping with an explicit unknown-value policy:
- *  - missing required field (name/principal/rate/due) or unknown [LoanType] → record DROPPED (null)
- *  - unknown/missing status → defaulted to [LoanStatus.ACTIVE]
- *
- * Dropping malformed/un-typed records (rather than coercing them) keeps type-based processing and
- * portfolio aggregates honest. Logging of dropped records happens at the service boundary so this
- * function stays pure and unit-testable on the JVM. Returns the mapped [Loan], or null if dropped.
+ * Pure DTO → domain mapping. Drops a record (null) on a missing required field or unknown [LoanType];
+ * defaults unknown/missing status to [LoanStatus.ACTIVE]. Dropping rather than coercing keeps
+ * type-based processing and portfolio aggregates honest.
  */
 internal fun LoanDto.toDomainOrNull(): Loan? {
     val safeName = name ?: return null

@@ -13,17 +13,15 @@ plugins {
     alias(libs.plugins.ksp) apply false
     alias(libs.plugins.hilt) apply false
     alias(libs.plugins.detekt) apply false
-    alias(libs.plugins.kover)
 }
 
 // Captured at root scope — the type-safe `libs` accessor is not in scope inside `subprojects {}`.
 val detektFormatting = libs.detekt.formatting
 val detektConfig = files("config/detekt/detekt.yml")
 
-// Static analysis (detekt + ktlint via detekt-formatting) and coverage (Kover) for every module.
+// Static analysis (detekt + ktlint via detekt-formatting) for every module.
 subprojects {
     apply(plugin = "io.gitlab.arturbosch.detekt")
-    apply(plugin = "org.jetbrains.kotlinx.kover")
 
     extensions.configure<DetektExtension> {
         buildUponDefaultConfig = true
@@ -46,15 +44,4 @@ subprojects {
             md.required.set(false)
         }
     }
-}
-
-dependencies {
-    kover(project(":core:model"))
-    kover(project(":core:common"))
-    kover(project(":domain"))
-    kover(project(":data"))
-    kover(project(":core:designsystem"))
-    kover(project(":core:ui"))
-    kover(project(":feature:login"))
-    kover(project(":feature:home"))
 }

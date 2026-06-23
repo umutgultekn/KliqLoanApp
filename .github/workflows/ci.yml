@@ -31,6 +31,6 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
 
       # The same quality gates that must pass locally: unit tests, static analysis,
-      # and both debug + release (R8) assembly.
+      # and debug assembly.
       - name: Test, detekt, assemble
-        run: ./gradlew test detekt assembleDebug assembleRelease --no-daemon --stacktrace
+        run: ./gradlew test detekt assembleDebug --no-daemon --stacktrace

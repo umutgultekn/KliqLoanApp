@@ -11,27 +11,32 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 /**
- * Base for screen ViewModels: a single immutable [uiState] stream, a shared [isLoading] flag, a
- * one-shot [events] channel, and a [launchSafe] that toggles loading and routes errors to a snackbar
- * by default. Inheritance keeps each screen's state fully its own while removing the shared plumbing —
- * loading and error handling live here once instead of being re-implemented per screen.
+ * Base for screen ViewModels: shared loading/error plumbing — an immutable [uiState], an [isLoading]
+ * signal, a one-shot [events] channel, and a [launchSafe] that toggles loading and routes errors.
  */
 abstract class BaseViewModel<S>(initialState: S) : ViewModel() {
 
     private val _uiState = MutableStateFlow(initialState)
     val uiState: StateFlow<S> = _uiState.asStateFlow()
 
-    private val _isLoading = MutableStateFlow(false)
+    // Reference-counted so overlapping loading launches don't clear the flag early. isLoading is a
+    // pure derivation of this single source of truth, so the flag can never drift out of sync with
+    // the count (a second writable flow could race on interleaved finishes).
+    private val activeLoads = MutableStateFlow(0)
 
-    /** Shared loading state, toggled by [launchSafe] when invoked with `loading = true`. */
-    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+    /** Shared request/action loading signal — true while any `launchSafe(loading = true)` is in flight. */
+    val isLoading: StateFlow<Boolean> =
+        activeLoads.map { it > 0 }.stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
     private val _events = Channel<UiEvent>(Channel.BUFFERED)
     val events: Flow<UiEvent> = _events.receiveAsFlow()
@@ -40,14 +45,14 @@ abstract class BaseViewModel<S>(initialState: S) : ViewModel() {
 
     protected fun setState(reducer: S.() -> S) = _uiState.update(reducer)
 
+    // trySend keeps emission synchronous and call-ordered without spawning a coroutine.
     protected fun sendEvent(event: UiEvent) {
-        viewModelScope.launch { _events.send(event) }
+        _events.trySend(event)
     }
 
     /**
-     * Launches [block] in [viewModelScope]. When [loading] is true the shared [isLoading] flag is held
-     * for the duration. Cancellation is rethrown (never swallowed); any other failure is routed to
-     * [onError], which defaults to a snackbar event.
+     * Runs [block] in [viewModelScope]; while [loading] is true the (reference-counted) [isLoading]
+     * flag is held. Rethrows cancellation; routes other failures to [onError] (a snackbar by default).
      */
     // Intentional error boundary: catch-all maps to AppError; CancellationException is rethrown above.
     @Suppress("TooGenericExceptionCaught")
@@ -56,7 +61,7 @@ abstract class BaseViewModel<S>(initialState: S) : ViewModel() {
         onError: (AppError) -> Unit = { sendEvent(UiEvent.ShowSnackbar(it.asUiText())) },
         block: suspend CoroutineScope.() -> Unit,
     ): Job = viewModelScope.launch {
-        if (loading) _isLoading.value = true
+        if (loading) activeLoads.update { it + 1 }
         try {
             block()
         } catch (cancellation: CancellationException) {
@@ -64,7 +69,7 @@ abstract class BaseViewModel<S>(initialState: S) : ViewModel() {
         } catch (throwable: Throwable) {
             onError(throwable.toAppError())
         } finally {
-            if (loading) _isLoading.value = false
+            if (loading) activeLoads.update { (it - 1).coerceAtLeast(0) }
         }
     }
 }

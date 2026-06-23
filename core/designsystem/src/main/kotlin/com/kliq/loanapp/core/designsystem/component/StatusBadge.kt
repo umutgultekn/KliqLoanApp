@@ -14,9 +14,8 @@ import com.kliq.loanapp.core.designsystem.text.asString
 import com.kliq.loanapp.core.designsystem.theme.KliqTheme
 
 /**
- * Color is NOT the only status channel: the label text is always shown and a contentDescription is
- * set. Both are [UiText] so the label and TalkBack announcement localize through the app's resource
- * seam instead of carrying hardcoded strings.
+ * Color isn't the only status channel — the label text is always shown and a contentDescription set
+ * (both [UiText] so they localize); non-color signalling is an accessibility requirement.
  */
 @Immutable
 data class BadgeConfig(

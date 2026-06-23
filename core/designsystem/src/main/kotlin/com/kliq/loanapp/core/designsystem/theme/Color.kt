@@ -6,9 +6,8 @@ import androidx.compose.ui.graphics.luminance
 import com.kliq.loanapp.core.common.ui.Tone
 
 /**
- * Luminance crossover where dark ink overtakes white for foreground contrast on a filled background
- * (derived from the WCAG contrast formula for near-black vs white text). Fills brighter than this get
- * [KliqColorScheme.badgeTextDark]; darker fills get [KliqColorScheme.onPrimary].
+ * Luminance above which dark ink beats white on a filled background (WCAG contrast). Brighter fills
+ * get [KliqColorScheme.badgeTextDark]; darker fills get [KliqColorScheme.onPrimary].
  */
 private const val BADGE_FILL_LUMINANCE_THRESHOLD = 0.2f
 
@@ -26,8 +25,6 @@ data class KliqColorScheme(
     val badgeTextDark: Color,
     val background: Color,
     val surface: Color,
-    // Translucent veil behind blocking overlays (e.g. the loading overlay) that dims the content.
-    val scrim: Color,
     val textPrimary: Color,
     val textSecondary: Color,
     val border: Color,
@@ -69,10 +66,8 @@ data class KliqColorScheme(
     }
 
     /**
-     * AA-contrast foreground for a badge filled with [colorFor]. Chooses dark ink or [onPrimary] by
-     * the fill's luminance, so it stays legible across both themes (the same [Tone] resolves to a
-     * lighter fill in dark mode). Replaces the previous always-white badge text, which fell below
-     * WCAG AA on most fills.
+     * AA-contrast foreground for a badge filled with [colorFor]: dark ink or [onPrimary] by the fill's
+     * luminance, so it stays legible in both themes.
      */
     fun onColorFor(tone: Tone): Color =
         if (colorFor(tone).luminance() > BADGE_FILL_LUMINANCE_THRESHOLD) badgeTextDark else onPrimary
@@ -85,7 +80,6 @@ val KliqLightColors = KliqColorScheme(
     badgeTextDark = Color(0xFF1A1A2E),
     background = Color(0xFFF2F2F7),
     surface = Color(0xFFFFFFFF),
-    scrim = Color(0x99121218), // ~60% dark veil for blocking overlays
     textPrimary = Color(0xFF1A1A2E),
     textSecondary = Color(0xFF8C8C94),
     border = Color(0xFFD8D8DE),
@@ -110,7 +104,6 @@ val KliqDarkColors = KliqColorScheme(
     badgeTextDark = Color(0xFF1A1A2E),
     background = Color(0xFF121218),
     surface = Color(0xFF1E1E28),
-    scrim = Color(0xB3000000), // ~70% black veil for blocking overlays
     textPrimary = Color(0xFFECECF1),
     textSecondary = Color(0xFF9A9AA5),
     border = Color(0xFF3A3A46),

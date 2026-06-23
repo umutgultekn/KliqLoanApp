@@ -29,9 +29,8 @@ data class PortfolioSummaryUi(
 }
 
 /**
- * The single conversion point from domain models to recomposition-stable, presentation-ready UI
- * configs. Numeric formatting goes through [LoanFormatter]; user-facing prose goes through
- * [UiText] resources/plurals (resolved in composition) so it is localizable and correctly pluralized.
+ * The single domain→UI conversion point. Numbers go through [LoanFormatter]; prose through [UiText]
+ * resources/plurals, so output is recomposition-stable and localizable.
  */
 class LoanPresentationMapper @Inject constructor(
     private val formatter: LoanFormatter,
@@ -40,7 +39,9 @@ class LoanPresentationMapper @Inject constructor(
         loans.map(::toCard).toImmutableList()
 
     fun toCard(loan: Loan): LoanCardConfig = LoanCardConfig(
-        id = loan.name,
+        // loans.json has no real id; the list key is derived from fields processing never mutates
+        // (name/type/principal) — stable and unique for this fixture. Use a real Loan.id once one exists.
+        id = "${loan.name}|${loan.type}|${loan.principalAmount.amount}",
         title = loan.name,
         amountText = formatter.money(loan.principalAmount),
         rateText = UiText.res(R.string.kliq_loan_rate, formatter.percent(loan.interestRate)),
@@ -50,11 +51,7 @@ class LoanPresentationMapper @Inject constructor(
         statusBadge = loan.status.toBadgeConfig(),
     )
 
-    /**
-     * Pure formatting of the domain [PortfolioSummary]. The aggregation math lives in the model, and
-     * every figure — including the empty-portfolio zeroes (Money.Zero / Rate.Zero) — goes through
-     * [formatter], never a hardcoded currency/percent literal, so it honors the same locale rules.
-     */
+    /** Formats the domain [PortfolioSummary] — aggregation math lives in the model, numbers via [formatter]. */
     fun summary(summary: PortfolioSummary): PortfolioSummaryUi = PortfolioSummaryUi(
         totalText = formatter.money(summary.totalPrincipal),
         countText = UiText.plural(R.plurals.kliq_portfolio_loan_count, summary.loanCount, summary.loanCount),

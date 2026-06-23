@@ -1,32 +1,21 @@
 package com.kliq.loanapp.data.repository
 
-import com.kliq.loanapp.core.common.dispatcher.DispatcherProvider
-import com.kliq.loanapp.core.common.result.AppError
-import com.kliq.loanapp.core.common.result.AuthReason
+import com.kliq.loanapp.data.service.AuthService
 import com.kliq.loanapp.domain.repository.AuthRepository
 import com.kliq.loanapp.domain.repository.SessionRepository
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-/**
- * Mock authentication: accepts any credentials that pass the (lenient, behavior-preserving) checks
- * and opens a session. The single source of truth for "logged in" is the [SessionRepository].
- */
+/** Orchestrates the [AuthService] backend with the session: a successful sign-in flips the session flag. */
 class AuthRepositoryImpl @Inject constructor(
+    private val authService: AuthService,
     private val sessionRepository: SessionRepository,
-    private val dispatchers: DispatcherProvider,
 ) : AuthRepository {
 
     override suspend fun login(email: String, password: String): Result<Unit> =
-        withContext(dispatchers.io) {
-            val credentialsValid = email.isNotBlank() && email.contains('@') && password.length >= 6
-            if (credentialsValid) {
-                sessionRepository.setLoggedIn(true)
-                Result.success(Unit)
-            } else {
-                Result.failure(AppError.Auth(AuthReason.INVALID_CREDENTIALS))
-            }
-        }
+        authService.login(email, password).onSuccess { sessionRepository.setLoggedIn(true) }
 
-    override suspend fun logout() = sessionRepository.setLoggedIn(false)
+    override suspend fun logout() {
+        authService.logout()
+        sessionRepository.setLoggedIn(false)
+    }
 }

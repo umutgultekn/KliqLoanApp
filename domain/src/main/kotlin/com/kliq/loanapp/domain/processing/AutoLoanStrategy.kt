@@ -13,15 +13,22 @@ class AutoLoanStrategy @Inject constructor() : LoanProcessingStrategy {
     override fun process(loan: Loan): Loan = when (loan.status) {
         LoanStatus.ACTIVE ->
             if (loan.dueInDays > 0) {
-                loan.addRate(Rate(0.4))
+                loan.addRate(ON_TIME_BUMP)
             } else {
-                loan.addRate(Rate(0.9)).withStatus(LoanStatus.OVERDUE)
+                loan.addRate(LATE_BUMP).withStatus(LoanStatus.OVERDUE)
             }
 
-        LoanStatus.OVERDUE -> loan.addRate(Rate(1.8)).let {
-            if (it.principalAmount > Money(50_000.0)) it.withStatus(LoanStatus.DEFAULT) else it
+        LoanStatus.OVERDUE -> loan.addRate(OVERDUE_BUMP).let {
+            if (it.principalAmount > ESCALATE_TO_DEFAULT_OVER) it.withStatus(LoanStatus.DEFAULT) else it
         }
 
         else -> loan
+    }
+
+    private companion object {
+        val ON_TIME_BUMP = Rate(0.4)
+        val LATE_BUMP = Rate(0.9)
+        val OVERDUE_BUMP = Rate(1.8)
+        val ESCALATE_TO_DEFAULT_OVER = Money(50_000.0)
     }
 }

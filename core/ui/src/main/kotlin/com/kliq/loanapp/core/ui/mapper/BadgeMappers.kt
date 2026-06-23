@@ -8,9 +8,8 @@ import com.kliq.loanapp.core.model.LoanType
 import com.kliq.loanapp.core.ui.R
 
 /**
- * Each domain value pre-configures its own [BadgeConfig] (label + semantic tone + a11y description).
- * Keeps badge presentation rules in one place. Label and description are [UiText] resources so both
- * the visible text and the TalkBack announcement localize instead of leaking raw enum names.
+ * Each domain value maps to its [BadgeConfig] (label + tone + a11y description), keeping badge rules
+ * in one place. Label and description are [UiText] resources, so both localize.
  */
 fun LoanStatus.toBadgeConfig(): BadgeConfig {
     val label = UiText.res(

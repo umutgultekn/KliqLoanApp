@@ -7,8 +7,7 @@ import java.util.Locale
 import javax.inject.Inject
 
 /**
- * Centralized numeric formatting provider — money and interest are never formatted with ad-hoc
- * `String.format` calls in screens or ViewModels (a named starter smell), but flow through here.
+ * Centralized numeric formatting — money/percent never via ad-hoc `String.format` in screens/VMs.
  * Takes the [Money]/[Rate] value types and unwraps them at this single boundary.
  */
 interface LoanFormatter {
@@ -16,10 +15,7 @@ interface LoanFormatter {
     fun percent(rate: Rate): String
 }
 
-/**
- * Default implementation. The portfolio currency is USD / [Locale.US] by explicit decision
- * (loans.json carries no currency code); swappable by providing a different [LoanFormatter].
- */
+/** Default impl: USD / [Locale.US] (loans.json has no currency code); swap by providing another. */
 class DefaultLoanFormatter @Inject constructor() : LoanFormatter {
 
     private val currencyFormat: NumberFormat =

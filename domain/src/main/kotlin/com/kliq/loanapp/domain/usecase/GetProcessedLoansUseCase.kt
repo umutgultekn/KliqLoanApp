@@ -8,12 +8,10 @@ import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 /**
- * Streams the loan portfolio with the processing pipeline applied. Composes a repository [Flow] with
- * the [LoanProcessor] domain service — meaningful orchestration, not a pass-through. Processing runs
- * on each freshly-emitted raw list, so the (deliberately non-idempotent) pipeline yields a stable
- * result per emission.
+ * Streams the loan portfolio with the processing pipeline applied — composes the repository [Flow]
+ * with [LoanProcessor] (real orchestration, not a pass-through), re-processing each emitted raw list.
  */
-class GetProcessedPortfolioUseCase @Inject constructor(
+class GetProcessedLoansUseCase @Inject constructor(
     private val repository: LoanRepository,
     private val processor: LoanProcessor,
 ) {

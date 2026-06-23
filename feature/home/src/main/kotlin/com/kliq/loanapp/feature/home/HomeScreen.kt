@@ -1,9 +1,5 @@
 package com.kliq.loanapp.feature.home
 
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -15,13 +11,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -39,18 +33,15 @@ import com.kliq.loanapp.core.designsystem.component.ConfirmDialog
 import com.kliq.loanapp.core.designsystem.component.EmptyState
 import com.kliq.loanapp.core.designsystem.component.KliqCard
 import com.kliq.loanapp.core.designsystem.component.KliqFilterChip
-import com.kliq.loanapp.core.designsystem.component.KliqListSkeleton
 import com.kliq.loanapp.core.designsystem.component.KliqScaffold
 import com.kliq.loanapp.core.designsystem.component.KliqText
 import com.kliq.loanapp.core.designsystem.component.KliqTextButton
 import com.kliq.loanapp.core.designsystem.component.KliqTextStyle
 import com.kliq.loanapp.core.designsystem.component.KliqTopBar
 import com.kliq.loanapp.core.designsystem.component.LoanCard
-import com.kliq.loanapp.core.designsystem.component.SecondaryButton
 import com.kliq.loanapp.core.designsystem.text.asString
 import com.kliq.loanapp.core.designsystem.theme.KliqTheme
 import com.kliq.loanapp.core.model.PortfolioFilter
-import com.kliq.loanapp.core.ui.UiState
 import com.kliq.loanapp.core.ui.mapper.PortfolioSummaryUi
 import com.kliq.loanapp.core.ui.rememberSnackbarEvents
 
@@ -60,34 +51,32 @@ fun NavGraphBuilder.homeScreen() {
 
 @Composable
 fun HomeRoute(viewModel: HomeViewModel = hiltViewModel()) {
-    val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val showLogoutConfirm by viewModel.showLogoutConfirm.collectAsStateWithLifecycle()
     val snackbarHostState = rememberSnackbarEvents(viewModel.events)
 
     HomeScreen(
-        state = state,
+        uiState = uiState,
+        showLogoutConfirm = showLogoutConfirm,
         snackbarHostState = snackbarHostState,
         onFilterSelected = viewModel::onFilterSelected,
-        onRetry = viewModel::onRetry,
-        onRefresh = viewModel::onRefresh,
         onLogoutClicked = viewModel::onLogoutClicked,
         onLogoutConfirmed = viewModel::onLogoutConfirmed,
         onLogoutDismissed = viewModel::onLogoutDismissed,
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    state: HomeUiState,
+    uiState: HomeUiState,
+    showLogoutConfirm: Boolean,
     snackbarHostState: SnackbarHostState,
     onFilterSelected: (PortfolioFilter) -> Unit,
-    onRetry: () -> Unit,
-    onRefresh: () -> Unit,
     onLogoutClicked: () -> Unit,
     onLogoutConfirmed: () -> Unit,
     onLogoutDismissed: () -> Unit,
 ) {
-    if (state.showLogoutConfirm) {
+    if (showLogoutConfirm) {
         ConfirmDialog(
             title = stringResource(R.string.portfolio_logout_title),
             message = stringResource(R.string.portfolio_logout_message),
@@ -99,61 +88,58 @@ fun HomeScreen(
     }
 
     KliqScaffold(snackbarHostState = snackbarHostState) { innerPadding ->
-        Column(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+        ) {
             KliqTopBar(title = stringResource(R.string.portfolio_title)) {
                 KliqTextButton(text = stringResource(R.string.portfolio_logout), onClick = onLogoutClicked)
             }
 
-            // Animate only between the three phases (keyed by type), so a filter change within
-            // Content re-flows the grid (animateItem) instead of cross-fading the whole screen.
-            AnimatedContent(
-                targetState = state.content,
-                transitionSpec = { fadeIn() togetherWith fadeOut() },
-                contentKey = { it::class },
-                label = "homeContent",
-            ) { content ->
-                when (content) {
-                    UiState.Loading -> KliqListSkeleton()
-                    is UiState.Error -> ErrorContent(message = content.message, onRetry = onRetry)
-                    is UiState.Content -> LoadedContent(
-                        data = content.data,
-                        selectedFilter = state.selectedFilter,
-                        onFilterSelected = onFilterSelected,
-                        onRefresh = onRefresh,
-                    )
-                }
+            when (uiState) {
+                is HomeUiState.Loading -> LoadingContent()
+                is HomeUiState.Error -> ErrorContent(message = uiState.message)
+                is HomeUiState.Content -> LoadedContent(
+                    content = uiState,
+                    onFilterSelected = onFilterSelected,
+                )
             }
         }
     }
 }
 
 @Composable
-private fun ErrorContent(message: UiText, onRetry: () -> Unit) {
+private fun LoadingContent() {
     CenteredBox {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            KliqText(message.asString(), style = KliqTextStyle.Body, color = KliqTheme.colors.statusDefault)
-            Spacer(Modifier.height(KliqTheme.spacing.lg))
-            SecondaryButton(text = stringResource(R.string.portfolio_retry), onClick = onRetry)
-        }
+        CircularProgressIndicator(color = KliqTheme.colors.primary)
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ErrorContent(message: UiText) {
+    CenteredBox {
+        KliqText(message.asString(), style = KliqTextStyle.Body, color = KliqTheme.colors.statusDefault)
+    }
+}
+
 @Composable
 private fun LoadedContent(
-    data: HomeData,
-    selectedFilter: PortfolioFilter,
+    content: HomeUiState.Content,
     onFilterSelected: (PortfolioFilter) -> Unit,
-    onRefresh: () -> Unit,
 ) {
-    Column(modifier = Modifier.fillMaxSize().padding(horizontal = KliqTheme.spacing.xl)) {
-        SummaryCard(data.summary)
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = KliqTheme.spacing.xl)
+    ) {
+        SummaryCard(content.summary)
         Spacer(Modifier.height(KliqTheme.spacing.lg))
-        FilterRow(selected = selectedFilter, onFilterSelected = onFilterSelected)
+        FilterRow(selected = content.selectedFilter, onFilterSelected = onFilterSelected)
         Spacer(Modifier.height(KliqTheme.spacing.lg))
-        if (data.cards.isEmpty()) {
+        if (content.cards.isEmpty()) {
             CenteredBox {
-                if (data.portfolioEmpty) {
+                if (content.portfolioEmpty) {
                     EmptyState(
                         title = stringResource(R.string.portfolio_empty_all_title),
                         message = stringResource(R.string.portfolio_empty_all),
@@ -168,24 +154,13 @@ private fun LoadedContent(
                 }
             }
         } else {
-            PullToRefreshBox(
-                isRefreshing = data.isRefreshing,
-                onRefresh = onRefresh,
+            LazyColumn(
                 modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(KliqTheme.spacing.lg),
+                contentPadding = PaddingValues(bottom = KliqTheme.spacing.xxxl),
             ) {
-                // Adaptive columns: the grid fits as many cells >= the token min-width as
-                // the available width allows (1 on phones, 2+ on tablets/landscape) —
-                // no BoxWithConstraints, no manual width breakpoint or column count.
-                LazyVerticalGrid(
-                    columns = GridCells.Adaptive(minSize = KliqTheme.sizes.loanCardMinWidth),
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.spacedBy(KliqTheme.spacing.lg),
-                    horizontalArrangement = Arrangement.spacedBy(KliqTheme.spacing.lg),
-                    contentPadding = PaddingValues(bottom = KliqTheme.spacing.xxxl),
-                ) {
-                    items(data.cards, key = { it.id }) { card ->
-                        LoanCard(config = card, modifier = Modifier.animateItem())
-                    }
+                items(content.cards, key = { it.id }) { card ->
+                    LoanCard(config = card)
                 }
             }
         }
@@ -216,12 +191,14 @@ private fun SummaryCard(summary: PortfolioSummaryUi) {
 @Composable
 private fun FilterRow(selected: PortfolioFilter, onFilterSelected: (PortfolioFilter) -> Unit) {
     Row(
-        modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+        modifier = Modifier
+            .fillMaxWidth()
+            .horizontalScroll(rememberScrollState()),
         horizontalArrangement = Arrangement.spacedBy(KliqTheme.spacing.md),
     ) {
         PortfolioFilter.entries.forEach { filter ->
             KliqFilterChip(
-                config = ChipConfig(label = filter.label(), selected = filter == selected),
+                config = ChipConfig(label = filter.labelText().asString(), selected = filter == selected),
                 onClick = { onFilterSelected(filter) },
             )
         }
@@ -233,8 +210,7 @@ private fun CenteredBox(content: @Composable () -> Unit) {
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { content() }
 }
 
-@Composable
-private fun PortfolioFilter.label(): String = stringResource(
+private fun PortfolioFilter.labelText(): UiText = UiText.res(
     when (this) {
         PortfolioFilter.ALL -> R.string.filter_all
         PortfolioFilter.ACTIVE -> R.string.filter_active

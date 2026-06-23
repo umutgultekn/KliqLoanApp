@@ -5,8 +5,8 @@ import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 /**
- * Streams whether a session is active. The composition root observes this to resolve the auth-gated
- * start destination, depending on the domain use case instead of reaching into [SessionRepository].
+ * Streams whether a session is active; the composition root observes it for the auth-gated start
+ * destination, depending on the use case rather than [SessionRepository] directly.
  */
 class ObserveAuthStateUseCase @Inject constructor(
     private val sessionRepository: SessionRepository,

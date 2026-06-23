@@ -9,9 +9,5 @@ data class LoginUiState(
     val password: String = "",
     val emailState: FieldUiState = FieldUiState.Idle,
     val passwordState: FieldUiState = FieldUiState.Idle,
-) {
-    // In-flight submission is the shared BaseViewModel.isLoading flag; the button disables itself
-    // while loading, so submitEnabled only needs the fields to be filled.
-    val submitEnabled: Boolean
-        get() = email.isNotBlank() && password.isNotBlank()
-}
+    val submitEnabled: Boolean = false,
+)

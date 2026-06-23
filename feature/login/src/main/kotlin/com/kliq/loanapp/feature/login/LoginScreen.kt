@@ -2,7 +2,6 @@ package com.kliq.loanapp.feature.login
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -30,7 +29,6 @@ import androidx.navigation.compose.composable
 import com.kliq.loanapp.core.common.navigation.KliqRoute
 import com.kliq.loanapp.core.designsystem.component.ButtonSize
 import com.kliq.loanapp.core.designsystem.component.EmailFormField
-import com.kliq.loanapp.core.designsystem.component.KliqLoadingOverlay
 import com.kliq.loanapp.core.designsystem.component.KliqScaffold
 import com.kliq.loanapp.core.designsystem.component.KliqText
 import com.kliq.loanapp.core.designsystem.component.KliqTextStyle
@@ -47,8 +45,8 @@ fun NavGraphBuilder.loginScreen() {
 @Composable
 fun LoginRoute(viewModel: LoginViewModel = hiltViewModel()) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
-    val snackbarHostState = rememberSnackbarEvents(viewModel.events)
     val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
+    val snackbarHostState = rememberSnackbarEvents(viewModel.events)
 
     LoginScreen(
         state = state,
@@ -82,60 +80,57 @@ fun LoginScreen(
         onSubmit()
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        KliqScaffold(snackbarHostState = snackbarHostState) { innerPadding ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-                    .verticalScroll(rememberScrollState())
-                    .imePadding()
-                    .padding(horizontal = KliqTheme.spacing.xxxl),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                Image(
-                    painter = painterResource(R.drawable.kliq_logo),
-                    contentDescription = stringResource(R.string.login_logo_description),
-                    contentScale = ContentScale.Fit,
-                    modifier = Modifier.height(KliqTheme.sizes.logoHeight),
-                )
-                Spacer(Modifier.height(KliqTheme.spacing.xl))
-                KliqText(text = stringResource(R.string.login_subtitle), style = KliqTextStyle.Body, color = KliqTheme.colors.textSecondary)
-                Spacer(Modifier.height(KliqTheme.spacing.huge))
+    KliqScaffold(snackbarHostState = snackbarHostState) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .verticalScroll(rememberScrollState())
+                .imePadding()
+                .padding(horizontal = KliqTheme.spacing.xxxl),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Image(
+                painter = painterResource(R.drawable.kliq_logo),
+                contentDescription = stringResource(R.string.login_logo_description),
+                contentScale = ContentScale.Fit,
+                modifier = Modifier.height(KliqTheme.sizes.logoHeight),
+            )
+            Spacer(Modifier.height(KliqTheme.spacing.xl))
+            KliqText(text = stringResource(R.string.login_subtitle), style = KliqTextStyle.Body, color = KliqTheme.colors.textSecondary)
+            Spacer(Modifier.height(KliqTheme.spacing.huge))
 
-                EmailFormField(
-                    value = state.email,
-                    state = state.emailState,
-                    onValueChange = onEmailChange,
-                    onImeAction = {
-                        onEmailImeNext()
-                        passwordFocusRequester.requestFocus()
-                    },
-                    onFocusChanged = onEmailFocusChanged,
-                )
-                Spacer(Modifier.height(KliqTheme.spacing.xl))
-                PasswordFormField(
-                    value = state.password,
-                    state = state.passwordState,
-                    onValueChange = onPasswordChange,
-                    onImeAction = submit,
-                    focusRequester = passwordFocusRequester,
-                    onFocusChanged = onPasswordFocusChanged,
-                    imeAction = ImeAction.Done,
-                )
-                Spacer(Modifier.height(KliqTheme.spacing.xxxl))
-                PrimaryButton(
-                    text = stringResource(R.string.login_submit),
-                    onClick = submit,
-                    size = ButtonSize.Large,
-                    fullWidth = true,
-                    enabled = state.submitEnabled,
-                )
-            }
+            EmailFormField(
+                value = state.email,
+                state = state.emailState,
+                onValueChange = onEmailChange,
+                onImeAction = {
+                    onEmailImeNext()
+                    passwordFocusRequester.requestFocus()
+                },
+                onFocusChanged = onEmailFocusChanged,
+            )
+            Spacer(Modifier.height(KliqTheme.spacing.xl))
+            PasswordFormField(
+                value = state.password,
+                state = state.passwordState,
+                onValueChange = onPasswordChange,
+                onImeAction = submit,
+                focusRequester = passwordFocusRequester,
+                onFocusChanged = onPasswordFocusChanged,
+                imeAction = ImeAction.Done,
+            )
+
+            Spacer(Modifier.height(KliqTheme.spacing.xxxl))
+            PrimaryButton(
+                text = stringResource(R.string.login_submit),
+                onClick = submit,
+                size = ButtonSize.Large,
+                fullWidth = true,
+                enabled = state.submitEnabled,
+                loading = loading,
+            )
         }
-        // Blocking overlay for the security-sensitive sign-in (banking pattern), instead of a
-        // button spinner. Driven by the shared isLoading flag.
-        KliqLoadingOverlay(visible = loading, message = stringResource(R.string.login_loading))
     }
 }

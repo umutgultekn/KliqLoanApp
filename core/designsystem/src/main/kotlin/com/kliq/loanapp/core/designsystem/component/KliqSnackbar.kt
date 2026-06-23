@@ -9,14 +9,9 @@ import androidx.compose.ui.Modifier
 import com.kliq.loanapp.core.designsystem.theme.KliqTheme
 
 /**
- * Kliq-styled snackbar, rendered through [androidx.compose.material3.SnackbarHost]'s `snackbar`
- * slot. It owns only the LOOK — shape, colors and typography come from [KliqTheme] — while the
- * queueing, duration, swipe-to-dismiss and TalkBack announcement stay with Material's
- * `SnackbarHostState`. Replacing the host wholesale would mean re-implementing that battle-tested
- * state machine for no visual gain; styling the slot is the correct seam.
- *
- * The dark [KliqColorScheme.primary] surface mirrors the portfolio summary card, so transient
- * messages read as part of the same brand surface family and pop over light content.
+ * Kliq-styled snackbar for [androidx.compose.material3.SnackbarHost]'s `snackbar` slot: owns only the
+ * look (shape/colors/typography from [KliqTheme]); Material's `SnackbarHostState` keeps queueing,
+ * duration, dismissal and TalkBack.
  */
 @Composable
 fun KliqSnackbar(snackbarData: SnackbarData, modifier: Modifier = Modifier) {

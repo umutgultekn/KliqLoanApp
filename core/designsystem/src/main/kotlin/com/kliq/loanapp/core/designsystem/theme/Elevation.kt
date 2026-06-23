@@ -10,7 +10,6 @@ data class KliqElevation(
     val none: Dp = 0.dp,
     val card: Dp = 2.dp,
     val raised: Dp = 6.dp,
-    val overlay: Dp = 12.dp,
 )
 
 val KliqDefaultElevation = KliqElevation()

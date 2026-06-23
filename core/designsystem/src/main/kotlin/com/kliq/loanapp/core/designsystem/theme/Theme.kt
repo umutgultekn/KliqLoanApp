@@ -31,12 +31,8 @@ private val LocalKliqSizes = staticCompositionLocalOf<KliqSizes> {
 }
 
 /**
- * The single source of truth for design tokens. [KliqTheme] also PROJECTS its tokens onto Material3
- * roles (color/typography/shapes) so raw Material3 components — Button, OutlinedTextField, Surface,
- * Snackbar, ripples — render in the Kliq palette instead of the default purple baseline.
- *
- * Screens and components read `KliqTheme.colors/typography/spacing/shapes/elevation` — never
- * `MaterialTheme.*` directly.
+ * The single source of truth for design tokens, also projected onto Material3 roles so raw Material3
+ * components render in the Kliq palette. Read `KliqTheme.*`, never `MaterialTheme.*` directly.
  */
 object KliqTheme {
     val colors: KliqColorScheme

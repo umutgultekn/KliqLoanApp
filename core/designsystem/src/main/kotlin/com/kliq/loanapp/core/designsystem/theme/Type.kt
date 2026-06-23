@@ -22,7 +22,7 @@ data class KliqTypography(
 )
 
 val KliqDefaultTypography = KliqTypography(
-    // Tight negative tracking on the large/bold roles for a more premium, considered headline feel.
+    // Tight negative tracking on the large/bold display roles.
     heading = TextStyle(fontSize = 28.sp, fontWeight = FontWeight.Bold, letterSpacing = (-0.02).em),
     title = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.SemiBold, letterSpacing = (-0.01).em),
     amount = TextStyle(fontSize = 20.sp, fontWeight = FontWeight.Bold, letterSpacing = (-0.01).em),

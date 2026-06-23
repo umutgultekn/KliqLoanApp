@@ -5,10 +5,8 @@ import com.kliq.loanapp.core.common.navigation.KliqRoute
 import com.kliq.loanapp.core.common.navigation.NavCommand
 
 /**
- * Translates a [NavCommand] into a concrete [NavController] action. Extracted out of the composition
- * so the one integration seam the unit suite otherwise can't reach — command → back-stack effect — is
- * directly testable (see NavCommandExecutorTest), and so the collection site in KliqApp stays a thin
- * `commands.collect(navController::execute)`.
+ * Translates a [NavCommand] into a [NavController] action. Extracted from composition so the
+ * command → back-stack effect is directly unit-testable (see NavCommandExecutorTest).
  */
 fun NavController.execute(command: NavCommand) {
     when (command) {

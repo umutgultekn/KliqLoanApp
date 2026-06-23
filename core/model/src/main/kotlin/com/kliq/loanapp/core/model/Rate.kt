@@ -1,9 +1,8 @@
 package com.kliq.loanapp.core.model
 
 /**
- * An interest rate expressed in percent (e.g. `Rate(3.6)` == 3.6%). A typed value so a rate can never
- * be accidentally swapped with a [Money] amount, and so rate arithmetic (the pipeline's `addRate`)
- * reads as a domain operation rather than raw `Double` addition.
+ * An interest rate in percent (e.g. `Rate(3.6)` == 3.6%) as a typed value, so it can't be swapped
+ * with a [Money] amount and `addRate` reads as a domain operation rather than raw `Double` addition.
  */
 @JvmInline
 value class Rate(val percent: Double) : Comparable<Rate> {

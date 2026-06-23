@@ -6,8 +6,8 @@ A loan-portfolio management app rebuilt from a legacy Android View-system starte
 multi-module **Jetpack Compose** application following clean-architecture principles.
 
 Two screens — **Login** (validated form with a managed focus chain) and **Home** (the loan portfolio:
-summary card, status filtering, a list of loan cards) — backed by a bundled JSON data source (29 loans across
-`personal`, `mortgage`, `auto`, `business`).
+summary card, status filtering, a list of loan cards) — backed by a bundled JSON data source (29 loans
+spanning four types: `personal`, `business`, `mortgage`, and `auto`).
 
 ## Tech stack
 
@@ -19,7 +19,8 @@ summary card, status filtering, a list of loan cards) — backed by a bundled JS
 - **Design system** — semantic token sets (color, typography, **spacing, shapes, elevation**) delivered
   via `CompositionLocal`; `KliqTheme` projects those tokens onto Material3 roles so Material components
   render in the Kliq palette rather than the default baseline
-- **DataStore** (session), **Gson** (JSON), **Navigation-Compose** (type-safe routes), **Timber** (logging)
+- **DataStore** (session) and **kotlinx-serialization** — one serialization stack for both `loans.json`
+  parsing and **Navigation-Compose** type-safe routes
 - **Build logic** — `gradle/libs.versions.toml` version catalog + `build-logic` convention plugins
 
 ## Module graph
@@ -28,14 +29,14 @@ Dependencies flow inward only; `:core:designsystem` depends only on `:core:commo
 
 ```
 :app                  @HiltAndroidApp, single MainActivity, NavHost + NavigatorImpl, auth-gated start
-:feature:login        LoginScreen/ViewModel, form state, focus chain, SavedStateHandle
-:feature:home         HomeScreen/ViewModel, filtering, summary, retry, pull-to-refresh, logout
+:feature:login        LoginScreen/ViewModel, form state, focus chain (transient — no field persisted)
+:feature:home         HomeScreen/ViewModel, filtering, summary, logout (selected filter persisted)
 :core:ui              BaseViewModel<S>, UiEvent, LoanPresentationMapper, AppError→UiText
 :core:designsystem    KliqTheme (color/type/spacing/shape/elevation tokens + Material3 bridge), config-driven components
 :core:common          Result/AppError, DispatcherProvider, ValidationRule, Navigator, Tone, UiText, LoanFormatter  (pure JVM)
 :core:model           immutable Loan, enums, PortfolioFilter/Summary                                                (pure JVM)
 :domain               repository interfaces, use cases, LoanProcessingStrategy + LoanProcessor                      (pure JVM)
-:data                 DTO/mapper, MockLoanService (loans.json), repository impls, DataStore, Hilt modules
+:data                 DTO/mapper, LoanRemoteDataSource (loans.json), repository impls, DataStore, Hilt modules
 :core:testing         fakes, fixtures, MainDispatcherRule, TestDispatcherProvider
 build-logic           convention plugins (android app/library/compose, jvm library, hilt, feature)
 ```
@@ -51,51 +52,90 @@ build-logic           convention plugins (android app/library/compose, jvm libra
    is one new strategy + one binding.
 4. **Provider pattern** — semantic color / typography / spacing / shape / elevation tokens via
    `CompositionLocal`, a `ValidationRule` strategy, and a `LoanFormatter` for money/percent. No raw colors,
-   `.sp`, hardcoded dp, or `String.format` in screens/ViewModels.
-5. **BaseViewModel** — shared loading/error/one-shot-event plumbing + a `launchSafe` that rethrows
-   cancellation and routes errors; a single immutable `UiState` per screen.
+   `.sp`, or `String.format` in screens/ViewModels.
+5. **BaseViewModel** — shared loading (reference-counted, overlap-safe) / error / one-shot-event plumbing +
+   a `launchSafe` that rethrows cancellation and routes errors; a single immutable `UiState` per screen.
 6. **Form & focus chain** — `FormField` + specialized `EmailFormField`/`PasswordFormField`; email→IME-Next→
-   password focus transition; success/error borders and inline messages; field state driven by the ViewModel.
+   password focus transition; success/error borders and inline messages; the submit button is gated on the
+   `ValidationRule`s; field state is driven by the ViewModel.
 7. **Auth & session** — the assignment's `AuthService` role is the `AuthRepository` interface
    (`login`/`logout`), named for repository-pattern consistency with `LoanRepository`/`SessionRepository`,
-   backed by a mock service; plus a DataStore-backed `SessionRepository` exposing `Flow<Boolean>`; app
-   launch reads the session for the start destination; logout clears it.
+   backed by a mock; plus a DataStore-backed `SessionRepository` exposing `Flow<Boolean>`. App launch reads
+   the session for the start destination and a reactive auth gate (`AppViewModel`) routes Login↔Home; logout
+   clears the session.
 8. **Layered & modular** — the module graph above, wired by Hilt; Domain has zero Android types.
 9. **Unit tests** — strategies, lifecycle stages, the processor (ordering/edge cases on real records),
-   validation rules, the presentation mapper, both ViewModels (coroutines-test + Turbine + fakes), the
-   repository error taxonomy, and a Robolectric test that parses the real `loans.json`.
+   validation rules, the presentation mapper and the data mapper, both ViewModels (coroutines-test + fakes,
+   Turbine for Login's one-shot events), the repository error taxonomy, plus Hilt/Robolectric integration
+   tests for the strategy multibinding graph and the navigation executor.
 
 ## UI / UX
 
-- **Design tokens everywhere** — spacing/shape/elevation are tokenized like color/type; no magic dp.
+- **Design tokens everywhere** — spacing/shape/elevation are tokenized like color/type across screens and
+  components; no magic dp in production composables.
 - **Dark theme** — `KliqDarkColors` selected via `isSystemInDarkTheme()`, bridged onto Material3.
-- **Motion** — state `Crossfade`, animated list items, `NavHost` fade/slide transitions, `animateContentSize` on fields.
-- **Resilience** — error state with retry, pull-to-refresh, content-shaped shimmer skeletons, rich empty states.
-- **Edge-to-edge** + IME-aware, scrollable login.
+- **Resilience** — Home is a sealed `Loading`/`Error`/`Content` state: a centered progress indicator while
+  loading, an inline error message, and distinct empty states (empty portfolio vs. a filter with no
+  matches, the latter offering "Show all").
+- **Edge-to-edge** + IME-aware, scrollable login; `animateContentSize` on form fields.
 - **Accessibility** — TalkBack grouping & headings, AA-contrast status text tones, ≥48 dp touch targets,
   password-visibility state semantics, RTL-safe padding.
-- **Adaptive** — two-column grid on wide screens; dynamic-type-safe (single-line, ellipsized titles).
 - **Localized prose** — user-facing text flows through `UiText` string resources + `R.plurals`.
+
+> Visual polish is kept deliberately minimal — the brief weights architecture and code quality over UI flourish.
 
 ## Notable design decisions
 
 - **Behavior-preserving loan processing.** The new Strategy + stage pipeline reproduces the starter's
-  exact semantics (including intra-loop ordering), pinned by golden tests. Latent quirks (non-idempotency,
-  terminal `due_in` drift, lenient login validation) are preserved and documented rather than silently
-  changed — the task is a refactor, not a behavior change.
-- **One navigation mechanism.** ViewModels call `Navigator.navigate(...)`; `UiEvent` carries snackbars only.
+  exact semantics (including intra-loop ordering), pinned by tests. Latent quirks (non-idempotency,
+  terminal `due_in` drift, a mock backend that accepts any well-formed credentials) are preserved and
+  documented rather than silently changed — the task is a refactor, not a behavior change.
+- **Navigation: one system, two triggers.** ViewModels never touch `NavController`. Global/reactive
+  transitions (the auth gate — `AppViewModel` observing the session) route Login↔Home via a semantic
+  `Navigator` command channel, with back-stack policy (`popUpTo`/`inclusive`) owned by the tested
+  `NavCommandExecutor`, not the ViewModels. User-initiated forward navigation (e.g. a future loan
+  detail) is hoisted as NavHost lambdas per Google's multi-module guidance, never through a ViewModel.
+  `UiEvent` carries snackbars only. Routes are centralized in `core:common` at this scale; a larger
+  app would move them to feature API modules.
+- **One serialization stack.** kotlinx-serialization powers both type-safe nav routes and `loans.json`
+  parsing; being reflection-free it needs no R8/ProGuard keep rules. (The starter parsed JSON with an inline
+  `Gson`; that second stack was consolidated out.)
 - **Error taxonomy.** A sealed `AppError` (asset-missing / parse-failure / io / auth / unknown), each mapped
-  to a distinct user message; Gson failures are mapped at the data boundary.
-- **R8-ready.** Every `LoanDto` field carries `@SerializedName` plus a consumer keep-rule; minification is
-  off in this sample but the rules are in place for when it is enabled.
+  to a distinct user message; JSON parse failures are mapped at the data boundary.
+- **State holding.** Login is fully transient — no credential is ever persisted. Home persists only the
+  selected filter via `SavedStateHandle`. Action-loading (sign-in) uses the shared, reference-counted
+  `BaseViewModel.isLoading` rendered as a button spinner; initial content-loading uses Home's sealed
+  `Loading` phase — two different concerns, each modelled with the fitting representation.
 
-## Deliberately deferred (next steps)
+## Scaling beyond two screens
 
-Out of scope for an architecture-weighted take-home, noted for honesty:
+The module graph is deliberately a *platform* shape, not a two-screen shortcut — the intent is that new
+features slot in without touching existing modules:
 
-- **Screenshot tests (Paparazzi/Roborazzi)** and **instrumented Compose UI tests on a device** — the Compose
-  layer is already exercised by a Robolectric UI test (`LoginScreenTest`); pixel-diffing and on-device runs
-  are the next step but add most value with a controlled host/emulator.
+- **A new feature** (`:feature:loan-detail`, `:feature:settings`, …) depends only on `:domain` + `:core:*`,
+  never on another feature; `:app` is the single place routes are wired, so adding one doesn't ripple.
+- **A new data source** swaps behind the repository interface — `loans.json` is read through
+  `LoanRemoteDataSource`, so moving to a REST API or Room is a `:data` change while `:domain` and the
+  features stay put. The DTO → mapper → `Flow` repository seam is already network-shaped.
+- **A new loan type** is one `LoanProcessingStrategy` + one `@IntoMap` binding (Open/Closed); the processor
+  and existing strategies are untouched.
+- **The dependency rule is compiler-enforced** — `:domain` / `:core:model` / `:core:common` are pure-JVM
+  modules, so they physically cannot import Android, Compose, or any data technology.
+
+Intentionally **not** built — because matching scope to the brief is itself a design decision: a separate
+`:core:network` / `:core:database` / `:core:analytics`, a per-domain `:data` split, or feature `api/impl`
+modules. Those earn their keep at a larger feature count; for a static two-screen brief they would be empty
+ceremony. The seams above are where they would attach.
+
+## Deliberately deferred
+
+Scoped out for an architecture-weighted take-home, noted for honesty:
+
+- **Room / offline-first / WorkManager / a real network client** — the data source is a static bundled
+  asset (`loans.json`, per the brief), so persistence/sync machinery would be unjustified ceremony (see
+  the swap seam above).
+- **Compose UI / instrumented tests** (Robolectric or on-device) and **screenshot tests** (Paparazzi/
+  Roborazzi) — the unit suite covers logic; UI/pixel testing adds most value with a controlled host/emulator.
 - **Baseline Profiles / macrobenchmark** — negligible for a two-screen sample.
 
 ## Build & run
@@ -104,7 +144,6 @@ Out of scope for an architecture-weighted take-home, noted for honesty:
 ./gradlew :app:installDebug   # build & install
 ./gradlew test                # all unit tests
 ./gradlew detekt              # static analysis + ktlint formatting (auto-corrects)
-./gradlew koverHtmlReport     # aggregated test-coverage report
 ```
 
 Requires Android SDK (compileSdk 34), JDK 17+, minSdk 24. The Gradle wrapper is included.
@@ -113,7 +152,6 @@ Requires Android SDK (compileSdk 34), JDK 17+, minSdk 24. The Gradle wrapper is 
 
 - **detekt** (+ **detekt-formatting**/ktlint) for static analysis & formatting, configured Compose-pragmatically
   in `config/detekt/detekt.yml`, applied to every module; intentional exceptions are `@Suppress`ed with a reason.
-- **Kover** for aggregated test coverage across the domain/data/ui/feature modules.
 - **`.editorconfig`** as the single source of formatting rules.
 - **CI** (GitHub Actions, `.github/workflows/ci.yml`) runs the same gates — `test`, `detekt`,
-  `assembleDebug`, `assembleRelease` — on every push and PR.
+  `assembleDebug` — on every push and PR.

@@ -1,6 +1,5 @@
 package com.kliq.loanapp.core.testing
 
-import com.kliq.loanapp.core.common.log.Logger
 import com.kliq.loanapp.core.common.navigation.NavCommand
 import com.kliq.loanapp.core.common.navigation.Navigator
 import com.kliq.loanapp.core.model.Loan
@@ -61,14 +60,6 @@ class FakeLoanRepository(
         error?.let { throw it }
         emit(loans)
     }
-}
-
-/** Captures log calls so tests can assert the observability seam fired (or just stay silent). */
-class RecordingLogger : Logger {
-    val warnings = mutableListOf<String>()
-    val errors = mutableListOf<String>()
-    override fun warn(message: String, throwable: Throwable?) { warnings += message }
-    override fun error(message: String, throwable: Throwable?) { errors += message }
 }
 
 /** A fully-wired [LoanProcessor] with all four strategies, for use-case/ViewModel tests. */

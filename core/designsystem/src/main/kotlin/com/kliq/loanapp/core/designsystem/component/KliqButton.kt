@@ -28,9 +28,8 @@ private fun ButtonSize.height(sizes: KliqSizes): Dp = when (this) {
 }
 
 /**
- * Drives a button from a single immutable data class rather than many individual attributes —
- * the config-driven component pattern. The component owns its own sizing (touch target, width) so
- * call sites never patch it with layout modifiers.
+ * Config-driven button: a single immutable [ButtonConfig] drives it, and the component owns its own
+ * sizing (touch target, width) so call sites don't patch it with layout modifiers.
  */
 @Immutable
 data class ButtonConfig(
@@ -72,7 +71,7 @@ fun KliqButton(
             disabledContainerColor = if (isSecondary) colors.surface else container.copy(alpha = 0.4f),
             disabledContentColor = contentColor.copy(alpha = 0.6f),
         ),
-        // Subtle lift on filled styles for a premium feel; the bordered Secondary stays flat.
+        // Subtle lift on filled styles; the bordered Secondary stays flat.
         elevation = if (isSecondary) {
             null
         } else {
@@ -95,8 +94,6 @@ fun KliqButton(
         }
     }
 }
-
-/* ----- Specialized button wrappers (pre-configure the style; the Small/Medium/LargeLabel analog) ----- */
 
 @Composable
 fun PrimaryButton(

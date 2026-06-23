@@ -22,10 +22,8 @@ import com.kliq.loanapp.core.common.ui.Tone
 import com.kliq.loanapp.core.designsystem.theme.KliqTheme
 
 /**
- * A single design-system showcase, previewed in BOTH light and dark below. It is the one artifact a
- * reviewer can open to confirm the token system, every component variant, and — crucially — the dark
- * theme actually render, without installing the app. It also doubles as the natural surface for
- * future screenshot tests. Private + preview-only, so R8 strips it from release.
+ * Single design-system showcase, previewed in both light and dark, so a reviewer can confirm the
+ * tokens and every component variant without installing the app. Private + preview-only → R8-stripped.
  */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable

@@ -1,9 +1,5 @@
 package com.kliq.loanapp
 
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.CircularProgressIndicator
@@ -28,10 +24,8 @@ fun KliqApp(navigator: Navigator, startLoggedIn: Boolean) {
     val navController = rememberNavController()
     val lifecycleOwner = LocalLifecycleOwner.current
 
-    // The Navigator is the single runtime authority for navigation. Collection is tied to the
-    // STARTED lifecycle (not just the composition): commands emitted while the UI is stopped are
-    // not consumed mid-teardown — the buffered channel holds them and delivers once STARTED again
-    // (buffer-and-deliver-once, not a replay cache).
+    // Collected on the STARTED lifecycle (not just composition): the buffered channel holds commands
+    // emitted while stopped and delivers them once STARTED again, never mid-teardown.
     LaunchedEffect(navController, lifecycleOwner) {
         lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
             navigator.commands.collect(navController::execute)
@@ -43,10 +37,6 @@ fun KliqApp(navigator: Navigator, startLoggedIn: Boolean) {
         // Start destination is resolved ONCE from the session (see AppViewModel); runtime moves go
         // through the Navigator above.
         startDestination = if (startLoggedIn) KliqRoute.Home else KliqRoute.Login,
-        enterTransition = { fadeIn() + slideInHorizontally { it / 8 } },
-        exitTransition = { fadeOut() },
-        popEnterTransition = { fadeIn() },
-        popExitTransition = { fadeOut() + slideOutHorizontally { it / 8 } },
     ) {
         loginScreen()
         homeScreen()

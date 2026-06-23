@@ -4,8 +4,8 @@ import java.io.FileNotFoundException
 import java.io.IOException
 
 /**
- * Enumerated application error taxonomy. Each case is mapped to a distinct user-facing message and
- * retry affordance in the UI layer. Extends [Exception] so it can flow through [kotlin.Result].
+ * Enumerated application error taxonomy. Each case is mapped to a distinct user-facing message in
+ * the UI layer. Extends [Exception] so it can flow through [kotlin.Result].
  */
 sealed class AppError : Exception() {
     /** loans.json could not be located. */
@@ -27,7 +27,7 @@ sealed class AppError : Exception() {
 enum class AuthReason { INVALID_CREDENTIALS, UNKNOWN }
 
 /**
- * Generic mapping for JVM exceptions. Library-specific exceptions (e.g. Gson parse failures) are
+ * Generic mapping for JVM exceptions. Library-specific exceptions (e.g. JSON parse failures) are
  * mapped explicitly at their own boundary in the data layer before reaching here.
  */
 fun Throwable.toAppError(): AppError = when (this) {

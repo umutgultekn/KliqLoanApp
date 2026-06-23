@@ -11,10 +11,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import com.kliq.loanapp.core.designsystem.theme.KliqTheme
 
 /**
- * Semantic text roles. A screen says what a piece of text MEANS (a heading, an amount, a caption),
- * not how it looks — the role binds both the [TextStyle] and a sensible default color from the
- * theme tokens. Mirrors the "modular label" pattern: style/color live in one place, call sites stay
- * declarative, and a role re-tune propagates everywhere.
+ * Semantic text roles: a screen says what text MEANS (heading/amount/caption), not how it looks; the
+ * role binds both the [TextStyle] and a default color from the theme tokens.
  */
 enum class KliqTextStyle { Heading, Title, Amount, Body, Label, Caption, Badge }
 
@@ -42,8 +40,6 @@ fun KliqText(
         textAlign = textAlign,
     )
 }
-
-/* ----- Specialized wrappers (the Small/Medium/LargeLabel analog) ----- */
 
 @Composable
 fun HeadingText(text: String, modifier: Modifier = Modifier, color: Color = Color.Unspecified) =

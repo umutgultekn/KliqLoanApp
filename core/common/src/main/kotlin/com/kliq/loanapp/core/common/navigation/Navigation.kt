@@ -12,10 +12,8 @@ sealed interface KliqRoute {
 }
 
 /**
- * A SEMANTIC navigation intent emitted by ViewModels — "where to go", not "how". ViewModels know
- * nothing about routes or back-stack mechanics (popUpTo/inclusive); the executor in the app module
- * owns that routing policy. This keeps navigation decisions in the UI layer while ViewModels stay
- * framework-free and testable.
+ * A SEMANTIC navigation intent ("where", not "how"). ViewModels stay free of routes/back-stack
+ * mechanics; the executor in the app module owns that policy.
  */
 sealed interface NavCommand {
     /** Post-login: go to Home (the executor clears the auth back stack). */

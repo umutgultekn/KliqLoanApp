@@ -1,9 +1,8 @@
 package com.kliq.loanapp.core.model
 
 /**
- * Aggregate figures for the portfolio summary card. The aggregation is a domain calculation, so it
- * lives here ([from]) — not in the presentation mapper — keeping money/rate math in the pure,
- * unit-tested model and leaving the mapper a pure formatter.
+ * Aggregate figures for the portfolio summary card. Aggregation ([from]) lives here, not in the
+ * presentation mapper, keeping money/rate math in the pure, unit-tested model.
  */
 data class PortfolioSummary(
     val totalPrincipal: Money,

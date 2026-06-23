@@ -2,21 +2,18 @@ package com.kliq.loanapp.feature.home
 
 import androidx.lifecycle.SavedStateHandle
 import com.kliq.loanapp.core.common.format.DefaultLoanFormatter
-import com.kliq.loanapp.core.common.navigation.NavCommand
 import com.kliq.loanapp.core.common.result.AppError
 import com.kliq.loanapp.core.common.text.UiText
 import com.kliq.loanapp.core.model.Loan
 import com.kliq.loanapp.core.model.PortfolioFilter
 import com.kliq.loanapp.core.testing.FakeAuthRepository
 import com.kliq.loanapp.core.testing.FakeLoanRepository
-import com.kliq.loanapp.core.testing.FakeNavigator
 import com.kliq.loanapp.core.testing.FakeSessionRepository
 import com.kliq.loanapp.core.testing.LoanFixtures
 import com.kliq.loanapp.core.testing.MainDispatcherRule
 import com.kliq.loanapp.core.testing.testLoanProcessor
-import com.kliq.loanapp.core.ui.UiState
 import com.kliq.loanapp.core.ui.mapper.LoanPresentationMapper
-import com.kliq.loanapp.domain.usecase.GetProcessedPortfolioUseCase
+import com.kliq.loanapp.domain.usecase.GetProcessedLoansUseCase
 import com.kliq.loanapp.domain.usecase.LogoutUseCase
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -30,24 +27,23 @@ class HomeViewModelTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
 
-    private val navigator = FakeNavigator()
     private val session = FakeSessionRepository(initial = true)
 
-    // Logout flows through the use case -> FakeAuthRepository -> the shared session, so the existing
-    // session.current assertions still hold.
+    // Logout flows through the use case -> FakeAuthRepository -> the shared session, so the
+    // session.current assertions hold. The screen no longer navigates (the auth gate does).
     private val logout = LogoutUseCase(FakeAuthRepository(session = session))
     private val mapper = LoanPresentationMapper(DefaultLoanFormatter())
 
     private fun viewModel(loans: List<Loan>): HomeViewModel {
-        val useCase = GetProcessedPortfolioUseCase(FakeLoanRepository(loans = loans), testLoanProcessor())
-        return HomeViewModel(useCase, mapper, logout, navigator, SavedStateHandle())
+        val useCase = GetProcessedLoansUseCase(FakeLoanRepository(loans = loans), testLoanProcessor())
+        return HomeViewModel(useCase, mapper, logout, SavedStateHandle())
     }
 
-    /** The current content, asserted to be the loaded [UiState.Content] phase. */
-    private fun HomeViewModel.loaded(): HomeData {
-        val content = uiState.value.content
-        assertTrue("expected Content but was $content", content is UiState.Content)
-        return (content as UiState.Content<HomeData>).data
+    /** The current state, asserted to be the loaded [HomeUiState.Content] phase. */
+    private fun HomeViewModel.loaded(): HomeUiState.Content {
+        val state = uiState.value
+        assertTrue("expected Content but was $state", state is HomeUiState.Content)
+        return state as HomeUiState.Content
     }
 
     // After processing: Consumer Credit stays ACTIVE, Vehicle Finance stays OVERDUE, Commercial Credit stays DEFAULT.
@@ -91,61 +87,44 @@ class HomeViewModelTest {
     @Test
     fun `load failure produces an Error phase`() = runTest {
         val useCase =
-            GetProcessedPortfolioUseCase(FakeLoanRepository(error = AppError.AssetMissing), testLoanProcessor())
-        val vm = HomeViewModel(useCase, mapper, logout, navigator, SavedStateHandle())
-        assertTrue(vm.uiState.value.content is UiState.Error)
+            GetProcessedLoansUseCase(FakeLoanRepository(error = AppError.AssetMissing), testLoanProcessor())
+        val vm = HomeViewModel(useCase, mapper, logout, SavedStateHandle())
+        assertTrue(vm.uiState.value is HomeUiState.Error)
     }
 
     @Test
     fun `an empty portfolio is flagged`() = runTest {
-        val vm = viewModel(emptyList())
-        val content = vm.loaded()
+        val content = viewModel(emptyList()).loaded()
         assertTrue(content.cards.isEmpty())
         assertTrue(content.portfolioEmpty)
     }
 
     @Test
     fun `restores the persisted filter from SavedStateHandle`() = runTest {
-        val useCase = GetProcessedPortfolioUseCase(FakeLoanRepository(loans = sample), testLoanProcessor())
+        val useCase = GetProcessedLoansUseCase(FakeLoanRepository(loans = sample), testLoanProcessor())
         val vm = HomeViewModel(
-            useCase, mapper, logout, navigator,
+            useCase, mapper, logout,
             SavedStateHandle(mapOf(HomeViewModel.KEY_FILTER to PortfolioFilter.ACTIVE)),
         )
-        assertEquals(PortfolioFilter.ACTIVE, vm.uiState.value.selectedFilter)
+        assertEquals(PortfolioFilter.ACTIVE, vm.loaded().selectedFilter)
         assertEquals(1, vm.loaded().cards.size)
     }
 
     @Test
-    fun `retry recovers from a load error`() = runTest {
-        val repo = FakeLoanRepository(error = AppError.AssetMissing)
-        val vm = HomeViewModel(
-            GetProcessedPortfolioUseCase(repo, testLoanProcessor()), mapper, logout, navigator, SavedStateHandle(),
-        )
-        assertTrue(vm.uiState.value.content is UiState.Error)
-
-        repo.loans = sample
-        repo.error = null
-        vm.onRetry()
-
-        assertEquals(3, vm.loaded().cards.size)
-    }
-
-    @Test
-    fun `logout clicked shows confirmation without leaving`() = runTest {
+    fun `logout clicked shows confirmation without signing out`() = runTest {
         val vm = viewModel(sample)
         vm.onLogoutClicked()
-        assertTrue(vm.uiState.value.showLogoutConfirm)
-        assertTrue(session.current) // still logged in — only confirmed logout signs out
-        assertTrue(navigator.received.isEmpty())
+        assertTrue(vm.showLogoutConfirm.value)
+        assertTrue(session.current) // still logged in — only confirmed logout clears the session
     }
 
     @Test
-    fun `confirming logout clears the session and navigates to login`() = runTest {
+    fun `confirming logout clears the session`() = runTest {
         val vm = viewModel(sample)
         vm.onLogoutClicked()
         vm.onLogoutConfirmed()
-        assertFalse(vm.uiState.value.showLogoutConfirm)
+        assertFalse(vm.showLogoutConfirm.value)
+        // Clearing the session is what routes to Login (via the auth gate); the screen doesn't navigate.
         assertFalse(session.current)
-        assertEquals(NavCommand.ToLogin, navigator.last)
     }
 }

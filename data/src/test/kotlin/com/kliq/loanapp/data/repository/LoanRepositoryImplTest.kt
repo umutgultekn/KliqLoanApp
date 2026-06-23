@@ -1,8 +1,6 @@
 package com.kliq.loanapp.data.repository
 
-import com.google.gson.JsonSyntaxException
 import com.kliq.loanapp.core.common.result.AppError
-import com.kliq.loanapp.core.testing.RecordingLogger
 import com.kliq.loanapp.core.testing.TestDispatcherProvider
 import com.kliq.loanapp.data.datasource.LoanRemoteDataSource
 import com.kliq.loanapp.data.dto.LoanDto
@@ -10,6 +8,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
+import kotlinx.serialization.SerializationException
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -29,11 +28,9 @@ class LoanRepositoryImplTest {
         }
     }
 
-    private val logger = RecordingLogger()
-
     // Bind the repository to a dispatcher on runTest's scheduler so flowOn(io) runs deterministically.
     private fun TestScope.repository(remote: LoanRemoteDataSource) =
-        LoanRepositoryImpl(remote, TestDispatcherProvider(StandardTestDispatcher(testScheduler)), logger)
+        LoanRepositoryImpl(remote, TestDispatcherProvider(StandardTestDispatcher(testScheduler)))
 
     private val validDto = LoanDto("Consumer Credit", 8_500.0, 2.9, "active", 45, "personal")
     private val malformedDto =
@@ -48,14 +45,13 @@ class LoanRepositoryImplTest {
         assertEquals("Consumer Credit", loans[0].name)
     }
 
-    @Test fun `drops malformed records and logs the dropped count`() = runTest {
+    @Test fun `drops malformed records`() = runTest {
         val loans = repository(FakeRemote(listOf(validDto, malformedDto))).getLoans().first()
         assertEquals(1, loans.size)
-        assertEquals(1, logger.warnings.size)
     }
 
     @Test fun `maps malformed json to ParseFailure`() = runTest {
-        assertEquals(AppError.ParseFailure, loadError(FakeRemote(error = JsonSyntaxException("bad"))))
+        assertEquals(AppError.ParseFailure, loadError(FakeRemote(error = SerializationException("bad"))))
     }
 
     @Test fun `maps missing asset to AssetMissing`() = runTest {
